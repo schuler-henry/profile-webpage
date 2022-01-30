@@ -1,11 +1,13 @@
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import Head from 'next/head'
 import { Component } from 'react'
+import { WebPageController } from '../controller'
 import styles from '../styles/Login.module.css'
 import Header from './header'
 
 export interface LoginState {
-
+  username: string,
+  password: string,
 }
 
 export interface LoginProps extends WithRouterProps {
@@ -20,7 +22,8 @@ class Login extends Component<LoginProps, LoginState> {
   constructor (props: LoginProps) {
     super(props)
     this.state = {
-
+      username: "Admin",
+      password: "admin",
     }
   }
 
@@ -49,9 +52,20 @@ class Login extends Component<LoginProps, LoginState> {
         <main>
           <div className={styles.fieldDiv}>
             <h1>Login</h1>
-            <input type="text" placeholder="Username..." />
-            <input type="password" placeholder="Password..." />
-            <button>
+            <input 
+              type="text" 
+              placeholder="Username..." 
+              onChange={(e) => this.setState({username: e.target.value})}
+              value={this.state.username} />
+            <input 
+              type="password" 
+              placeholder="Password..."
+              onChange={(e) => this.setState({password: e.target.value})}
+              value={this.state.password} />
+            <button onClick={async () => {
+              if (await WebPageController.verifyUser(this.state.username, this.state.password)) {
+              router.push("/");
+            }}}>
               Login
             </button>
             <p>
