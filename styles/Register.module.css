@@ -1,0 +1,14 @@
+.fieldDiv {
+    width: 40%;
+    margin: auto;
+    padding: 10pt;
+    margin-top: 20vh;
+    border: solid;
+    border-radius: 2pt;
+    border-width: 2pt;
+    border-color: #00C0FF;
+}
+
+.fieldDiv * {
+    margin: 5pt 0;
+}

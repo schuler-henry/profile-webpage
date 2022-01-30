@@ -2,30 +2,30 @@ import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import Head from 'next/head'
 import { Component } from 'react'
 import { WebPageController } from '../controller'
-import styles from '../styles/Login.module.css'
+import styles from '../styles/Register.module.css'
 import Header from './header'
 
-export interface LoginState {
+export interface RegisterState {
   username: string,
   password: string,
-  credentialsInfo: boolean,
+  confirmPassword: string,
 }
 
-export interface LoginProps extends WithRouterProps {
+export interface RegisterProps extends WithRouterProps {
 
 }
 
 /**
- * @class Login Component Class
+ * @class Register Component Class
  * @component
  */
-class Login extends Component<LoginProps, LoginState> {
-  constructor (props: LoginProps) {
+class Register extends Component<RegisterProps, RegisterState> {
+  constructor (props: RegisterProps) {
     super(props)
     this.state = {
       username: "",
       password: "",
-      credentialsInfo: false,
+      confirmPassword: "",
     }
   }
 
@@ -39,58 +39,61 @@ class Login extends Component<LoginProps, LoginState> {
      */
     const { router } = this.props
 
-    const loginEnter = async (event: any) => {
+    const registerEnter = async (event: any) => {
       if (event.key.toLowerCase() === "enter") {
         event.preventDefault();
-        if (await WebPageController.verifyUser(this.state.username, this.state.password)) {
+        if (await WebPageController.registerUser(this.state.username, this.state.password, this.state.confirmPassword)) {
           router.push("/");
         }
-        this.setState({username: "", password: "", credentialsInfo: true})
+        this.setState({username: "", password: "", confirmPassword: ""})
       }
     }
 
     return (
       <div>
         <Head>
-          <title>Login</title>
-          <meta name="description" content="Login page." />
+          <title>Register</title>
+          <meta name="description" content="Register page." />
           <link rel="icon" href="/favicon.ico" />
         </Head>
 
         <header>
-          <Header isLoggedIn={true} />
+          <Header isLoggedIn={false} />
         </header>
 
         <main>
           <div className={styles.fieldDiv}>
-            <h1>Login</h1>
+            <h1>Register</h1>
             <input 
               type="text" 
               placeholder="Username..." 
               onChange={(e) => this.setState({username: e.target.value})}
               value={this.state.username}
-              onKeyDown={loginEnter} />
+              onKeyDown={registerEnter} />
             <input 
               type="password" 
               placeholder="Password..."
               onChange={(e) => this.setState({password: e.target.value})}
               value={this.state.password}
-              onKeyDown={loginEnter} />
-            <div hidden={!this.state.credentialsInfo} className={styles.error} >
-              Credentials incorrect!
-            </div>
+              onKeyDown={registerEnter} />
+            <input 
+              type="password" 
+              placeholder="Confirm password..."
+              onChange={(e) => this.setState({confirmPassword: e.target.value})}
+              value={this.state.confirmPassword}
+              onKeyDown={registerEnter} />
             <button onClick={async () => {
-              if (await WebPageController.verifyUser(this.state.username, this.state.password)) {
+              if (await WebPageController.registerUser(this.state.username, this.state.password, this.state.confirmPassword)) {
                 router.push("/");
               }
-              this.setState({username: "", password: "", credentialsInfo: true})
+              this.setState({username: "", password: "", confirmPassword: ""})
             }}>
-              Login
+              Register
             </button>
             <p>
               Or&nbsp;
-              <a onClick={() => router.push("/register")}>
-                register
+              <a onClick={() => router.push("/login")}>
+                login
               </a>
               &nbsp;instead.
             </p>
@@ -101,4 +104,4 @@ class Login extends Component<LoginProps, LoginState> {
   }
 }
 
-export default withRouter(Login)
+export default withRouter(Register)

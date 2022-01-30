@@ -15,7 +15,7 @@ export class SupabaseConnection {
    * @param {string} password the password to check
    * @returns {Promise<boolean>} a promise that resolves to an boolean that indicates if the username and password are correct
    */
-   public isUserValid = async (user: {id?: number, name?: string, password: string}): Promise<boolean> => {
+  public isUserValid = async (user: {id?: number, name?: string, password: string}): Promise<boolean> => {
     let supabaseData: any;
     let supabaseError: any;
 
@@ -59,4 +59,64 @@ export class SupabaseConnection {
       return true;
     }
   };
+
+  public doesUserExist = async (user: {id?: number, name?: string}): Promise<boolean> => {
+    let supabaseData: any;
+    let supabaseError: any;
+
+    if (user.id !== undefined) {
+      // check if user is valid with the userID
+
+      // fetch the data from the supabase database
+      const { data, error } = await SupabaseConnection.CLIENT
+        .from('User')
+        .select()
+        .eq('UserID', user.id);
+      
+      supabaseData = data;
+      supabaseError = error;
+
+    } else if (user.name !== undefined) {
+      // check if user is valid with the username
+
+      // fetch the data from the supabase database
+      const { data, error } = await SupabaseConnection.CLIENT
+        .from('User')
+        .select()
+        .eq('Username', user.name);
+
+      supabaseData = data;
+      supabaseError = error;
+
+    } else {
+      return true;
+    }
+
+    // check if data was received
+    if (supabaseData === null || supabaseError !== null || supabaseData.length === 0) {
+      // no user found -> return false
+      return false;
+    } else {
+      // user exists -> return true
+      return true;
+    }
+  }
+
+  /**
+   * 
+   * @param user user to register with name and password
+   * @returns {Promise<boolean>} true if registration was successfull, false if not
+   */
+  public registerUser = async (user: {name: string, password: string}): Promise<boolean> => {
+    const { data, error } = await SupabaseConnection.CLIENT
+      .from('User')
+      .insert([
+        { Username: user.name, Password: user.password },
+      ]);
+
+    if (data === null || error !== null || data.length === 0) {
+      return false
+    }
+    return true;
+  }
 }
