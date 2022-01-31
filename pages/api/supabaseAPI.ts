@@ -1,4 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import isUsernameValid from './users/requirements';
+import * as bcrypt from 'bcrypt';
 
 export class SupabaseConnection {
   private static CLIENT: SupabaseClient;
@@ -8,6 +10,28 @@ export class SupabaseConnection {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
     SupabaseConnection.CLIENT = createClient(supabaseUrl, supabaseAnonKey);
   }
+
+  /**
+   * Function to hash a password
+   * @param {string} password password to hash
+   * @returns {Promise<string>} hashed password
+   */
+  private hashPassword = async (password: string): Promise<string> => {
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltOrRounds);    
+    return hashedPassword
+  }
+
+  /**
+   * Function to check plain text with hash
+   * @param {string} clearPassword password as plain text
+   * @param {string} hashedpassword password as hash from db
+   * @returns {Promise<boolean>} true if password and hash match, flase if not
+   */
+  private checkPassword = async (clearPassword: string, hashedpassword: string): Promise<boolean> => {
+    return await bcrypt.compare(clearPassword, hashedpassword);
+  }
+
   /** 
    * API function to check if the username/userID and the password are correct 
    * @param {string} username the username to check
@@ -26,8 +50,7 @@ export class SupabaseConnection {
       const { data, error } = await SupabaseConnection.CLIENT
         .from('User')
         .select()
-        .eq('UserID', user.id)
-        .eq('Password', user.password);
+        .eq('UserID', user.id);
       
       supabaseData = data;
       supabaseError = error;
@@ -39,8 +62,7 @@ export class SupabaseConnection {
       const { data, error } = await SupabaseConnection.CLIENT
         .from('User')
         .select()
-        .eq('Username', user.name)
-        .eq('Password', user.password);
+        .eq('Username', user.name);
 
       supabaseData = data;
       supabaseError = error;
@@ -55,8 +77,11 @@ export class SupabaseConnection {
       // no users found -> user does not exist or password is wrong -> return false
       return false;
     } else {
-      // user exists -> return true
-      return true;
+      // user exists
+      // console.log(supabaseData[0].Password)
+      // console.log(supabaseData)
+
+      return this.checkPassword(user.password, supabaseData[0].Password);
     }
   };
 
@@ -108,14 +133,24 @@ export class SupabaseConnection {
    * @returns {Promise<boolean>} true if registration was successfull, false if not
    */
   public registerUser = async (user: {name: string, password: string}): Promise<boolean> => {
+
+    let userExists = await this.doesUserExist({name: user.name});
+
+    if (!isUsernameValid(user.name) || userExists) {
+      return false;
+    }
+
+    // hash password
+    let hashedPassword = await this.hashPassword(user.password);
+
     const { data, error } = await SupabaseConnection.CLIENT
       .from('User')
       .insert([
-        { Username: user.name, Password: user.password },
+        { Username: user.name, Password: hashedPassword },
       ]);
 
     if (data === null || error !== null || data.length === 0) {
-      return false
+      return false;
     }
     return true;
   }

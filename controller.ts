@@ -43,7 +43,7 @@ export class WebPageController {
    * @param {string} confirmPassword confirming the password
    * @returns {Promise<boolean>} true if registration was successfull, false if not
    */
-  public static registerUser = async (username: string, password: string, confirmPassword: string): Promise<boolean> => {
+  public static registerUser = async (username: string, password: string): Promise<boolean> => {
     let response = await fetch('./api/users/register', {
       method: 'POST',
       headers: {
@@ -52,7 +52,6 @@ export class WebPageController {
       body: JSON.stringify({
         username: username,
         password: password,
-        confirmPassword: confirmPassword,
       })
     });
     let data = await response.json();
