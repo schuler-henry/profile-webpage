@@ -42,11 +42,16 @@ class Register extends Component<RegisterProps, RegisterState> {
     const registerEnter = async (event: any) => {
       if (event.key.toLowerCase() === "enter") {
         event.preventDefault();
-        if (await WebPageController.registerUser(this.state.username, this.state.password, this.state.confirmPassword)) {
-          router.push("/");
-        }
-        this.setState({username: "", password: "", confirmPassword: ""})
+        registerVerification();
       }
+    }
+
+    const registerVerification = async () => {
+      if (await WebPageController.registerUser(this.state.username, this.state.password)) {
+        router.push("/");
+      }
+      this.setState({username: "", password: "", confirmPassword: ""});
+      document.getElementById("userInput")?.focus();
     }
 
     return (
@@ -67,6 +72,8 @@ class Register extends Component<RegisterProps, RegisterState> {
             <input 
               type="text" 
               placeholder="Username..." 
+              id='userInput'
+              autoFocus
               onChange={(e) => this.setState({username: e.target.value})}
               value={this.state.username}
               onKeyDown={registerEnter} />
@@ -83,7 +90,7 @@ class Register extends Component<RegisterProps, RegisterState> {
               value={this.state.confirmPassword}
               onKeyDown={registerEnter} />
             <button onClick={async () => {
-              if (await WebPageController.registerUser(this.state.username, this.state.password, this.state.confirmPassword)) {
+              if (await WebPageController.registerUser(this.state.username, this.state.password)) {
                 router.push("/");
               }
               this.setState({username: "", password: "", confirmPassword: ""})

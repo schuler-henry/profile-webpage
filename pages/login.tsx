@@ -42,12 +42,19 @@ class Login extends Component<LoginProps, LoginState> {
     const loginEnter = async (event: any) => {
       if (event.key.toLowerCase() === "enter") {
         event.preventDefault();
-        if (await WebPageController.verifyUser(this.state.username, this.state.password)) {
-          router.push("/");
-        }
-        this.setState({username: "", password: "", credentialsInfo: true})
+        loginVerification();
       }
     }
+
+    const loginVerification = async () => {
+      if (await WebPageController.verifyUser(this.state.username, this.state.password)) {
+        router.push("/");
+      }
+      this.setState({username: "", password: "", credentialsInfo: true})
+      document.getElementById("userInput")?.focus()
+    }
+
+
 
     return (
       <div>
@@ -67,6 +74,8 @@ class Login extends Component<LoginProps, LoginState> {
             <input 
               type="text" 
               placeholder="Username..." 
+              id='userInput'
+              autoFocus
               onChange={(e) => this.setState({username: e.target.value})}
               value={this.state.username}
               onKeyDown={loginEnter} />
@@ -79,12 +88,7 @@ class Login extends Component<LoginProps, LoginState> {
             <div hidden={!this.state.credentialsInfo} className={styles.error} >
               Credentials incorrect!
             </div>
-            <button onClick={async () => {
-              if (await WebPageController.verifyUser(this.state.username, this.state.password)) {
-                router.push("/");
-              }
-              this.setState({username: "", password: "", credentialsInfo: true})
-            }}>
+            <button onClick={loginVerification}>
               Login
             </button>
             <p>

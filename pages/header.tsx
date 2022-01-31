@@ -58,6 +58,7 @@ class Header extends Component<HeaderProps, HeaderState> {
 
         <main>
           <table className={styles.table}>
+            <tbody>
               <tr>
                   <td className={styles.td_left && styles.nav} 
                     onClick={() => router.push("/")
@@ -67,6 +68,7 @@ class Header extends Component<HeaderProps, HeaderState> {
                   <td className={styles.td_space}></td>
                   { loginButton }
               </tr>
+            </tbody>
           </table>
         </main>
 
