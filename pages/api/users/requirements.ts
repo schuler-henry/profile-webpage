@@ -29,9 +29,18 @@ function isUsernameValid(name: string): boolean {
 function isPasswordValid(password: string): boolean {
   /**
    * Requirements:
-   * Length: 
+   * Length: min. 8 characters
+   * Characters: min. 1 number, 1 uppercase character, 1 lowercase character, 1 special character
+   * Characters: only letters and numbers + !*#,;?+-_.=~^%(){}|:"/
    */
+  if (password.length >= 8) {
+    if (password.match(".*[0-9].*") && password.match(".*[A-Z].*") && password.match(".*[a-z].*") && password.match('.*[!,*,#,;,?,+,_,.,=,~,^,%,(,),{,},|,:,",/,\,,\-].*')) {
+      if (password.match('^[a-z,A-Z,0-9,!,*,#,;,?,+,_,.,=,~,^,%,(,),{,},|,:,",/,\,,\-]*$')) {
+        return true;
+      }
+    }
+  }
   return false;
 }
 
-export default isUsernameValid
+export { isUsernameValid, isPasswordValid }

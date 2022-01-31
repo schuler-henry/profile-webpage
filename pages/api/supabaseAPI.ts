@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import isUsernameValid from './users/requirements';
+import { isUsernameValid, isPasswordValid } from './users/requirements';
 import * as bcrypt from 'bcrypt';
 
 export class SupabaseConnection {
@@ -136,7 +136,7 @@ export class SupabaseConnection {
 
     let userExists = await this.doesUserExist({name: user.name});
 
-    if (!isUsernameValid(user.name) || userExists) {
+    if (!isUsernameValid(user.name) || !isPasswordValid(user.password) || userExists) {
       return false;
     }
 
