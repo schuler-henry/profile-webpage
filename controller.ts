@@ -14,6 +14,21 @@ export class WebPageController {
 
   }
 
+  public static doesUserExist = async (user: {id?: number, name?: string}): Promise<boolean> => {
+    let response = await fetch('./api/users/does_exist', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userID: user.id,
+        username: user.name
+      })
+    });
+    let data = await response.json();
+    return data.wasSuccessfull;
+  }
+
   /**
    * This is a function that checks whether the given credentials have a match in the database
    * @param {string} username the username of the user to be checked
