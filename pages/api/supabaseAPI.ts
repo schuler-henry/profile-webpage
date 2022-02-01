@@ -85,6 +85,11 @@ export class SupabaseConnection {
     }
   };
 
+  /**
+   * API function to check if the user exists
+   * @param {number, string} user User to check
+   * @returns {Promise<boolean>} True if user exists, false if not
+   */
   public doesUserExist = async (user: {id?: number, name?: string}): Promise<boolean> => {
     let supabaseData: any;
     let supabaseError: any;
@@ -128,7 +133,7 @@ export class SupabaseConnection {
   }
 
   /**
-   * 
+   * API function to register a user
    * @param user user to register with name and password
    * @returns {Promise<boolean>} true if registration was successfull, false if not
    */

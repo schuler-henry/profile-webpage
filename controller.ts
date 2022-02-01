@@ -14,6 +14,11 @@ export class WebPageController {
 
   }
 
+  /**
+   * This method checks the username for current username requirements
+   * @param {string} username username to validate with requirements
+   * @returns {Promise<boolean>} True if requirements are met, false if not
+   */
   public static isUsernameValid = async (username: string): Promise<boolean> => {
     let response = await fetch('./api/users/is_username_valid', {
       method: 'POST',
@@ -28,6 +33,11 @@ export class WebPageController {
     return data.wasSuccessfull;
   }
 
+  /**
+   * This method checks the password for current password requirements
+   * @param {string} password password to validate with requirements
+   * @returns {Promise<boolean>} True if requirements are met, false if not
+   */
   public static isPasswordValid = async (password: string): Promise<boolean> => {
     let response = await fetch('./api/users/is_password_valid', {
       method: 'POST',
