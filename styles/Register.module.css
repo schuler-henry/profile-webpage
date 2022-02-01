@@ -30,6 +30,45 @@
   border-radius: 2pt;
 }
 
+.inputRequirements {
+  animation: fadeIn .5s;
+  -moz-animation: fadeIn .5s; /* Firefox */
+  -webkit-animation: fadeIn .5s; /* Safari and Chrome */
+  -o-animation: fadeIn .5s; /* Opera */
+  color: rgb(253, 55, 55);
+  text-align: right;
+  margin-top: 0;
+}
+
+.flexBox {
+  display: flex;
+  width: 100%;
+}
+
+.loginInstead {
+  align-self: flex-start;
+}
+
+.showReq {
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.requirementsDiv {
+  animation: fadeIn .5s;
+  -moz-animation: fadeIn .5s; /* Firefox */
+  -webkit-animation: fadeIn .5s; /* Safari and Chrome */
+  -o-animation: fadeIn .5s; /* Opera */
+  width: 40%;
+  margin: auto;
+  padding: 10pt;
+  margin-top: 1vh;
+  border: solid;
+  border-radius: 2pt;
+  border-width: 2pt;
+  border-color: #00C0FF;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
