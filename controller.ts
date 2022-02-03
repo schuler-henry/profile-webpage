@@ -1,8 +1,8 @@
+import jwt from 'jsonwebtoken'
 /**
  * This is the controller of Profile-WebPage
  */
 export class WebPageController {
-  public data: any;
   constructor() {
     this.initialize()
   }
@@ -73,12 +73,26 @@ export class WebPageController {
   }
 
   /**
-   * This method checks whether the given credentials have a match in the database
-   * @param {string} username the username of the user to be checked
-   * @param {string} password the password of the user to be checked
-   * @returns {Promise<boolean>} true if the user is valid, false if the user is not valid
+   * This method extracts the usernem from the token and returns it.
+   * @param {string | null} token Token with user information
+   * @returns {string} Username if token contains username, else empty string
    */
-  public static verifyUser = async (username: string, password: string): Promise<boolean> => {
+  public static getUserFromToken = (token: string | null): string => {
+    if (token !== null) {
+      let content = jwt.decode(token)
+      if (typeof content === "object" && content !== null){
+        return content.username
+      }
+    }
+    return ""
+  }
+
+  /**
+   * This method checks whether the given token has a valid signature and user
+   * @param {string} token token to be verified
+   * @returns {Promise<boolean>} true if signature is valid and user exists, false if not
+   */
+  public static verifyUserByToken = async (token: string): Promise<boolean> => {
     // request backend for validation
     let response = await fetch('./api/users/verify', {
       method: 'POST',
@@ -86,12 +100,40 @@ export class WebPageController {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        username: username,
-        password: password
+        token: token,
       })
     });
     let data = await response.json();
     return data.wasSuccessfull;
+  }
+
+  /**
+   * This method logs a user in if there is a match with the database. Therfore a token is created which is stored in the browsers local storage.
+   * @param {string} username Username to log in
+   * @param {string} password Password for user
+   * @returns {Promise<boolean>} True if login was successfull, false if not
+   */
+  public static loginUser = async (username: string, password: string): Promise<boolean> => {
+    let response = await fetch('./api/users/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+      })
+    });
+    let data = await response.json();
+    console.log(data.userToken)
+    if (data.userToken === "") {
+      localStorage.removeItem("pwp.auth.token")
+      return false;
+    }
+
+    localStorage.setItem("pwp.auth.token", data.userToken)
+
+    return true;
   }
 
   /**
@@ -113,7 +155,19 @@ export class WebPageController {
       })
     });
     let data = await response.json();
+    if (data.wasSuccessfull) {
+      await WebPageController.loginUser(username, password);
+    }
     return data.wasSuccessfull;
+  }
+
+  /**
+   * This mehtod loggs out the current user.
+   * @returns {boolean} True if logout was successfull, false if not
+   */
+  public static logoutUser = (): boolean => {
+    localStorage.removeItem("pwp.auth.token")
+    return true;
   }
 }
 

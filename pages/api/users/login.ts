@@ -2,15 +2,16 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { SupabaseConnection } from "../supabaseAPI";
 
 type Data = {
-  wasSuccessfull: boolean;
+  userToken: string;
 }
 
 const supabaseConnection = new SupabaseConnection();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  let token = req.body.token;
+  let username = req.body.username;
+  let password = req.body.password;
 
-  let isValid = await supabaseConnection.isUserTokenValid(token);
+  let token = await supabaseConnection.loginUser({name: username, password: password});
 
-  res.status(200).json({ wasSuccessfull: isValid });
+  res.status(200).json({ userToken: token })
 }

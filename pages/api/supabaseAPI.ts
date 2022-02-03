@@ -1,14 +1,17 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { isUsernameValid, isPasswordValid } from './users/requirements';
+import jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 
 export class SupabaseConnection {
   private static CLIENT: SupabaseClient;
+  private static KEY: string;
 
   constructor() {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
     SupabaseConnection.CLIENT = createClient(supabaseUrl, supabaseAnonKey);
+    SupabaseConnection.KEY = "Krasser Schlüssel";
   }
 
   /**
@@ -119,7 +122,7 @@ export class SupabaseConnection {
       supabaseError = error;
 
     } else {
-      return true;
+      return false;
     }
 
     // check if data was received
@@ -130,6 +133,68 @@ export class SupabaseConnection {
       // user exists -> return true
       return true;
     }
+  }
+
+  /**
+   * This method validates a given token with the current key.
+   * @param {string} token Token to validate
+   * @returns {boolean} True if the token is valid, false if not
+   */
+  public isTokenValid = (token: string): boolean => {
+    try {
+      jwt.verify(token, SupabaseConnection.KEY);
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  /**
+   * This method extracts the username from a token
+   * @param {string} token Token to extract username from
+   * @returns {string} Username if token contains username, empty string if not
+   */
+  public getUsernameFromToken = (token: string): string => {
+    try {
+      let data = jwt.decode(token);
+      if (typeof data === "object" && data !== null) {
+        return data.username
+      }
+    } catch (error) {
+      
+    }
+    return "";
+  }
+
+  /**
+   * This method checks whether a given token is valid and contains an existing user
+   * @param {string} token Token with user credentials
+   * @returns {boolean} True if token contains a valid user, false if not
+   */
+  public isUserTokenValid = async (token: string): Promise<boolean> => {
+    if (this.isTokenValid(token)) {
+      if (await this.doesUserExist({name: this.getUsernameFromToken(token)})) {
+        console.log("user exists")
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * This method logs in a user if the given credentials are valid.
+   * @param {string | string} user User credentials to log in (name + password)
+   * @returns {string} Signed token with username if login was successfull, empty string if not
+   */
+  public loginUser = async (user: {name: string, password: string}): Promise<string> => {
+    if (await this.isUserValid({name: user.name, password: user.password})) {
+      let token = jwt.sign({
+        username: user.name,
+      }, SupabaseConnection.KEY, {expiresIn: '1 day'});
+      return token;
+    }
+    return "";
   }
 
   /**
