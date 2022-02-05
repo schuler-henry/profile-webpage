@@ -1,15 +1,15 @@
 import Head from 'next/head'
 import { Component } from 'react'
 import { WebPageController } from '../controller'
-import styles from '../styles/Home.module.css'
+import styles from '../styles/Impressum.module.css'
 import Header from './header'
 
-export interface HomeState {
+export interface ImpressumState {
   isLoggedIn: boolean | undefined,
   currentToken: string,
 }
 
-export interface HomeProps {
+export interface ImpressumProps {
 
 }
 
@@ -17,8 +17,8 @@ export interface HomeProps {
  * @class Home Component Class
  * @component
  */
-class Home extends Component<HomeProps, HomeState> {
-  constructor(props: HomeProps) {
+class Impressum extends Component<ImpressumProps, ImpressumState> {
+  constructor(props: ImpressumProps) {
     super(props)
     this.state = {
       isLoggedIn: undefined,
@@ -67,10 +67,10 @@ class Home extends Component<HomeProps, HomeState> {
       return (
         <div>
           <Head>
-            <title>Welcome</title>
-            <meta name="description" content="Welcome page." />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+          <title>Impressum</title>
+          <meta name="description" content="Impressum page." />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
 
           <header>
             <Header username={""} hideLogin={true} hideLogout={true} />
@@ -81,8 +81,8 @@ class Home extends Component<HomeProps, HomeState> {
       return (
         <div>
           <Head>
-            <title>Welcome</title>
-            <meta name="description" content="Welcome page." />
+            <title>Impressum</title>
+            <meta name="description" content="Impressum page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
@@ -92,8 +92,17 @@ class Home extends Component<HomeProps, HomeState> {
 
           <main>
             <div className={styles.content}>
-              <h1>Willkommen!</h1>
-              <p>Hier passiert noch garnichts.</p>
+              <h1>Impressum</h1>
+              <h2>Verantwortlich</h2>
+              <p>Henry Schuler</p>
+              <h2>Kontakt</h2>
+              <p>
+                Kastellstra&#223;e 69/1 <br />
+                88316 Isny im Allg&auml;u <br />
+                <br />
+                Telefon: &#43;49 1590 8481493 <br />
+                E-Mail: henryschuler&#64;outlook.de <br />
+              </p>
             </div>
           </main>
 
@@ -105,4 +114,4 @@ class Home extends Component<HomeProps, HomeState> {
   }
 }
 
-export default Home
+export default Impressum
