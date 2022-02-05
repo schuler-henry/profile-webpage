@@ -18,6 +18,10 @@ a:hover {
   cursor: pointer;
 }
 
+h1 {
+  text-decoration: underline;
+}
+
 * {
   box-sizing: border-box;
 }

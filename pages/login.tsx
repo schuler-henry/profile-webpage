@@ -46,7 +46,7 @@ class Login extends Component<LoginProps, LoginState> {
    * @param {any} event Event triggered by an EventListener
    */
   storageTokenListener = async (event: any) => {
-    if (event.key === "pwp.auth.token") {
+    if (event.key === WebPageController.userTokenName) {
       this.checkLoginState();
     }
   }
@@ -55,8 +55,8 @@ class Login extends Component<LoginProps, LoginState> {
    * This method checks and verifys the current user-token. If valid, it routes to root, if not, the isNotLoggedIn state is set to true.
    */
   async checkLoginState() {
-    let currentToken = localStorage.getItem("pwp.auth.token");
-    if (currentToken !== null && await WebPageController.verifyUserByToken(currentToken)) {
+    let currentToken = WebPageController.getUserToken();
+    if (await WebPageController.verifyUserByToken(currentToken)) {
       const { router } = this.props
       router.push("/")
     } else {

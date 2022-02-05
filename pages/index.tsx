@@ -5,7 +5,7 @@ import styles from '../styles/Home.module.css'
 import Header from './header'
 
 export interface HomeState {
-  isLoggedIn: boolean,
+  isLoggedIn: boolean | undefined,
   currentToken: string,
 }
 
@@ -21,7 +21,7 @@ class Home extends Component<HomeProps, HomeState> {
   constructor(props: HomeProps) {
     super(props)
     this.state = {
-      isLoggedIn: false,
+      isLoggedIn: undefined,
       currentToken: "",
     }
   }
@@ -40,7 +40,7 @@ class Home extends Component<HomeProps, HomeState> {
    * @param {any} event Event triggered by an EventListener
    */
   storageTokenListener = async (event: any) => {
-    if (event.key === "pwp.auth.token") {
+    if (event.key === WebPageController.userTokenName) {
       this.updateLoginState();
     }
   }
@@ -50,12 +50,10 @@ class Home extends Component<HomeProps, HomeState> {
    * @returns Nothing
    */
   async updateLoginState() {
-    let currentToken = localStorage.getItem("pwp.auth.token");
-    if (currentToken !== null) {
-      if (await WebPageController.verifyUserByToken(currentToken)) {
-        this.setState({isLoggedIn: true, currentToken: currentToken})
-        return
-      }
+    let currentToken = WebPageController.getUserToken();
+    if (await WebPageController.verifyUserByToken(currentToken)) {
+      this.setState({isLoggedIn: true, currentToken: currentToken})
+      return
     }
     this.setState({isLoggedIn: false})
   }
@@ -65,30 +63,45 @@ class Home extends Component<HomeProps, HomeState> {
    * @returns JSX Output
    */
   render() {
-    return (
-      <div>
-        <Head>
-          <title>Welcome</title>
-          <meta name="description" content="Welcome page." />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
+    if (this.state.isLoggedIn === undefined) {
+      return (
+        <div>
+          <Head>
+            <title>Welcome</title>
+            <meta name="description" content="Welcome page." />
+            <link rel="icon" href="/favicon.ico" />
+          </Head>
 
-        <header>
-          <Header username={WebPageController.getUserFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
-        </header>
+          <header>
+            <Header username={""} hideLogin={true} hideLogout={true} />
+          </header>
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          <Head>
+            <title>Welcome</title>
+            <meta name="description" content="Welcome page." />
+            <link rel="icon" href="/favicon.ico" />
+          </Head>
 
-        <main>
-          <div className={styles.content}>
-            <h1>Hallo</h1>
-            <p>Hier passiert noch garnichts.</p>
-            {String(this.state.isLoggedIn)}
-          </div>
-        </main>
+          <header>
+            <Header username={WebPageController.getUserFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
+          </header>
 
-        <footer>
-        </footer>
-      </div>
-    )
+          <main>
+            <div className={styles.content}>
+              <h1>Willkommen!</h1>
+              <p>Hier passiert noch garnichts.</p>
+            </div>
+          </main>
+
+          <footer>
+          </footer>
+        </div>
+      )
+    }
   }
 }
 

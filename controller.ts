@@ -71,7 +71,7 @@ export class WebPageController {
    * @returns {string} token of the currently logged in user
    */
   public static getUserToken = (): string => {
-    let token = localStorage.getItem(this.userTokenName);
+    let token = localStorage.getItem(WebPageController.userTokenName);
     if (token !== null) {
       return token;
     }
