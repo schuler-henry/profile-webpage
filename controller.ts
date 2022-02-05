@@ -3,14 +3,8 @@ import jwt from 'jsonwebtoken'
  * This is the controller of Profile-WebPage
  */
 export class WebPageController {
+  public static userTokenName: string = "pwp.auth.token";
   constructor() {
-    this.initialize()
-  }
-
-  /**
-   * This method is used to initialize the controller
-   */
-  public async initialize() {
 
   }
 
@@ -73,16 +67,26 @@ export class WebPageController {
   }
 
   /**
+   * This method returns the current authentication token
+   * @returns {string} token of the currently logged in user
+   */
+  public static getUserToken = (): string => {
+    let token = localStorage.getItem(this.userTokenName);
+    if (token !== null) {
+      return token;
+    }
+    return "";
+  }
+
+  /**
    * This method extracts the usernem from the token and returns it.
-   * @param {string | null} token Token with user information
+   * @param {string} token Token with user information
    * @returns {string} Username if token contains username, else empty string
    */
-  public static getUserFromToken = (token: string | null): string => {
-    if (token !== null) {
-      let content = jwt.decode(token)
-      if (typeof content === "object" && content !== null){
-        return content.username
-      }
+  public static getUserFromToken = (token: string): string => {
+    let content = jwt.decode(token)
+    if (typeof content === "object" && content !== null) {
+      return content.username
     }
     return ""
   }
@@ -94,7 +98,7 @@ export class WebPageController {
    */
   public static verifyUserByToken = async (token: string): Promise<boolean> => {
     // request backend for validation
-    let response = await fetch('./api/users/verify', {
+    let response = await fetch('./api/users/verify_token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -140,7 +144,6 @@ export class WebPageController {
    * This method registers a user to the database
    * @param {string} username the username of the user to be created
    * @param {string} password the password of the user to be created
-   * @param {string} confirmPassword confirming the password
    * @returns {Promise<boolean>} true if registration was successfull, false if not
    */
   public static registerUser = async (username: string, password: string): Promise<boolean> => {

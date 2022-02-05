@@ -47,13 +47,7 @@ class Login extends Component<LoginProps, LoginState> {
    */
   storageTokenListener = async (event: any) => {
     if (event.key === "pwp.auth.token") {
-      let currentToken = event.newValue;
-      if (currentToken !== null) {
-        if (await WebPageController.verifyUserByToken(currentToken)) {
-          const { router } = this.props
-          router.push("/")
-        }
-      }
+      this.checkLoginState();
     }
   }
 
@@ -62,13 +56,12 @@ class Login extends Component<LoginProps, LoginState> {
    */
   async checkLoginState() {
     let currentToken = localStorage.getItem("pwp.auth.token");
-    if (currentToken !== null) {
-      if (await WebPageController.verifyUserByToken(currentToken)) {
-        const { router } = this.props
-        router.push("/")
-      }
+    if (currentToken !== null && await WebPageController.verifyUserByToken(currentToken)) {
+      const { router } = this.props
+      router.push("/")
+    } else {
+      this.setState({isNotLoggedIn: true})
     }
-    this.setState({isNotLoggedIn: true})
   }
 
   /**

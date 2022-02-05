@@ -80,21 +80,21 @@ class Header extends Component<HeaderProps, HeaderState> {
 
     return (
       <div>
-        <Head>
-          <title>Header</title>
-          <meta name="description" content="Header." />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-
         <main>
           <table className={styles.table}>
             <tbody>
               <tr>
                   <td 
                     className={styles.td_left && styles.nav} 
-                    onClick={() => router.push("/")
-                  }>
+                    onClick={() => router.push("/")}
+                  >
                     Home
+                  </td>
+                  <td
+                    className={styles.td_left && styles.nav}
+                    onClick={() => router.push("/impressum")}
+                  >
+                    Impressum
                   </td>
                   <td className={styles.td_space}></td>
                   { username }
@@ -104,7 +104,6 @@ class Header extends Component<HeaderProps, HeaderState> {
             </tbody>
           </table>
         </main>
-
       </div>
     )
   }
