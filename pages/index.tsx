@@ -2,7 +2,8 @@ import Head from 'next/head'
 import { Component } from 'react'
 import { WebPageController } from '../controller'
 import styles from '../styles/Home.module.css'
-import Header from './header'
+import Header from '../components/header'
+import Footer from '../components/footer'
 
 export interface HomeState {
   isLoggedIn: boolean | undefined,
@@ -87,7 +88,7 @@ class Home extends Component<HomeProps, HomeState> {
           </Head>
 
           <header>
-            <Header username={WebPageController.getUserFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
+            <Header username={WebPageController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
           </header>
 
           <main>
@@ -98,6 +99,7 @@ class Home extends Component<HomeProps, HomeState> {
           </main>
 
           <footer>
+            <Footer />
           </footer>
         </div>
       )

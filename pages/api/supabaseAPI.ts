@@ -2,6 +2,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { isUsernameValid, isPasswordValid } from './users/requirements';
 import jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
+import { IUser } from '../../interfaces';
 
 export class SupabaseConnection {
   private static CLIENT: SupabaseClient;
@@ -165,6 +166,31 @@ export class SupabaseConnection {
       
     }
     return "";
+  }
+
+  /**
+   * This method returns a filled IUser object for the given User.
+   * @param {string} token Token to get IUser object from
+   * @returns {Promise<IUser>} IUser object of username, empty IUser if token invalid
+   */
+  public getIUserFromToken = async (token: string): Promise<IUser> => {
+    let returnUser: IUser = {};
+    if (this.isTokenValid(token)) {
+      const { data, error } = await SupabaseConnection.CLIENT
+        .from('User')
+        .select()
+        .eq('Username', this.getUsernameFromToken(token));
+
+      if (data === null || error !== null || data.length === 0) {
+        return returnUser;
+      }
+      returnUser.id = data[0].UserID;
+      returnUser.name = data[0].Username;
+      returnUser.hashedPassword = data[0].Password;
+      returnUser.accessLevel = data[0].AccessLevel;
+      return returnUser;
+    }
+    return returnUser;
   }
 
   /**

@@ -3,7 +3,8 @@ import Head from 'next/head'
 import { Component } from 'react'
 import { WebPageController } from '../controller'
 import styles from '../styles/Register.module.css'
-import Header from './header'
+import Header from '../components/header'
+import Footer from '../components/footer'
 
 export interface RegisterState {
   isNotLoggedIn: boolean,
@@ -157,7 +158,7 @@ class Register extends Component<RegisterProps, RegisterState> {
             <Header username={""} hideLogin={false} hideLogout={true} />
           </header>
 
-          <main>
+          <main className={styles.field}>
             <div className={styles.fieldDiv}>
               <h1>Register</h1>
               <input 
@@ -236,6 +237,10 @@ class Register extends Component<RegisterProps, RegisterState> {
               </ul>
             </div>
           </main>
+
+          <footer>
+            <Footer />
+          </footer>
         </div>
       )
     } else {

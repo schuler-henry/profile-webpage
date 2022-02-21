@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { IUser } from './interfaces';
 /**
  * This is the controller of Profile-WebPage
  */
@@ -79,16 +80,35 @@ export class WebPageController {
   }
 
   /**
-   * This method extracts the usernem from the token and returns it.
+   * This method extracts the username from the token and returns it.
    * @param {string} token Token with user information
    * @returns {string} Username if token contains username, else empty string
    */
-  public static getUserFromToken = (token: string): string => {
+  public static getUsernameFromToken = (token: string): string => {
     let content = jwt.decode(token)
     if (typeof content === "object" && content !== null) {
       return content.username
     }
     return ""
+  }
+
+  /**
+   * This method returns a filled IUser object for the given user.
+   * @param {string} token Token of the user
+   * @returns {Promise<IUser>} IUser object with all credentials of the user from the token, empty IUser if token not valid
+   */
+  public static getIUserFromToken = async (token: string): Promise<IUser> => {
+    let response = await fetch('./api/users/get_iuser', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+      })
+    });
+    let data = await response.json();
+    return data.user;
   }
 
   /**

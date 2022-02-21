@@ -1,16 +1,19 @@
+import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import Head from 'next/head'
 import { Component } from 'react'
 import { WebPageController } from '../controller'
-import styles from '../styles/Impressum.module.css'
+import { IUser } from '../interfaces'
+import styles from '../styles/Profile.module.css'
 import Header from '../components/header'
 import Footer from '../components/footer'
 
-export interface ImpressumState {
+export interface ProfileState {
   isLoggedIn: boolean | undefined,
   currentToken: string,
+  currentUser: IUser | undefined,
 }
 
-export interface ImpressumProps {
+export interface ProfileProps extends WithRouterProps {
 
 }
 
@@ -18,18 +21,20 @@ export interface ImpressumProps {
  * @class Home Component Class
  * @component
  */
-class Impressum extends Component<ImpressumProps, ImpressumState> {
-  constructor(props: ImpressumProps) {
+class Profile extends Component<ProfileProps, ProfileState> {
+  constructor(props: ProfileProps) {
     super(props)
     this.state = {
       isLoggedIn: undefined,
       currentToken: "",
+      currentUser: undefined,
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.updateLoginState();
     window.addEventListener('storage', this.storageTokenListener)
+    this.setState({ currentUser: await WebPageController.getIUserFromToken(WebPageController.getUserToken()) });
   }
 
   componentWillUnmount() {
@@ -54,9 +59,10 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
     let currentToken = WebPageController.getUserToken();
     if (await WebPageController.verifyUserByToken(currentToken)) {
       this.setState({isLoggedIn: true, currentToken: currentToken})
-      return
+    } else {
+      const { router } = this.props
+      router.push("/login")
     }
-    this.setState({isLoggedIn: false})
   }
 
   /**
@@ -68,8 +74,8 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
       return (
         <div>
           <Head>
-          <title>Impressum</title>
-          <meta name="description" content="Impressum page." />
+          <title>Profile</title>
+          <meta name="description" content="Profile page." />
           <link rel="icon" href="/favicon.ico" />
         </Head>
 
@@ -79,11 +85,23 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
         </div>
       )
     } else {
+
+      let getAccessString = (accessLevel: number | undefined): string => {
+        switch (accessLevel) {
+          case 0:
+            return "User";
+          case 1:
+            return "Admin";
+          default:
+            return "unavailable";
+        }
+      }
+
       return (
         <div>
           <Head>
-            <title>Impressum</title>
-            <meta name="description" content="Impressum page." />
+            <title>Profile</title>
+            <meta name="description" content="Profile page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
@@ -93,18 +111,22 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
 
           <main>
             <div className={styles.content}>
-              <h1>Impressum</h1>
-              <h2>Verantwortlich</h2>
-              <p>Henry Schuler</p>
-              <h2>Kontakt</h2>
-              <p>
-                Henry Schuler <br />
-                Kastellstra&#223;e 69/1 <br />
-                88316 Isny im Allg&auml;u <br />
-                <br />
-                Telefon: &#43;49 1590 8481493 <br />
-                E-Mail: henryschuler&#64;outlook.de <br />
-              </p>
+              <h1>User: {WebPageController.getUsernameFromToken(WebPageController.getUserToken())}</h1>
+              <h2>Information</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <td>ID:</td> 
+                    <td>{this.state.currentUser?.id || "unavailable"}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Access Level:</td>
+                    <td>{getAccessString(this.state.currentUser?.accessLevel)}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </main>
 
@@ -117,4 +139,4 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
   }
 }
 
-export default Impressum
+export default withRouter(Profile)

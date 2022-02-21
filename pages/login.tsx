@@ -3,7 +3,8 @@ import Head from 'next/head'
 import { Component } from 'react'
 import { WebPageController } from '../controller'
 import styles from '../styles/Login.module.css'
-import Header from './header'
+import Header from '../components/header'
+import Footer from '../components/footer'
 
 export interface LoginState {
   isNotLoggedIn: boolean,
@@ -109,7 +110,7 @@ class Login extends Component<LoginProps, LoginState> {
             <Header username={""} hideLogin={true} hideLogout={true} />
           </header>
 
-          <main>
+          <main className={styles.field}>
             <div className={styles.fieldDiv}>
               <h1>Login</h1>
               <input 
@@ -141,6 +142,10 @@ class Login extends Component<LoginProps, LoginState> {
               </p>
             </div>
           </main>
+
+          <footer>
+            <Footer />
+          </footer>
         </div>
       )
     } else {

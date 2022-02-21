@@ -1,4 +1,3 @@
-import Head from 'next/head'
 import { withRouter } from 'next/router'
 import { WithRouterProps } from 'next/dist/client/with-router'
 import { Component } from 'react'
@@ -37,17 +36,20 @@ class Header extends Component<HeaderProps, HeaderState> {
      */
     const { router } = this.props
 
-    let username;
+    let username: any;
 
     if (this.props.hideLogout) {
       username = <></>
     } else {
-      username = <td className={styles.td_right && styles.nav}>
+      username = <td 
+                  className={styles.td_right && styles.nav}
+                  onClick={() => router.push("/profile")}
+                >
                   {this.props.username}
                 </td>
     }
 
-    let loginButton;
+    let loginButton: any;
 
     if (this.props.hideLogin) {
       loginButton = <></>
@@ -61,7 +63,7 @@ class Header extends Component<HeaderProps, HeaderState> {
                     </td>
     }
 
-    let logoutButton;
+    let logoutButton: any;
 
     if (this.props.hideLogout) {
       logoutButton = <></>
@@ -80,30 +82,28 @@ class Header extends Component<HeaderProps, HeaderState> {
 
     return (
       <div>
-        <main>
-          <table className={styles.table}>
-            <tbody>
-              <tr>
-                  <td 
-                    className={styles.td_left && styles.nav} 
-                    onClick={() => router.push("/")}
-                  >
-                    Home
-                  </td>
-                  <td
-                    className={styles.td_left && styles.nav}
-                    onClick={() => router.push("/impressum")}
-                  >
-                    Impressum
-                  </td>
-                  <td className={styles.td_space}></td>
-                  { username }
-                  { loginButton }
-                  { logoutButton }
-              </tr>
-            </tbody>
-          </table>
-        </main>
+        <table className={styles.table}>
+          <tbody>
+            <tr>
+                <td 
+                  className={styles.td_left && styles.nav} 
+                  onClick={() => router.push("/")}
+                >
+                  Home
+                </td>
+                <td
+                  className={styles.td_left && styles.nav}
+                  onClick={() => router.push("/impressum")}
+                >
+                  Impressum
+                </td>
+                <td className={styles.td_space}></td>
+                { username }
+                { loginButton }
+                { logoutButton }
+            </tr>
+          </tbody>
+        </table>
       </div>
     )
   }
