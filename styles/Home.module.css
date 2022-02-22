@@ -1,3 +1,42 @@
-.content {
-    padding-left: 10pt;
+.contentOne {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 5rem;
+  padding: 40pt;
+
+}
+
+.contentOne h1 {
+  text-decoration: solid;
+  font-size: 40pt;
+  font-family: 'Red Hat Mono', monospace;
+  padding-right: 5pt;
+  margin-top: 0;
+}
+
+.cursor::after {
+  content:'';
+  display:inline-block;
+  margin-left:3px;
+  background-color:white;
+  animation-name:blink;
+  animation-duration:0.5s;
+  animation-iteration-count: infinite;
+  height: 40pt;
+  width: 1ch;
+}
+  
+@keyframes blink {
+  0% {
+    opacity:1;
+  }
+  49% {
+    opacity:1;
+  }
+  50% {
+    opacity:0;
+  }
+  100% {
+    opacity:0;
+  }
 }

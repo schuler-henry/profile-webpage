@@ -7,6 +7,7 @@ import { WebPageController } from '../controller'
 import InstagramIcon from '../public/Instagram.png'
 import YoutubeIcon from '../public/Youtube.png'
 import GitHubIcon from '../public/GitHub.png'
+import DevChatIcon from '../public/Dev-Chat.png'
 
 export interface FooterState {
 
@@ -70,6 +71,22 @@ class Footer extends Component<FooterProps, FooterState> {
                   height={40}
                   width={40}
                   alt='Youtube Icon'
+                />
+              </a>
+            </div>
+          </div>
+          <div className={styles.footerElement}>
+            <h4>
+              Projects
+            </h4>
+            <div className={styles.socialMedia}>
+              <a href="https://dev-chat.me">
+                <Image 
+                  src={DevChatIcon} 
+                  objectFit='contain'
+                  height={40}
+                  width={40}
+                  alt='DEV-CHAT Icon'
                 />
               </a>
             </div>

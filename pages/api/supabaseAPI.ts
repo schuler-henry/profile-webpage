@@ -146,7 +146,7 @@ export class SupabaseConnection {
       jwt.verify(token, SupabaseConnection.KEY);
       return true;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return false;
     }
   }
@@ -201,7 +201,7 @@ export class SupabaseConnection {
   public isUserTokenValid = async (token: string): Promise<boolean> => {
     if (this.isTokenValid(token)) {
       if (await this.doesUserExist({name: this.getUsernameFromToken(token)})) {
-        console.log("user exists")
+        // console.log("user exists")
         return true;
       }
     }

@@ -1,5 +1,5 @@
 .footer {
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   column-gap: 9rem;
   display: grid;
   padding: 20pt 10% 40pt 10%;
