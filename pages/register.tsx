@@ -181,7 +181,7 @@ class Register extends Component<RegisterProps, RegisterState> {
                 type="password" 
                 placeholder="Password..."
                 onChange={async (e) => {
-                  await this.setState({password: e.target.value});
+                  this.setState({password: e.target.value});
                   updateFeedbackMessage();
                   updatePasswordValid();
                 }}
@@ -194,7 +194,7 @@ class Register extends Component<RegisterProps, RegisterState> {
                 type="password" 
                 placeholder="Confirm password..."
                 onChange={async (e) => {
-                  await this.setState({confirmPassword: e.target.value});
+                  this.setState({confirmPassword: e.target.value});
                   updateFeedbackMessage();
                 }}
                 value={this.state.confirmPassword}

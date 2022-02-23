@@ -12,7 +12,7 @@ export class SupabaseConnection {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
     SupabaseConnection.CLIENT = createClient(supabaseUrl, supabaseAnonKey);
-    SupabaseConnection.KEY = "Krasser Schlüssel";
+    SupabaseConnection.KEY = process.env.HASH_KEY;
   }
 
   /**

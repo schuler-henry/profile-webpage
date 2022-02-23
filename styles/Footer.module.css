@@ -25,3 +25,7 @@
   opacity: 80%;
   transition: 0.3s;
 }
+
+.clickable {
+  cursor: pointer;
+}
