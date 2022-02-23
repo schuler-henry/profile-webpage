@@ -7,6 +7,7 @@ import styles from '../styles/Home.module.css'
 import Header from '../components/header'
 import Footer from '../components/footer'
 import DevChatLogo from '../public/Dev-Chat.png'
+import GitHubIcon from '../public/GitHub.png'
 
 export interface HomeState {
   isLoggedIn: boolean | undefined,
@@ -134,16 +135,30 @@ class Home extends Component<HomeProps, HomeState> {
               <div>
                 <h1 className={this.state.cursorClass}>{this.state.headerText}</h1>
               </div>
-              <div>
-                <Image 
-                  src={DevChatLogo} 
-                  objectFit='contain'
-                  sizes='fitContent'
-                  height={100}
-                  width={100}
-                  alt='Dev-Chat Logo'
-                  onClick={() => { router.push("https://dev-chat.me")}}
-                />
+              <div className={styles.slideWrapper}>
+                <div className={`${styles.slide} ${styles.slideOne}`}>
+                  Hallo
+                </div>
+                <div className={`${styles.slide} ${styles.slideTwo}`}>
+                  <div className={styles.slideIcon}>
+                    <Image 
+                      src={GitHubIcon} 
+                      objectFit='contain'
+                      sizes='fitContent'
+                      layout='fill'
+                      alt='GitHub Icon'
+                    />
+                  </div>
+                </div>
+                <div className={`${styles.slide} ${styles.slideThree}`}>
+                  <Image 
+                    src={DevChatLogo} 
+                    objectFit='contain'
+                    sizes='fitContent'
+                    layout='fill'
+                    alt='Dev-Chat Logo'
+                  />
+                </div>
               </div>
             </div>
           </main>

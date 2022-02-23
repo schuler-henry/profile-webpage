@@ -81,7 +81,7 @@ class Footer extends Component<FooterProps, FooterState> {
                     objectFit='contain'
                     height={40}
                     width={40}
-                    alt='Youtube Icon'
+                    alt='GitHub Icon'
                   />
                 </div>
               </Link>
