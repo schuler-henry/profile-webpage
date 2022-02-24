@@ -30,7 +30,6 @@ class Login extends Component<LoginProps, LoginState> {
       password: "",
       credentialsInfo: false,
     }
-    
   }
 
   componentDidMount() {
