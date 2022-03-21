@@ -1,17 +1,23 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { SupabaseConnection } from "../supabaseAPI"
+import { BackEndController } from "../../../controller/backEndController";
 
 type Data = {
-  wasSuccessfull: boolean;
+  wasSuccessful: boolean,
 }
 
-const supabaseConnection = new SupabaseConnection();
+const BACK_END_CONTROLLER = new BackEndController();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  let username = req.body.username;
-  let password = req.body.password;
+/**
+ * Api Route to register a user
+ * @category API
+ */
+async function registerHandler(req: NextApiRequest, res: NextApiResponse<Data>) {
+  const username: string = req.body.username;
+  const password: string = req.body.password;
 
-  let userCreate = await supabaseConnection.registerUser({name: username, password: password})
+  const userCreate: boolean = await BACK_END_CONTROLLER.handleRegisterUser(username, password);
 
-  res.status(200).json({ wasSuccessfull: userCreate })
+  res.status(200).json({ wasSuccessful: userCreate })
 }
+
+export default registerHandler;

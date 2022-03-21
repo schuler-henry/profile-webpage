@@ -1,16 +1,16 @@
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import Head from 'next/head'
 import { Component } from 'react'
-import { WebPageController } from '../controller'
-import { IUser } from '../interfaces'
+import { FrontEndController } from '../controller/frontEndController'
+import { User } from '../interfaces'
 import styles from '../styles/Profile.module.css'
 import Header from '../components/header'
-import Footer from '../components/footer'
+import { Footer } from '../components/footer'
 
 export interface ProfileState {
   isLoggedIn: boolean | undefined,
   currentToken: string,
-  currentUser: IUser | undefined,
+  currentUser: User | undefined,
 }
 
 export interface ProfileProps extends WithRouterProps {
@@ -34,7 +34,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
   async componentDidMount() {
     this.updateLoginState();
     window.addEventListener('storage', this.storageTokenListener)
-    this.setState({ currentUser: await WebPageController.getIUserFromToken(WebPageController.getUserToken()) });
+    this.setState({ currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()) });
   }
 
   componentWillUnmount() {
@@ -46,7 +46,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
    * @param {any} event Event triggered by an EventListener
    */
   storageTokenListener = async (event: any) => {
-    if (event.key === WebPageController.userTokenName) {
+    if (event.key === FrontEndController.userTokenName) {
       this.updateLoginState();
     }
   }
@@ -56,8 +56,8 @@ class Profile extends Component<ProfileProps, ProfileState> {
    * @returns Nothing
    */
   async updateLoginState() {
-    let currentToken = WebPageController.getUserToken();
-    if (await WebPageController.verifyUserByToken(currentToken)) {
+    let currentToken = FrontEndController.getUserToken();
+    if (await FrontEndController.verifyUserByToken(currentToken)) {
       this.setState({isLoggedIn: true, currentToken: currentToken})
     } else {
       const { router } = this.props
@@ -106,12 +106,12 @@ class Profile extends Component<ProfileProps, ProfileState> {
           </Head>
 
           <header>
-            <Header username={WebPageController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
+            <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
           </header>
 
           <main>
             <div className={styles.content}>
-              <h1>User: {WebPageController.getUsernameFromToken(WebPageController.getUserToken())}</h1>
+              <h1>User: {FrontEndController.getUsernameFromToken(FrontEndController.getUserToken())}</h1>
               <h2>Information</h2>
               <table>
                 <thead>
@@ -131,7 +131,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
           </main>
 
           <footer>
-            <Footer />
+            <Footer isLoggedIn={this.state.isLoggedIn} />
           </footer>
         </div>
       )

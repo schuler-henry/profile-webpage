@@ -1,9 +1,9 @@
 import Head from 'next/head'
 import { Component } from 'react'
-import { WebPageController } from '../controller'
+import { FrontEndController } from '../controller/frontEndController'
 import styles from '../styles/Impressum.module.css'
 import Header from '../components/header'
-import Footer from '../components/footer'
+import { Footer } from '../components/footer'
 
 export interface ImpressumState {
   isLoggedIn: boolean | undefined,
@@ -41,7 +41,7 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
    * @param {any} event Event triggered by an EventListener
    */
   storageTokenListener = async (event: any) => {
-    if (event.key === WebPageController.userTokenName) {
+    if (event.key === FrontEndController.userTokenName) {
       this.updateLoginState();
     }
   }
@@ -51,8 +51,8 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
    * @returns Nothing
    */
   async updateLoginState() {
-    let currentToken = WebPageController.getUserToken();
-    if (await WebPageController.verifyUserByToken(currentToken)) {
+    const currentToken = FrontEndController.getUserToken();
+    if (await FrontEndController.verifyUserByToken(currentToken)) {
       this.setState({isLoggedIn: true, currentToken: currentToken})
       return
     }
@@ -88,7 +88,7 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
           </Head>
 
           <header>
-            <Header username={WebPageController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
+            <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
           </header>
 
           <main>
@@ -109,7 +109,7 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
           </main>
 
           <footer>
-            <Footer />
+            <Footer isLoggedIn={this.state.isLoggedIn} />
           </footer>
         </div>
       )

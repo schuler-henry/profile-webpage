@@ -27,12 +27,12 @@ main {
   min-height: calc(100vh - 40pt);
 }
 
-a {
+a, .link {
   color: #00C0FF;
   text-decoration: underline;
 }
 
-a:hover {
+a:hover, .link:hover {
   color: #0077ff;
   transition: 0.3s;
   cursor: pointer;

@@ -1,10 +1,10 @@
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import Head from 'next/head'
 import { Component } from 'react'
-import { WebPageController } from '../controller'
+import { FrontEndController } from '../controller/frontEndController'
 import styles from '../styles/Register.module.css'
 import Header from '../components/header'
-import Footer from '../components/footer'
+import { Footer } from '../components/footer'
 
 export interface RegisterState {
   isNotLoggedIn: boolean,
@@ -56,7 +56,7 @@ class Register extends Component<RegisterProps, RegisterState> {
    * @param {any} event Event triggered by an EventListener
    */
   storageTokenListener = async (event: any) => {
-    if (event.key === WebPageController.userTokenName) {
+    if (event.key === FrontEndController.userTokenName) {
       this.checkLoginState();
     }
   }
@@ -65,8 +65,8 @@ class Register extends Component<RegisterProps, RegisterState> {
    * This method checks and verifys the current user-token. If valid, it routes to root, if not, the isNotLoggedIn state is set to true.
    */
   async checkLoginState() {
-    let currentToken = WebPageController.getUserToken();
-    if (await WebPageController.verifyUserByToken(currentToken)) {
+    let currentToken = FrontEndController.getUserToken();
+    if (await FrontEndController.verifyUserByToken(currentToken)) {
       const { router } = this.props
       router.push("/")
     } else {
@@ -100,7 +100,7 @@ class Register extends Component<RegisterProps, RegisterState> {
      */
     const registerVerification = async () => {
       if (this.state.password === this.state.confirmPassword && this.state.usernameReqMessage === "" && this.state.passwordReqMessage === "") {
-        if (await WebPageController.registerUser(this.state.username, this.state.password)) {
+        if (await FrontEndController.registerUser(this.state.username, this.state.password)) {
           router.push("/");
         }
         this.setState({username: "", password: "", confirmPassword: ""});
@@ -112,7 +112,7 @@ class Register extends Component<RegisterProps, RegisterState> {
      * This method checks whether the entered username meets the needed requirements and sets the usernameReqMessage state accordingly.
      */
     const updateUsernameValid = async() => {
-      if (await WebPageController.isUsernameValid(this.state.username)) {
+      if (await FrontEndController.isUsernameValid(this.state.username)) {
         this.setState({usernameReqMessage: ""})
       } else {
         this.setState({usernameReqMessage: "check username requirements"})
@@ -123,7 +123,7 @@ class Register extends Component<RegisterProps, RegisterState> {
      * This method checks whether the entered password meets the needed requirements and sets the passwordReqMessage state accordingly.
      */
     const updatePasswordValid = async () => {
-      if (await WebPageController.isPasswordValid(this.state.password)) {
+      if (await FrontEndController.isPasswordValid(this.state.password)) {
         this.setState({passwordReqMessage: ""})
       } else {
         this.setState({passwordReqMessage: "check password requirements"})
@@ -168,7 +168,7 @@ class Register extends Component<RegisterProps, RegisterState> {
                 autoFocus
                 onChange={async (e) => {
                   this.setState({username: e.target.value});
-                  this.setState({doesUserExist: await WebPageController.doesUserExist({name: e.target.value})});
+                  this.setState({doesUserExist: await FrontEndController.doesUserExist(e.target.value)});
                   updateFeedbackMessage();
                   updateUsernameValid();
                 }}
@@ -239,7 +239,7 @@ class Register extends Component<RegisterProps, RegisterState> {
           </main>
 
           <footer>
-            <Footer />
+            <Footer isLoggedIn={!this.state.isNotLoggedIn} />
           </footer>
         </div>
       )

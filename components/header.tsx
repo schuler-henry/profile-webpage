@@ -1,8 +1,8 @@
 import { withRouter } from 'next/router'
 import { WithRouterProps } from 'next/dist/client/with-router'
 import { Component } from 'react'
-import styles from '../styles/Header.module.css'
-import { WebPageController } from '../controller'
+import styles from './Header.module.css'
+import { FrontEndController } from '../controller/frontEndController'
 
 export interface HeaderState {
 
@@ -71,7 +71,7 @@ class Header extends Component<HeaderProps, HeaderState> {
       logoutButton = <td className={styles.td_right}>
                       <button
                         onClick={() => {
-                          WebPageController.logoutUser();
+                          FrontEndController.logoutUser();
                           location.reload();
                         }
                       }>

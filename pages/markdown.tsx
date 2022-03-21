@@ -1,25 +1,46 @@
 import Head from 'next/head'
 import { Component } from 'react'
 import { FrontEndController } from '../controller/frontEndController'
-import styles from '../styles/Home.module.css'
+import styles from '../styles/Markdown.module.css'
 import Header from '../components/header'
 import { Footer } from '../components/footer'
+import fs from 'fs'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
-export interface HomeState {
+export interface MarkdownState {
   isLoggedIn: boolean | undefined,
   currentToken: string,
 }
 
-export interface HomeProps {
+export interface MarkdownProps {
+  data: string[];
+}
 
+export const getServerSideProps = async () => {
+  const directory = fs.readdirSync(`${process.cwd()}/content`, 'utf-8');
+  const files = directory.filter(fn => fn.endsWith(".md"));
+  const data = files.map(file => {
+    const path = `${process.cwd()}/content/${file}`;
+    const rawContent = fs.readFileSync(path, {
+      encoding: "utf-8"
+    });
+    return rawContent
+  });
+
+  return {
+    props: {
+      data
+    }
+  }
 }
 
 /**
- * @class Home Component Class
+ * @class Markdown Component Class
  * @component
  */
-class Home extends Component<HomeProps, HomeState> {
-  constructor(props: HomeProps) {
+class Markdown extends Component<MarkdownProps, MarkdownState> {
+  constructor(props: MarkdownProps) {
     super(props)
     this.state = {
       isLoggedIn: undefined,
@@ -93,8 +114,7 @@ class Home extends Component<HomeProps, HomeState> {
 
           <main>
             <div className={styles.content}>
-              <h1>Willkommen!</h1>
-              <p>Hier passiert noch garnichts.</p>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} className={styles.markdown}>{this.props.data[0]}</ReactMarkdown> 
             </div>
           </main>
 
@@ -107,4 +127,4 @@ class Home extends Component<HomeProps, HomeState> {
   }
 }
 
-export default Home
+export default Markdown
