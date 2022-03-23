@@ -53,10 +53,10 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
   async updateLoginState() {
     const currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({isLoggedIn: true, currentToken: currentToken})
+      this.setState({ isLoggedIn: true, currentToken: currentToken })
       return
     }
-    this.setState({isLoggedIn: false})
+    this.setState({ isLoggedIn: false })
   }
 
   /**
@@ -68,10 +68,10 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
       return (
         <div>
           <Head>
-          <title>Impressum</title>
-          <meta name="description" content="Impressum page." />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
+            <title>Impressum</title>
+            <meta name="description" content="Impressum page." />
+            <link rel="icon" href="/favicon.ico" />
+          </Head>
 
           <header>
             <Header username={""} hideLogin={true} hideLogout={true} />
@@ -91,26 +91,28 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
             <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
           </header>
 
-          <main>
-            <div className={styles.content}>
-              <h1>Impressum</h1>
-              <h2>Verantwortlich</h2>
-              <p>Henry Schuler</p>
-              <h2>Kontakt</h2>
-              <p>
-                Henry Schuler <br />
-                Kastellstra&#223;e 69/1 <br />
-                88316 Isny im Allg&auml;u <br />
-                <br />
-                Telefon: &#43;49 1590 8481493 <br />
-                E-Mail: henryschuler&#64;outlook.de <br />
-              </p>
-            </div>
-          </main>
+          <div className='scrollBody'>
+            <main>
+              <div className={styles.content}>
+                <h1>Impressum</h1>
+                <h2>Verantwortlich</h2>
+                <p>Henry Schuler</p>
+                <h2>Kontakt</h2>
+                <p>
+                  Henry Schuler <br />
+                  Kastellstra&#223;e 69/1 <br />
+                  88316 Isny im Allg&auml;u <br />
+                  <br />
+                  Telefon: &#43;49 1590 8481493 <br />
+                  E-Mail: henryschuler&#64;outlook.de <br />
+                </p>
+              </div>
+            </main>
 
-          <footer>
-            <Footer isLoggedIn={this.state.isLoggedIn} />
-          </footer>
+            <footer>
+              <Footer isLoggedIn={this.state.isLoggedIn} />
+            </footer>
+          </div>
         </div>
       )
     }

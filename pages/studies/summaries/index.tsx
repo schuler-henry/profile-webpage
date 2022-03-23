@@ -71,13 +71,13 @@ class Summaries extends Component<SummariesProps, SummariesState> {
    */
   async updateLoginState() {
     console.log("updateLogin");
-    
+
     const currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({isLoggedIn: true, currentToken: currentToken})
+      this.setState({ isLoggedIn: true, currentToken: currentToken })
       return
     }
-    this.setState({isLoggedIn: false})
+    this.setState({ isLoggedIn: false })
   }
 
   render() {
@@ -108,22 +108,24 @@ class Summaries extends Component<SummariesProps, SummariesState> {
             <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
           </header>
 
-          <main>
-            <h1>
-              Zusammenfassungen
-            </h1>
-            <div className={styles.container}>
-              <div>
-                {this.listItems.map((summary, i) => (
-                  <Summary key={i} summary={summary}/>
-                ))}
+          <div className='scrollBody'>
+            <main>
+              <h1>
+                Zusammenfassungen
+              </h1>
+              <div className={styles.container}>
+                <div>
+                  {this.listItems.map((summary, i) => (
+                    <Summary key={i} summary={summary} />
+                  ))}
+                </div>
               </div>
-            </div>
-          </main>
+            </main>
 
-          <footer>
-            <Footer isLoggedIn={this.state.isLoggedIn} />
-          </footer>
+            <footer>
+              <Footer isLoggedIn={this.state.isLoggedIn} />
+            </footer>
+          </div>
         </div>
       )
     }

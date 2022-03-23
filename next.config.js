@@ -9,7 +9,7 @@ const nextConfig = {
     return config
   },
   images: {
-    domains: ['web-notes.me'],
+    domains: ['web-notes.me', 'dev-chat.me'],
   },
 }
 

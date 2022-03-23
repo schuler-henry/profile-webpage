@@ -58,7 +58,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
   async updateLoginState() {
     let currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({isLoggedIn: true, currentToken: currentToken})
+      this.setState({ isLoggedIn: true, currentToken: currentToken })
     } else {
       const { router } = this.props
       router.push("/login")
@@ -74,10 +74,10 @@ class Profile extends Component<ProfileProps, ProfileState> {
       return (
         <div>
           <Head>
-          <title>Profile</title>
-          <meta name="description" content="Profile page." />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
+            <title>Profile</title>
+            <meta name="description" content="Profile page." />
+            <link rel="icon" href="/favicon.ico" />
+          </Head>
 
           <header>
             <Header username={""} hideLogin={true} hideLogout={true} />
@@ -109,30 +109,32 @@ class Profile extends Component<ProfileProps, ProfileState> {
             <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
           </header>
 
-          <main>
-            <div className={styles.content}>
-              <h1>User: {FrontEndController.getUsernameFromToken(FrontEndController.getUserToken())}</h1>
-              <h2>Information</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <td>ID:</td> 
-                    <td>{this.state.currentUser?.id || "unavailable"}</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Access Level:</td>
-                    <td>{getAccessString(this.state.currentUser?.accessLevel)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </main>
+          <div className='scrollBody'>
+            <main>
+              <div className={styles.content}>
+                <h1>User: {FrontEndController.getUsernameFromToken(FrontEndController.getUserToken())}</h1>
+                <h2>Information</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <td>ID:</td>
+                      <td>{this.state.currentUser?.id || "unavailable"}</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Access Level:</td>
+                      <td>{getAccessString(this.state.currentUser?.accessLevel)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </main>
 
-          <footer>
-            <Footer isLoggedIn={this.state.isLoggedIn} />
-          </footer>
+            <footer>
+              <Footer isLoggedIn={this.state.isLoggedIn} />
+            </footer>
+          </div>
         </div>
       )
     }

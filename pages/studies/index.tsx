@@ -3,6 +3,7 @@ import { Component } from 'react'
 import { FrontEndController } from '../../controller/frontEndController';
 import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
+import Link from 'next/link';
 
 export interface StudiesState {
   isLoggedIn: boolean;
@@ -48,10 +49,10 @@ class Studies extends Component<StudiesProps, StudiesState> {
   async updateLoginState() {
     const currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({isLoggedIn: true, currentToken: currentToken})
+      this.setState({ isLoggedIn: true, currentToken: currentToken })
       return
     }
-    this.setState({isLoggedIn: false})
+    this.setState({ isLoggedIn: false })
   }
 
   render() {
@@ -70,7 +71,7 @@ class Studies extends Component<StudiesProps, StudiesState> {
         </div>
       )
     } else {
-      return(
+      return (
         <div>
           <Head>
             <title>Studies</title>
@@ -82,14 +83,16 @@ class Studies extends Component<StudiesProps, StudiesState> {
             <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
           </header>
 
-          <main>
-            Hallo <br/>
-            Get to the <a href="/studies/summaries">summaries</a>!
-          </main>
+          <div className='scrollBody'>
+            <main>
+              Hallo <br />
+              Get to the <Link href="/studies/summaries">summaries</Link>!
+            </main>
 
-          <footer>
-            <Footer isLoggedIn={this.state.isLoggedIn} />
-          </footer>
+            <footer>
+              <Footer isLoggedIn={this.state.isLoggedIn} />
+            </footer>
+          </div>
         </div>
       )
     }

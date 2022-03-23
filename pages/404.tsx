@@ -10,13 +10,15 @@ export interface PageNotFoundProps {
 }
 class PageNotFound extends Component<PageNotFoundProps, PageNotFoundState> {
   render() {
-    return(
+    return (
       <div>
-        <main>
-          Error 404 page not found.
-          This page is not available!
-          Get back to <Link href={"/"}>Home</Link>!
-        </main>
+        <div className='scrollBody'>
+          <main>
+            Error 404 page not found.
+            This page is not available!
+            Get back to <Link href={"/"}>Home</Link>!
+          </main>
+        </div>
       </div>
     )
   }

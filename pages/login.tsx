@@ -22,7 +22,7 @@ export interface LoginProps extends WithRouterProps {
  * @component
  */
 class Login extends Component<LoginProps, LoginState> {
-  constructor (props: LoginProps) {
+  constructor(props: LoginProps) {
     super(props)
     this.state = {
       isNotLoggedIn: false,
@@ -30,7 +30,7 @@ class Login extends Component<LoginProps, LoginState> {
       password: "",
       credentialsInfo: false,
     }
-    
+
   }
 
   componentDidMount() {
@@ -61,7 +61,7 @@ class Login extends Component<LoginProps, LoginState> {
       const { router } = this.props
       router.push("/")
     } else {
-      this.setState({isNotLoggedIn: true})
+      this.setState({ isNotLoggedIn: true })
     }
   }
 
@@ -93,7 +93,7 @@ class Login extends Component<LoginProps, LoginState> {
       if (await FrontEndController.loginUser(this.state.username, this.state.password)) {
         router.push("/");
       }
-      this.setState({username: "", password: "", credentialsInfo: true})
+      this.setState({ username: "", password: "", credentialsInfo: true })
       document.getElementById("userInput")?.focus()
     }
 
@@ -110,42 +110,44 @@ class Login extends Component<LoginProps, LoginState> {
             <Header username={""} hideLogin={true} hideLogout={true} />
           </header>
 
-          <main className={styles.field}>
-            <div className={styles.fieldDiv}>
-              <h1>Login</h1>
-              <input 
-                type="text" 
-                placeholder="Username..." 
-                id='userInput'
-                autoFocus
-                onChange={(e) => this.setState({username: e.target.value})}
-                value={this.state.username}
-                onKeyDown={loginEnter} />
-              <input 
-                type="password" 
-                placeholder="Password..."
-                onChange={(e) => this.setState({password: e.target.value})}
-                value={this.state.password}
-                onKeyDown={loginEnter} />
-              <div hidden={!this.state.credentialsInfo} className={styles.error} >
-                Credentials incorrect!
+          <div className='scrollBody'>
+            <main className={styles.field}>
+              <div className={styles.fieldDiv}>
+                <h1>Login</h1>
+                <input
+                  type="text"
+                  placeholder="Username..."
+                  id='userInput'
+                  autoFocus
+                  onChange={(e) => this.setState({ username: e.target.value })}
+                  value={this.state.username}
+                  onKeyDown={loginEnter} />
+                <input
+                  type="password"
+                  placeholder="Password..."
+                  onChange={(e) => this.setState({ password: e.target.value })}
+                  value={this.state.password}
+                  onKeyDown={loginEnter} />
+                <div hidden={!this.state.credentialsInfo} className={styles.error} >
+                  Credentials incorrect!
+                </div>
+                <button onClick={loginVerification}>
+                  Login
+                </button>
+                <p>
+                  Or&nbsp;
+                  <a onClick={() => router.push("/register")}>
+                    register
+                  </a>
+                  &nbsp;instead.
+                </p>
               </div>
-              <button onClick={loginVerification}>
-                Login
-              </button>
-              <p>
-                Or&nbsp;
-                <a onClick={() => router.push("/register")}>
-                  register
-                </a>
-                &nbsp;instead.
-              </p>
-            </div>
-          </main>
+            </main>
 
-          <footer>
-            <Footer isLoggedIn={!this.state.isNotLoggedIn} />
-          </footer>
+            <footer>
+              <Footer isLoggedIn={!this.state.isNotLoggedIn} />
+            </footer>
+          </div>
         </div>
       )
     } else {

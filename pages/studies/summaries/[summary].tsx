@@ -21,7 +21,7 @@ export interface SummaryProps {
 }
 
 export const getServerSideProps = async context => {
-  const {summary} = context.params;
+  const { summary } = context.params;
 
   let content: string;
 
@@ -73,15 +73,15 @@ class Summary extends Component<SummaryProps, SummaryState> {
    */
   async updateLoginState() {
     console.log("updateLogin");
-    
+
     const currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({isLoggedIn: true, currentToken: currentToken})
+      this.setState({ isLoggedIn: true, currentToken: currentToken })
       return
     }
-    this.setState({isLoggedIn: false})
+    this.setState({ isLoggedIn: false })
   }
-  
+
   render() {
     if (this.state.isLoggedIn === undefined) {
       return (
@@ -110,21 +110,23 @@ class Summary extends Component<SummaryProps, SummaryState> {
             <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
           </header>
 
-          <main>
-            <div className={styles.content}>
-              <ReactMarkdown 
-                components={{table: ({node}) => <div className={styles.tableScroll} dangerouslySetInnerHTML={{__html: toHtml(node)}}></div>}}
-                rehypePlugins={[rehypeRaw]} 
-                remarkPlugins={[remarkGfm]} 
-                className={styles.markdown}>
-                {this.summary.content}
-              </ReactMarkdown>
-            </div>
-          </main>
+          <div className='scrollBody'>
+            <main>
+              <div className={styles.content}>
+                <ReactMarkdown
+                  components={{ table: ({ node }) => <div className={styles.tableScroll} dangerouslySetInnerHTML={{ __html: toHtml(node) }}></div> }}
+                  rehypePlugins={[rehypeRaw]}
+                  remarkPlugins={[remarkGfm]}
+                  className={styles.markdown}>
+                  {this.summary.content}
+                </ReactMarkdown>
+              </div>
+            </main>
 
-          <footer>
-            <Footer isLoggedIn={this.state.isLoggedIn} />
-          </footer>
+            <footer>
+              <Footer isLoggedIn={this.state.isLoggedIn} />
+            </footer>
+          </div>
         </div>
       )
     }

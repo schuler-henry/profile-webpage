@@ -28,10 +28,12 @@
   transition: 0.3s;
 }
 
-.code {
+.social {
   display: grid;
-  grid-template-columns: min-content;
+  grid-template-columns: min-content min-content min-content;
+  grid-template-rows: min-content min-content;
   column-gap: 20pt;
+  row-gap: 10pt;
 }
 
 .projects {
@@ -75,6 +77,6 @@
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
   .footer {
-    column-gap: 8rem;
+    column-gap: 4rem;
   }
 }

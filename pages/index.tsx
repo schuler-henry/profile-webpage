@@ -53,10 +53,10 @@ class Home extends Component<HomeProps, HomeState> {
   async updateLoginState() {
     let currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({isLoggedIn: true, currentToken: currentToken})
+      this.setState({ isLoggedIn: true, currentToken: currentToken })
       return
     }
-    this.setState({isLoggedIn: false})
+    this.setState({ isLoggedIn: false })
   }
 
   /**
@@ -90,17 +90,18 @@ class Home extends Component<HomeProps, HomeState> {
           <header>
             <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
           </header>
+          <div className="scrollBody">
+            <main>
+              <div className={styles.content}>
+                <h1>Willkommen!</h1>
+                <p>Hier passiert noch garnichts.</p>
+              </div>
+            </main>
 
-          <main>
-            <div className={styles.content}>
-              <h1>Willkommen!</h1>
-              <p>Hier passiert noch garnichts.</p>
-            </div>
-          </main>
-
-          <footer>
-            <Footer isLoggedIn={this.state.isLoggedIn} />
-          </footer>
+            <footer>
+              <Footer isLoggedIn={this.state.isLoggedIn} />
+            </footer>
+          </div>
         </div>
       )
     }
