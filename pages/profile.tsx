@@ -1,18 +1,19 @@
+import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import Head from 'next/head'
 import { Component } from 'react'
 import { FrontEndController } from '../controller/frontEndController'
-import styles from '../styles/Home.module.css'
+import { User } from '../interfaces'
+import styles from '../styles/Profile.module.css'
 import { Header } from '../components/header'
 import { Footer } from '../components/footer'
 
-export interface HomeState {
+export interface ProfileState {
   isLoggedIn: boolean | undefined,
   currentToken: string,
-  cursorClass: any,
-  headerText: string,
+  currentUser: User | undefined,
 }
 
-export interface HomeProps {
+export interface ProfileProps extends WithRouterProps {
 
 }
 
@@ -20,20 +21,20 @@ export interface HomeProps {
  * @class Home Component Class
  * @component
  */
-class Home extends Component<HomeProps, HomeState> {
-  constructor(props: HomeProps) {
+class Profile extends Component<ProfileProps, ProfileState> {
+  constructor(props: ProfileProps) {
     super(props)
     this.state = {
       isLoggedIn: undefined,
       currentToken: "",
-      cursorClass: null,
-      headerText: "",
+      currentUser: undefined,
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.updateLoginState();
     window.addEventListener('storage', this.storageTokenListener)
+    this.setState({ currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()) });
   }
 
   componentWillUnmount() {
@@ -57,37 +58,10 @@ class Home extends Component<HomeProps, HomeState> {
   async updateLoginState() {
     let currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({ isLoggedIn: true, currentToken: currentToken });
+      this.setState({ isLoggedIn: true, currentToken: currentToken })
     } else {
-      this.setState({ isLoggedIn: false })
-    }
-    this.typeWriter("Coding Musik Freizeit");
-  }
-
-  /**
-   * This methods types the header to the main page.
-   * @param {string} text String to display as header.
-   */
-  typeWriter(text: string) {
-    let letterWait: number = 80;
-    if (this.state.cursorClass == null) {
-      this.setState({ cursorClass: styles.cursor })
-      setTimeout(() => {
-        this.typeWriter(text)
-      }, 1000)
-    } else if (this.state.headerText != text) {
-      let index: number = this.state.headerText.length;
-      this.setState({ headerText: this.state.headerText + text.charAt(index) })
-      if (text.charAt(index + 1) == ' ') {
-        letterWait = 880;
-      }
-      setTimeout(() => {
-        this.typeWriter(text)
-      }, letterWait)
-    } else {
-      setTimeout(() => {
-        this.setState({ cursorClass: null })
-      }, 1000)
+      const { router } = this.props
+      router.push("/login")
     }
   }
 
@@ -100,8 +74,8 @@ class Home extends Component<HomeProps, HomeState> {
       return (
         <div>
           <Head>
-            <title>Welcome</title>
-            <meta name="description" content="Welcome page." />
+            <title>Profile</title>
+            <meta name="description" content="Profile page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
@@ -111,23 +85,49 @@ class Home extends Component<HomeProps, HomeState> {
         </div>
       )
     } else {
+
+      let getAccessString = (accessLevel: number | undefined): string => {
+        switch (accessLevel) {
+          case 0:
+            return "User";
+          case 1:
+            return "Admin";
+          default:
+            return "unavailable";
+        }
+      }
+
       return (
         <div>
           <Head>
-            <title>Welcome</title>
-            <meta name="description" content="Welcome page." />
+            <title>Profile</title>
+            <meta name="description" content="Profile page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
             <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
           </header>
-          <div className="scrollBody">
+
+          <div className='scrollBody'>
             <main>
-              <div className={styles.contentOne}>
-                <div>
-                  <h1 className={this.state.cursorClass}>{this.state.headerText}</h1>
-                </div>
+              <div className={styles.content}>
+                <h1>User: {FrontEndController.getUsernameFromToken(FrontEndController.getUserToken())}</h1>
+                <h2>Information</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <td>ID:</td>
+                      <td>{this.state.currentUser?.id || "unavailable"}</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Access Level:</td>
+                      <td>{getAccessString(this.state.currentUser?.accessLevel)}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </main>
 
@@ -141,4 +141,4 @@ class Home extends Component<HomeProps, HomeState> {
   }
 }
 
-export default Home
+export default withRouter(Profile)

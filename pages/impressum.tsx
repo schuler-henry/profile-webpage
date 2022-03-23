@@ -1,18 +1,16 @@
 import Head from 'next/head'
 import { Component } from 'react'
 import { FrontEndController } from '../controller/frontEndController'
-import styles from '../styles/Home.module.css'
+import styles from '../styles/Impressum.module.css'
 import { Header } from '../components/header'
 import { Footer } from '../components/footer'
 
-export interface HomeState {
+export interface ImpressumState {
   isLoggedIn: boolean | undefined,
   currentToken: string,
-  cursorClass: any,
-  headerText: string,
 }
 
-export interface HomeProps {
+export interface ImpressumProps {
 
 }
 
@@ -20,14 +18,12 @@ export interface HomeProps {
  * @class Home Component Class
  * @component
  */
-class Home extends Component<HomeProps, HomeState> {
-  constructor(props: HomeProps) {
+class Impressum extends Component<ImpressumProps, ImpressumState> {
+  constructor(props: ImpressumProps) {
     super(props)
     this.state = {
       isLoggedIn: undefined,
       currentToken: "",
-      cursorClass: null,
-      headerText: "",
     }
   }
 
@@ -55,40 +51,12 @@ class Home extends Component<HomeProps, HomeState> {
    * @returns Nothing
    */
   async updateLoginState() {
-    let currentToken = FrontEndController.getUserToken();
+    const currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({ isLoggedIn: true, currentToken: currentToken });
-    } else {
-      this.setState({ isLoggedIn: false })
+      this.setState({ isLoggedIn: true, currentToken: currentToken })
+      return
     }
-    this.typeWriter("Coding Musik Freizeit");
-  }
-
-  /**
-   * This methods types the header to the main page.
-   * @param {string} text String to display as header.
-   */
-  typeWriter(text: string) {
-    let letterWait: number = 80;
-    if (this.state.cursorClass == null) {
-      this.setState({ cursorClass: styles.cursor })
-      setTimeout(() => {
-        this.typeWriter(text)
-      }, 1000)
-    } else if (this.state.headerText != text) {
-      let index: number = this.state.headerText.length;
-      this.setState({ headerText: this.state.headerText + text.charAt(index) })
-      if (text.charAt(index + 1) == ' ') {
-        letterWait = 880;
-      }
-      setTimeout(() => {
-        this.typeWriter(text)
-      }, letterWait)
-    } else {
-      setTimeout(() => {
-        this.setState({ cursorClass: null })
-      }, 1000)
-    }
+    this.setState({ isLoggedIn: false })
   }
 
   /**
@@ -100,8 +68,8 @@ class Home extends Component<HomeProps, HomeState> {
       return (
         <div>
           <Head>
-            <title>Welcome</title>
-            <meta name="description" content="Welcome page." />
+            <title>Impressum</title>
+            <meta name="description" content="Impressum page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
@@ -114,20 +82,30 @@ class Home extends Component<HomeProps, HomeState> {
       return (
         <div>
           <Head>
-            <title>Welcome</title>
-            <meta name="description" content="Welcome page." />
+            <title>Impressum</title>
+            <meta name="description" content="Impressum page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
             <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
           </header>
-          <div className="scrollBody">
+
+          <div className='scrollBody'>
             <main>
-              <div className={styles.contentOne}>
-                <div>
-                  <h1 className={this.state.cursorClass}>{this.state.headerText}</h1>
-                </div>
+              <div className={styles.content}>
+                <h1>Impressum</h1>
+                <h2>Verantwortlich</h2>
+                <p>Henry Schuler</p>
+                <h2>Kontakt</h2>
+                <p>
+                  Henry Schuler <br />
+                  Kastellstra&#223;e 69/1 <br />
+                  88316 Isny im Allg&auml;u <br />
+                  <br />
+                  Telefon: &#43;49 1590 8481493 <br />
+                  E-Mail: henryschuler&#64;outlook.de <br />
+                </p>
               </div>
             </main>
 
@@ -141,4 +119,4 @@ class Home extends Component<HomeProps, HomeState> {
   }
 }
 
-export default Home
+export default Impressum
