@@ -1,25 +1,21 @@
-import Head from 'next/head'
+import Head from 'next/head';
 import { Component } from 'react'
-import { FrontEndController } from '../controller/frontEndController'
-import styles from '../styles/Impressum.module.css'
-import { Header } from '../components/header'
-import { Footer } from '../components/footer'
+import { FrontEndController } from '../../controller/frontEndController';
+import { Header } from '../../components/header';
+import { Footer } from '../../components/footer';
+import Link from 'next/link';
 
-export interface ImpressumState {
-  isLoggedIn: boolean | undefined,
-  currentToken: string,
+export interface StudiesState {
+  isLoggedIn: boolean;
+  currentToken: string;
 }
 
-export interface ImpressumProps {
+export interface StudiesProps {
 
 }
 
-/**
- * @class Home Component Class
- * @component
- */
-class Impressum extends Component<ImpressumProps, ImpressumState> {
-  constructor(props: ImpressumProps) {
+class Studies extends Component<StudiesProps, StudiesState> {
+  constructor(props: StudiesProps) {
     super(props)
     this.state = {
       isLoggedIn: undefined,
@@ -59,17 +55,13 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
     this.setState({ isLoggedIn: false })
   }
 
-  /**
-   * Generates the JSX Output for the Client
-   * @returns JSX Output
-   */
   render() {
     if (this.state.isLoggedIn === undefined) {
       return (
         <div>
           <Head>
-            <title>Impressum</title>
-            <meta name="description" content="Impressum page." />
+            <title>Studies</title>
+            <meta name="description" content="Studies" />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
@@ -82,8 +74,8 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
       return (
         <div>
           <Head>
-            <title>Impressum</title>
-            <meta name="description" content="Impressum page." />
+            <title>Studies</title>
+            <meta name="description" content="Studies" />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
@@ -93,20 +85,8 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
 
           <div className='scrollBody'>
             <main>
-              <div className={styles.content}>
-                <h1>Impressum</h1>
-                <h2>Verantwortlich</h2>
-                <p>Henry Schuler</p>
-                <h2>Kontakt</h2>
-                <p>
-                  Henry Schuler <br />
-                  Kastellstra&#223;e 69/1 <br />
-                  88316 Isny im Allg&auml;u <br />
-                  <br />
-                  Telefon: &#43;49 1590 8481493 <br />
-                  E-Mail: henryschuler&#64;outlook.de <br />
-                </p>
-              </div>
+              Hallo <br />
+              Get to the <Link href="/studies/summaries">summaries</Link>!
             </main>
 
             <footer>
@@ -119,4 +99,4 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
   }
 }
 
-export default Impressum
+export default Studies

@@ -1,43 +1,30 @@
-import { withRouter } from 'next/router'
-import { WithRouterProps } from 'next/dist/client/with-router'
 import { Component } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import styles from '../styles/Footer.module.css'
+import styles from './Footer.module.css'
+import { FrontEndController } from '../controller/frontEndController'
 import InstagramIcon from '../public/Instagram.png'
 import YoutubeIcon from '../public/Youtube.png'
 import GitHubIcon from '../public/GitHub.png'
-import DevChatIcon from '../public/Dev-Chat.png'
 
 export interface FooterState {
 
 }
 
-export interface FooterProps extends WithRouterProps {
+export interface FooterProps {
+  isLoggedIn: boolean,
 }
 
 /** 
  * @class Footer Component Class
  * @component
  */
-class Footer extends Component<FooterProps, FooterState> {
-  constructor(props: FooterProps) {
-    super(props)
-    this.state = {
-
-    }
-  }
-
+export class Footer extends Component<FooterProps, FooterState> {
   /**
    * Generates the JSX Output for the Client
    * @returns JSX Output
    */
   render() {
-    /** 
-     * Initialize Router to navigate to other pages
-     */
-    const { router } = this.props
-
     return (
       <div>
         <div className={styles.footer}>
@@ -45,13 +32,14 @@ class Footer extends Component<FooterProps, FooterState> {
             <h4>
               Social Media
             </h4>
-            <div className={styles.socialMedia}>
-              <Link 
-                href="https://www.instagram.com/schuler.henry/"
+            <div className={styles.social}>
+              <Link
+                href={'https://www.instagram.com/schuler.henry'}
                 passHref>
-                <div className={styles.clickable}>
-                  <Image 
-                    src={InstagramIcon} 
+                <div className={styles.icon}>
+                  <Image
+                    title='Instagram'
+                    src={InstagramIcon}
                     objectFit='contain'
                     height={40}
                     width={40}
@@ -59,12 +47,13 @@ class Footer extends Component<FooterProps, FooterState> {
                   />
                 </div>
               </Link>
-              <Link 
+              <Link
                 href={'https://www.youtube.com/channel/UCDIOz_qU-ojgULaA8mBA1zw'}
                 passHref>
-                <div className={styles.clickable}>
-                  <Image 
-                    src={YoutubeIcon} 
+                <div className={styles.icon}>
+                  <Image
+                    title='Youtube'
+                    src={YoutubeIcon}
                     objectFit='contain'
                     height={40}
                     width={40}
@@ -72,12 +61,27 @@ class Footer extends Component<FooterProps, FooterState> {
                   />
                 </div>
               </Link>
-              <Link 
+              <Link
                 href={'https://github.com/schuler-henry'}
                 passHref>
-                <div className={styles.clickable}>
-                  <Image 
-                    src={GitHubIcon} 
+                <div className={styles.icon}>
+                  <Image
+                    title='github/schuler-henry'
+                    src={GitHubIcon}
+                    objectFit='contain'
+                    height={40}
+                    width={40}
+                    alt='GitHub Icon'
+                  />
+                </div>
+              </Link>
+              <Link
+                href={'https://github.com/DHBW-FN-TIT20'}
+                passHref>
+                <div className={styles.icon}>
+                  <Image
+                    title='github/DHBW-FN-TIT20'
+                    src={GitHubIcon}
                     objectFit='contain'
                     height={40}
                     width={40}
@@ -89,15 +93,30 @@ class Footer extends Component<FooterProps, FooterState> {
           </div>
           <div className={styles.footerElement}>
             <h4>
-              Projects
+              Projekte
             </h4>
-            <div className={styles.socialMedia}>
-              <Link 
-                href="https://dev-chat.me"
+            <div className={styles.projects}>
+              <Link
+                href={'https://web-notes.me'}
                 passHref>
-                <div className={styles.clickable}>
-                  <Image 
-                    src={DevChatIcon} 
+                <div className={styles.icon}>
+                  <Image
+                    title='WebNotes'
+                    src={'https://web-notes.me/Logo.png'}
+                    objectFit='contain'
+                    height={40}
+                    width={40}
+                    alt='WebNotes Icon'
+                  />
+                </div>
+              </Link>
+              <Link
+                href={'https://dev-chat.me'}
+                passHref>
+                <div className={styles.icon}>
+                  <Image
+                    title='DEV-CHAT'
+                    src={'https://dev-chat.me/logo.png'}
                     objectFit='contain'
                     height={40}
                     width={40}
@@ -109,19 +128,52 @@ class Footer extends Component<FooterProps, FooterState> {
           </div>
           <div className={styles.footerElement}>
             <h4>
-              Contact
+              Kontakt
             </h4>
-            <Link href="/impressum">Impressum</Link>
+            <div className={styles.contact}>
+              <div>
+                <Link
+                  href={"/impressum"}>
+                  Impressum
+                </Link>
+              </div>
+            </div>
           </div>
           <div className={styles.footerElement}>
             <h4>
               Account
             </h4>
+            <div className={styles.account}>
+              <div hidden={this.props.isLoggedIn}>
+                <Link
+                  href={"/login"}>
+                  Login
+                </Link>
+              </div>
+              <div hidden={this.props.isLoggedIn}>
+                <Link
+                  href={"/register"}>
+                  Registrieren
+                </Link>
+              </div>
+              <div hidden={!this.props.isLoggedIn}>
+                <Link
+                  href={"/profile"}>
+                  Passwort ändern
+                </Link>
+              </div>
+              <div hidden={!this.props.isLoggedIn}>
+                <p className="link" onClick={() => {
+                  FrontEndController.logoutUser()
+                  location.reload()
+                }}>
+                  Ausloggen
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     )
   }
 }
-
-export default withRouter(Footer)

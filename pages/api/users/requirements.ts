@@ -1,9 +1,7 @@
 /**
  * Function to check whether the given username meets the requirements.
- * @param {string} name username to check
- * @returns {boolean} true if username meets requirements, false if not
  */
-function isUsernameValid(name: string): boolean {
+export function isUsernameValid(name: string): boolean {
   /**
    * Requirements:
    * Length: 4-16 characters
@@ -22,11 +20,9 @@ function isUsernameValid(name: string): boolean {
 }
 
 /**
- * Funciton to check whether the given password meets the requirements.
- * @param {string} password password to check
- * @returns {boolean} true if password meets requirements, false if not
+ * Function to check whether the given password meets the requirements.
  */
-function isPasswordValid(password: string): boolean {
+export function isPasswordValid(password: string): boolean {
   /**
    * Requirements:
    * Length: min. 8 characters
@@ -42,5 +38,3 @@ function isPasswordValid(password: string): boolean {
   }
   return false;
 }
-
-export { isUsernameValid, isPasswordValid }

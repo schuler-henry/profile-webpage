@@ -2,13 +2,19 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { isPasswordValid } from "./requirements";
 
 type Data = {
-  wasSuccessfull: boolean;
+  wasSuccessful: boolean,
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  let password = req.body.password;
+/**
+ * Api Route to check whether password meets the requirements
+ * @category API
+ */
+async function passwordValidHandler(req: NextApiRequest, res: NextApiResponse<Data>) {
+  const password: string = req.body.password;
 
-  let isValid = isPasswordValid(password);
+  const isValid: boolean = isPasswordValid(password);
 
-  res.status(200).json({ wasSuccessfull: isValid })
+  res.status(200).json({ wasSuccessful: isValid })
 }
+
+export default passwordValidHandler;
