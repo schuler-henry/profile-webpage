@@ -129,7 +129,7 @@ Anforderung von Kunden -> wertschöpfende Aktivität -> Leistungen für Kunden
 - Zeitziele
 
 #### Zeit- und Kostenziele
-<img src="Kosten.png">
+<img src="https://henry-schuler.vercel.app/images/studies/geschaeftsprozesse/Kosten.png">
 
 | Zeiten | Plan A | Plan B |
 | - | - | - |
