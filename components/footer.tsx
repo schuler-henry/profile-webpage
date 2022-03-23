@@ -1,11 +1,11 @@
 import { Component } from 'react'
+import Link from 'next/link'
 import Image from 'next/image'
 import styles from './Footer.module.css'
 import { FrontEndController } from '../controller/frontEndController'
 import InstagramIcon from '../public/Instagram.png'
 import YoutubeIcon from '../public/Youtube.png'
 import GitHubIcon from '../public/GitHub.png'
-import Link from 'next/link'
 
 export interface FooterState {
 

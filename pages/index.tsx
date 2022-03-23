@@ -8,6 +8,8 @@ import { Footer } from '../components/footer'
 export interface HomeState {
   isLoggedIn: boolean | undefined,
   currentToken: string,
+  cursorClass: any,
+  headerText: string,
 }
 
 export interface HomeProps {
@@ -24,6 +26,8 @@ class Home extends Component<HomeProps, HomeState> {
     this.state = {
       isLoggedIn: undefined,
       currentToken: "",
+      cursorClass: null,
+      headerText: "",
     }
   }
 
@@ -53,10 +57,38 @@ class Home extends Component<HomeProps, HomeState> {
   async updateLoginState() {
     let currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({ isLoggedIn: true, currentToken: currentToken })
-      return
+      this.setState({ isLoggedIn: true, currentToken: currentToken });
+    } else {
+      this.setState({ isLoggedIn: false })
     }
-    this.setState({ isLoggedIn: false })
+    this.typeWriter("Coding Musik Freizeit");
+  }
+
+  /**
+   * This methods types the header to the main page.
+   * @param {string} text String to display as header.
+   */
+  typeWriter(text: string) {
+    let letterWait: number = 80;
+    if (this.state.cursorClass == null) {
+      this.setState({ cursorClass: styles.cursor })
+      setTimeout(() => {
+        this.typeWriter(text)
+      }, 1000)
+    } else if (this.state.headerText != text) {
+      let index: number = this.state.headerText.length;
+      this.setState({ headerText: this.state.headerText + text.charAt(index) })
+      if (text.charAt(index + 1) == ' ') {
+        letterWait = 880;
+      }
+      setTimeout(() => {
+        this.typeWriter(text)
+      }, letterWait)
+    } else {
+      setTimeout(() => {
+        this.setState({ cursorClass: null })
+      }, 1000)
+    }
   }
 
   /**
@@ -92,9 +124,10 @@ class Home extends Component<HomeProps, HomeState> {
           </header>
           <div className="scrollBody">
             <main>
-              <div className={styles.content}>
-                <h1>Willkommen!</h1>
-                <p>Hier passiert noch garnichts.</p>
+              <div className={styles.contentOne}>
+                <div>
+                  <h1 className={this.state.cursorClass}>{this.state.headerText}</h1>
+                </div>
               </div>
             </main>
 

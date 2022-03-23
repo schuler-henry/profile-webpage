@@ -1,3 +1,91 @@
-.content {
-    padding-left: 10pt;
+.contentOne {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 5rem;
+  padding: 40pt;
+
+}
+
+.contentOne h1 {
+  text-decoration: solid;
+  font-size: 40pt;
+  font-family: 'Red Hat Mono', monospace;
+  padding-right: 5pt;
+  margin-top: 0;
+}
+
+.cursor::after {
+  content:'';
+  display:inline-block;
+  margin-left:3px;
+  background-color:white;
+  animation-name:blink;
+  animation-duration:0.5s;
+  animation-iteration-count: infinite;
+  height: 40pt;
+  width: 1ch;
+}
+  
+@keyframes blink {
+  0% {
+    opacity:1;
+  }
+  49% {
+    opacity:1;
+  }
+  50% {
+    opacity:0;
+  }
+  100% {
+    opacity:0;
+  }
+}
+
+.slideWrapper {
+  position: relative;
+  height: 30vw;
+}
+
+.slide {
+  background-color: #151515;
+  border: solid white 2px;
+  border-radius: 5pt;
+  width: 35vw;
+  height: 20vw;
+  position: relative;
+  opacity: 0.9;
+}
+
+.slide:hover {
+  z-index: 4;
+  opacity: 1;
+}
+
+.slideOne{
+  z-index: 0;
+  float: right;
+  top: 0vw;
+}
+
+.slideTwo {
+  z-index: 1;
+  float: right;
+  top: -15vw;
+  right: 5vw;
+}
+
+.slideThree {
+  z-index: 2;
+  float: right;
+  top: -30vw;
+  right: 10vw;
+}
+
+.slideIcon {
+  position: relative;
+  height: 14vw;
+  width: auto;
+  margin: 3vw;
+  z-index: inherit;
+  overflow: hidden;
 }
