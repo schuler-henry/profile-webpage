@@ -1,16 +1,22 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { SupabaseConnection } from "../supabaseAPI";
+import { BackEndController } from "../../../controller/backEndController";
 
 type Data = {
-  wasSuccessfull: boolean;
+  wasSuccessful: boolean,
 }
 
-const supabaseConnection = new SupabaseConnection();
+const BACK_END_CONTROLLER = new BackEndController();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  let token = req.body.token;
+/**
+ * Api Route to verify a user token
+ * @category API
+ */
+async function verifyTokenHandler(req: NextApiRequest, res: NextApiResponse<Data>) {
+  const token: string = req.body.token;
 
-  let isValid = await supabaseConnection.isUserTokenValid(token);
+  const isValid: boolean = await BACK_END_CONTROLLER.isUserTokenValid(token);
 
-  res.status(200).json({ wasSuccessfull: isValid });
+  res.status(200).json({ wasSuccessful: isValid });
 }
+
+export default verifyTokenHandler;

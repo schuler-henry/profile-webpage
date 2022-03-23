@@ -1,25 +1,46 @@
-import Head from 'next/head'
-import { Component } from 'react'
-import { FrontEndController } from '../controller/frontEndController'
-import styles from '../styles/Impressum.module.css'
-import { Header } from '../components/header'
-import { Footer } from '../components/footer'
+import Head from 'next/head';
+import { Component } from "react";
+import matter from 'gray-matter'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from "remark-gfm";
+import { toHtml } from 'hast-util-to-html'
+import fs from 'fs'
+import styles from '../../../styles/studies/Markdown.module.css'
+import rehypeRaw from 'rehype-raw'
+import { FrontEndController } from '../../../controller/frontEndController';
+import { Header } from '../../../components/header'
+import { Footer } from '../../../components/footer'
 
-export interface ImpressumState {
-  isLoggedIn: boolean | undefined,
-  currentToken: string,
+export interface SummaryState {
+  isLoggedIn: boolean;
+  currentToken: string;
 }
 
-export interface ImpressumProps {
-
+export interface SummaryProps {
+  content: string;
 }
 
-/**
- * @class Home Component Class
- * @component
- */
-class Impressum extends Component<ImpressumProps, ImpressumState> {
-  constructor(props: ImpressumProps) {
+export const getServerSideProps = async context => {
+  const { summary } = context.params;
+
+  let content: string;
+
+  try {
+    content = fs.readFileSync(`${process.cwd()}/content/studies/summaries/${summary}.md`, 'utf-8');
+  } catch (error) {
+    content = "# Zusammenfassung Geschäftsprozesse"
+  }
+
+  return {
+    props: {
+      content
+    }
+  }
+}
+
+class Summary extends Component<SummaryProps, SummaryState> {
+  private summary = matter(this.props.content);
+  constructor(props: SummaryProps) {
     super(props)
     this.state = {
       isLoggedIn: undefined,
@@ -51,6 +72,8 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
    * @returns Nothing
    */
   async updateLoginState() {
+    console.log("updateLogin");
+
     const currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
       this.setState({ isLoggedIn: true, currentToken: currentToken })
@@ -59,17 +82,13 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
     this.setState({ isLoggedIn: false })
   }
 
-  /**
-   * Generates the JSX Output for the Client
-   * @returns JSX Output
-   */
   render() {
     if (this.state.isLoggedIn === undefined) {
       return (
         <div>
           <Head>
-            <title>Impressum</title>
-            <meta name="description" content="Impressum page." />
+            <title>{this.summary.data.title}</title>
+            <meta name="description" content="Summary" />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
@@ -82,8 +101,8 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
       return (
         <div>
           <Head>
-            <title>Impressum</title>
-            <meta name="description" content="Impressum page." />
+            <title>{this.summary.data.title}</title>
+            <meta name="description" content="Summary" />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
@@ -94,18 +113,13 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
           <div className='scrollBody'>
             <main>
               <div className={styles.content}>
-                <h1>Impressum</h1>
-                <h2>Verantwortlich</h2>
-                <p>Henry Schuler</p>
-                <h2>Kontakt</h2>
-                <p>
-                  Henry Schuler <br />
-                  Kastellstra&#223;e 69/1 <br />
-                  88316 Isny im Allg&auml;u <br />
-                  <br />
-                  Telefon: &#43;49 1590 8481493 <br />
-                  E-Mail: henryschuler&#64;outlook.de <br />
-                </p>
+                <ReactMarkdown
+                  components={{ table: ({ node }) => <div className={styles.tableScroll} dangerouslySetInnerHTML={{ __html: toHtml(node) }}></div> }}
+                  rehypePlugins={[rehypeRaw]}
+                  remarkPlugins={[remarkGfm]}
+                  className={styles.markdown}>
+                  {this.summary.content}
+                </ReactMarkdown>
               </div>
             </main>
 
@@ -119,4 +133,4 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
   }
 }
 
-export default Impressum
+export default Summary

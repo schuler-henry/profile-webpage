@@ -2,13 +2,19 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { isUsernameValid } from "./requirements";
 
 type Data = {
-  wasSuccessfull: boolean;
+  wasSuccessful: boolean,
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  let username = req.body.username;
+/**
+ * Api Route to check whether username meets the requirements 
+ * @category API
+ */
+async function usernameValidHandler(req: NextApiRequest, res: NextApiResponse<Data>) {
+  const username: string = req.body.username;
 
-  let isNameValid = isUsernameValid(username);
+  const isNameValid: boolean = isUsernameValid(username);
 
-  res.status(200).json({ wasSuccessfull: isNameValid })
+  res.status(200).json({ wasSuccessful: isNameValid })
 }
+
+export default usernameValidHandler;

@@ -1,17 +1,22 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { SupabaseConnection } from "../supabaseAPI"
+import { BackEndController } from "../../../controller/backEndController"
 
 type Data = {
-  wasSuccessfull: boolean;
+  wasSuccessful: boolean,
 }
 
-const supabaseConnection = new SupabaseConnection();
+const BACK_END_CONTROLLER = new BackEndController();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  let userID = req.body.userID;
-  let username = req.body.username;
+/**
+ * Api Route to check whether username exists
+ * @category API
+ */
+async function doesUserAlreadyExistHandler(req: NextApiRequest, res: NextApiResponse<Data>) {
+  const username: string = req.body.username;
 
-  let doesUserExist = await supabaseConnection.doesUserExist({id: userID, name: username})
+  const doesUserExist: boolean = await BACK_END_CONTROLLER.handleUserAlreadyExists(username)
 
-  res.status(200).json({ wasSuccessfull: doesUserExist })
+  res.status(200).json({ wasSuccessful: doesUserExist })
 }
+
+export default doesUserAlreadyExistHandler;
