@@ -1,7 +1,3 @@
-.content {
-  padding: 5vh 10vw;
-}
-
 .markdown {
   color-scheme: dark;
   -ms-text-size-adjust: 100%;
@@ -14,13 +10,14 @@
   font-size: 16px;
   line-height: 1.5;
   word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 .markdown {
   display: grid;
   grid-template-columns: auto;
   padding: 3ch;
-  border: solid;
+  /* border: solid; */
   border-radius: 5pt;
   border-width: 1pt;
 }
@@ -123,6 +120,7 @@
   max-width: 100%;
   box-sizing: content-box;
   background-color: #0d1117;
+  overflow: auto;
 }
 
 .markdown code,
@@ -223,12 +221,17 @@
   content: "";
 }
 
+.tableScroll {
+  overflow-x: overlay;
+}
+
 .markdown table {
   border-spacing: 0;
   border-collapse: collapse;
   display: block;
+  table-layout: fixed;
   width: max-content;
-  max-width: 100%;
+  max-width: fit-content;
   overflow: auto;
 }
 
@@ -549,7 +552,7 @@
 .markdown ul,
 .markdown ol,
 .markdown dl,
-.markdown table,
+.tableScroll,
 .markdown pre,
 .markdown details {
   margin-top: 0;
@@ -680,6 +683,8 @@
 .markdown table td {
   padding: 6px 13px;
   border: 1px solid #30363d;
+  display: table-cell;
+  word-wrap: break-word;
 }
 
 .markdown table tr {
@@ -953,3 +958,19 @@
 .markdown ::-webkit-calendar-picker-indicator {
   filter: invert(50%);
 }
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+  .content {
+    padding: 5vh 10vw;
+  }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {}

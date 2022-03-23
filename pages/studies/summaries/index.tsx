@@ -1,25 +1,44 @@
-import Head from 'next/head'
+import Head from 'next/head';
 import { Component } from 'react'
-import { FrontEndController } from '../controller/frontEndController'
-import styles from '../styles/Impressum.module.css'
-import { Header } from '../components/header'
-import { Footer } from '../components/footer'
+import fs from 'fs'
+import matter from 'gray-matter';
+import { Summary } from '../../../components/SummaryItem/SummaryItem';
+import styles from '../../../styles/studies/Summaries.module.css'
+import { FrontEndController } from '../../../controller/frontEndController';
+import { Header } from '../../../components/header'
+import { Footer } from '../../../components/footer'
 
-export interface ImpressumState {
-  isLoggedIn: boolean | undefined,
-  currentToken: string,
+export interface SummariesState {
+  isLoggedIn: boolean;
+  currentToken: string;
 }
 
-export interface ImpressumProps {
-
+export interface SummariesProps {
+  data: string[];
 }
 
-/**
- * @class Home Component Class
- * @component
- */
-class Impressum extends Component<ImpressumProps, ImpressumState> {
-  constructor(props: ImpressumProps) {
+export const getStaticProps = async () => {
+  const directory = fs.readdirSync(`${process.cwd()}/content/studies/summaries`, 'utf-8');
+  const files = directory.filter(fn => fn.endsWith(".md"));
+  const data = files.map(file => {
+    const path = `${process.cwd()}/content/studies/summaries/${file}`;
+    const rawContent = fs.readFileSync(path, {
+      encoding: "utf-8"
+    });
+    return rawContent
+  });
+
+  return {
+    props: {
+      data
+    }
+  }
+}
+
+class Summaries extends Component<SummariesProps, SummariesState> {
+  private realData = this.props.data.map(summary => matter(summary));
+  private listItems = this.realData.map(listItem => listItem.data);
+  constructor(props: SummariesProps) {
     super(props)
     this.state = {
       isLoggedIn: undefined,
@@ -51,6 +70,8 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
    * @returns Nothing
    */
   async updateLoginState() {
+    console.log("updateLogin");
+    
     const currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
       this.setState({isLoggedIn: true, currentToken: currentToken})
@@ -59,19 +80,15 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
     this.setState({isLoggedIn: false})
   }
 
-  /**
-   * Generates the JSX Output for the Client
-   * @returns JSX Output
-   */
   render() {
     if (this.state.isLoggedIn === undefined) {
       return (
         <div>
           <Head>
-          <title>Impressum</title>
-          <meta name="description" content="Impressum page." />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
+            <title>Summaries</title>
+            <meta name="description" content="Summaries" />
+            <link rel="icon" href="/favicon.ico" />
+          </Head>
 
           <header>
             <Header username={""} hideLogin={true} hideLogout={true} />
@@ -82,8 +99,8 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
       return (
         <div>
           <Head>
-            <title>Impressum</title>
-            <meta name="description" content="Impressum page." />
+            <title>Summaries</title>
+            <meta name="description" content="Summaries" />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
@@ -92,19 +109,15 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
           </header>
 
           <main>
-            <div className={styles.content}>
-              <h1>Impressum</h1>
-              <h2>Verantwortlich</h2>
-              <p>Henry Schuler</p>
-              <h2>Kontakt</h2>
-              <p>
-                Henry Schuler <br />
-                Kastellstra&#223;e 69/1 <br />
-                88316 Isny im Allg&auml;u <br />
-                <br />
-                Telefon: &#43;49 1590 8481493 <br />
-                E-Mail: henryschuler&#64;outlook.de <br />
-              </p>
+            <h1>
+              Zusammenfassungen
+            </h1>
+            <div className={styles.container}>
+              <div>
+                {this.listItems.map((summary, i) => (
+                  <Summary key={i} summary={summary}/>
+                ))}
+              </div>
             </div>
           </main>
 
@@ -117,4 +130,4 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
   }
 }
 
-export default Impressum
+export default Summaries

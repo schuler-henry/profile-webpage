@@ -3,7 +3,7 @@ import Head from 'next/head'
 import { Component } from 'react'
 import { FrontEndController } from '../controller/frontEndController'
 import styles from '../styles/Login.module.css'
-import Header from '../components/header'
+import { Header } from '../components/header'
 import { Footer } from '../components/footer'
 
 export interface LoginState {

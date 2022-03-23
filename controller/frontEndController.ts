@@ -14,7 +14,7 @@ export class FrontEndController {
    * This method checks whether a given user exists in the database
    */
   static async doesUserExist(username: string): Promise<boolean> {
-    const response = await fetch('./api/users/does_exist', {
+    const response = await fetch('/api/users/does_exist', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -32,7 +32,7 @@ export class FrontEndController {
    * This method returns a filled User object for the given user.
    */
   static async getUserFromToken(token: string): Promise<User> {
-    const response = await fetch('./api/users/get_user', {
+    const response = await fetch('/api/users/get_user', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -50,7 +50,7 @@ export class FrontEndController {
    * This method checks the password for current password requirements
    */
   static async isPasswordValid(password: string): Promise<boolean> {
-    const response = await fetch('./api/users/is_password_valid', {
+    const response = await fetch('/api/users/is_password_valid', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -68,7 +68,7 @@ export class FrontEndController {
    * This method checks the username for current username requirements
    */
   static async isUsernameValid(username: string): Promise<boolean> {
-    const response = await fetch('./api/users/is_username_valid', {
+    const response = await fetch('/api/users/is_username_valid', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -86,7 +86,7 @@ export class FrontEndController {
    * This method logs a user in if there is a match with the database. Therfore a token is created which is stored in the browsers local storage.
    */
   static async loginUser(username: string, password: string): Promise<boolean> {
-    const response = await fetch('./api/users/login', {
+    const response = await fetch('/api/users/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -111,7 +111,7 @@ export class FrontEndController {
    * This method registers a user to the database
    */
   static async registerUser(username: string, password: string): Promise<boolean> {
-    const response = await fetch('./api/users/register', {
+    const response = await fetch('/api/users/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -134,7 +134,7 @@ export class FrontEndController {
    * This method changes the password of the current user
    */
   static async changePassword(userToken: string, oldPassword: string, newPassword: string): Promise<boolean> {
-    const response = await fetch('./api/users/change_password', {
+    const response = await fetch('/api/users/change_password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -154,7 +154,7 @@ export class FrontEndController {
    * This method checks whether the given token has a valid signature and user
    */
   static async verifyUserByToken(token: string): Promise<boolean> {
-    const response = await fetch('./api/users/verify_token', {
+    const response = await fetch('/api/users/verify_token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

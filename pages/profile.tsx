@@ -4,7 +4,7 @@ import { Component } from 'react'
 import { FrontEndController } from '../controller/frontEndController'
 import { User } from '../interfaces'
 import styles from '../styles/Profile.module.css'
-import Header from '../components/header'
+import { Header } from '../components/header'
 import { Footer } from '../components/footer'
 
 export interface ProfileState {
