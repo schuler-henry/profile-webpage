@@ -28,7 +28,7 @@ export const getServerSideProps = async context => {
   try {
     content = fs.readFileSync(`${process.cwd()}/content/studies/summaries/${summary}.md`, 'utf-8');
   } catch (error) {
-    content = "# Zusammenfassung Geschäftsprozesse"
+    content = "# This file does not exist!"
   }
 
   return {
