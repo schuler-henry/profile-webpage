@@ -57,7 +57,7 @@
   z-index: 3;
 
   display: grid;
-  grid-template-rows: 70pt min-content min-content min-content min-content auto 40pt;
+  grid-template-rows: 70pt min-content min-content min-content min-content min-content auto 40pt;
   overflow: auto;
 }
 
@@ -108,6 +108,15 @@
 
 .pcSpacing {
   display: none;
+}
+
+.languageSwitcher:hover {
+  background-color: initial;
+  cursor: initial;
+}
+
+.languageSwitcher:hover span {
+  transform: initial;
 }
 
 .button button {
@@ -170,7 +179,7 @@
     transition: none;
 
     grid-template-rows: initial;
-    grid-template-columns: min-content min-content min-content min-content auto min-content min-content;
+    grid-template-columns: min-content min-content min-content min-content auto min-content min-content min-content;
     row-gap: 0;
     column-gap: 0;
     overflow: hidden;
@@ -192,6 +201,10 @@
   .nav:hover span {
     transform: translateX(0);
     transform: translateY(2px);
+  }
+  
+  .languageSwitcher:hover span {
+    transform: initial;
   }
 
   .pcSpacing {

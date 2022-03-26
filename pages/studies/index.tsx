@@ -4,14 +4,26 @@ import { FrontEndController } from '../../controller/frontEndController';
 import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
 import Link from 'next/link';
+import { withRouter } from 'next/router';
+import { WithRouterProps } from 'next/dist/client/with-router';
+import { I18n, withTranslation, WithTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 export interface StudiesState {
   isLoggedIn: boolean;
   currentToken: string;
 }
 
-export interface StudiesProps {
+export interface StudiesProps extends WithTranslation, WithRouterProps {
+  i18n: I18n;
+}
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common', 'studies'])),
+    }
+  }
 }
 
 class Studies extends Component<StudiesProps, StudiesState> {
@@ -56,17 +68,26 @@ class Studies extends Component<StudiesProps, StudiesState> {
   }
 
   render() {
+    const { router } = this.props
     if (this.state.isLoggedIn === undefined) {
       return (
         <div>
           <Head>
-            <title>Studies</title>
+            <title>{this.props.t('common:Studies')}</title>
             <meta name="description" content="Studies" />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={""} hideLogin={true} hideLogout={true} />
+            <Header 
+              username={""} 
+              hideLogin={true} 
+              hideLogout={true} 
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
         </div>
       )
@@ -74,19 +95,26 @@ class Studies extends Component<StudiesProps, StudiesState> {
       return (
         <div>
           <Head>
-            <title>Studies</title>
+            <title>{this.props.t('common:Studies')}</title>
             <meta name="description" content="Studies" />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
+            <Header 
+              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+              hideLogin={this.state.isLoggedIn} 
+              hideLogout={!this.state.isLoggedIn} 
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
 
           <div className='scrollBody'>
             <main>
-              Hallo <br />
-              Get to the <Link href="/studies/summaries">summaries</Link>!
+              {this.props.t('studies:Get_to_the')} <Link href="/studies/summaries">{this.props.t('studies:summaries')}</Link>!
             </main>
 
             <footer>
@@ -99,4 +127,4 @@ class Studies extends Component<StudiesProps, StudiesState> {
   }
 }
 
-export default Studies
+export default withRouter(withTranslation()(Studies))

@@ -5,15 +5,21 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '../public/favicon.ico'
 import LogoName from '../public/favicon.ico'
+import { LanguageSwitcher } from './LanguageSwitcher/LanguageSwitcher';
+import { I18n, TFunction } from 'next-i18next';
+import { WithRouterProps } from 'next/dist/client/with-router';
 
 export interface HeaderState {
 
 }
 
-export interface HeaderProps {
-  username: string,
-  hideLogin: boolean,
+export interface HeaderProps extends WithRouterProps {
+  username: string;
+  hideLogin: boolean;
   hideLogout: boolean;
+  path: string;
+  i18n: I18n;
+  t: TFunction;
 }
 
 /** 
@@ -51,7 +57,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
     } else {
       loginButton = <Link href={'/login'} passHref>
         <button>
-          Login
+          {this.props.t('common:Login')}
         </button>
       </Link>
     }
@@ -69,7 +75,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
             location.reload();
           }
           }>
-          Logout
+          {this.props.t('common:Logout')}
         </button>
       </>
     }
@@ -151,26 +157,33 @@ export class Header extends Component<HeaderProps, HeaderState> {
               <Link href={'/'} passHref>
                 <div className={styles.nav}>
                   <span>
-                    Home
+                    {this.props.t('common:Home')}
                   </span>
                 </div>
               </Link>
               <Link href={'/studies'} passHref>
                 <div className={styles.nav}>
                   <span>
-                    Studium
+                    {this.props.t('common:Studies')}
                   </span>
                 </div>
               </Link>
               <Link href={'/impressum'} passHref>
                 <div className={styles.nav}>
                   <span>
-                    Impressum
+                    {this.props.t('common:Impressum')}
                   </span>
                 </div>
               </Link>
               <div className={styles.pcSpacing}>
                 {/* Spacing for PC (top bar) View */}
+              </div>
+              <div className={`${styles.nav} ${styles.languageSwitcher}`}>
+                <LanguageSwitcher
+                  path={this.props.path}
+                  i18n={this.props.i18n}
+                  router={this.props.router}
+                />
               </div>
               {username}
               <div className={styles.mobileSpacing}>

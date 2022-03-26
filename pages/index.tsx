@@ -4,7 +4,9 @@ import { FrontEndController } from '../controller/frontEndController'
 import styles from '../styles/Home.module.css'
 import { Header } from '../components/header'
 import { Footer } from '../components/footer'
-
+import { I18n, WithTranslation, withTranslation } from 'next-i18next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 export interface HomeState {
   isLoggedIn: boolean | undefined,
   currentToken: string,
@@ -12,8 +14,16 @@ export interface HomeState {
   headerText: string,
 }
 
-export interface HomeProps {
+export interface HomeProps extends WithTranslation, WithRouterProps {
+  i18n: I18n;
+}
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common', 'home'])),
+    }
+  }
 }
 
 /**
@@ -30,7 +40,7 @@ class Home extends Component<HomeProps, HomeState> {
       headerText: "",
     }
   }
-
+  
   componentDidMount() {
     this.updateLoginState();
     window.addEventListener('storage', this.storageTokenListener)
@@ -61,7 +71,7 @@ class Home extends Component<HomeProps, HomeState> {
     } else {
       this.setState({ isLoggedIn: false })
     }
-    this.typeWriter("Coding Musik Freizeit");
+    this.typeWriter(this.props.t('home:slogan'));
   }
 
   /**
@@ -96,17 +106,26 @@ class Home extends Component<HomeProps, HomeState> {
    * @returns JSX Output
    */
   render() {
+    const { router } = this.props
     if (this.state.isLoggedIn === undefined) {
       return (
         <div>
           <Head>
-            <title>Welcome</title>
+            <title>{this.props.t('home:Welcome')}</title>
             <meta name="description" content="Welcome page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={""} hideLogin={true} hideLogout={true} />
+            <Header 
+              username={""} 
+              hideLogin={true} 
+              hideLogout={true} 
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
         </div>
       )
@@ -114,13 +133,21 @@ class Home extends Component<HomeProps, HomeState> {
       return (
         <div>
           <Head>
-            <title>Welcome</title>
+            <title>{this.props.t('home:Welcome')}</title>
             <meta name="description" content="Welcome page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
+            <Header 
+              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+              hideLogin={this.state.isLoggedIn} 
+              hideLogout={!this.state.isLoggedIn} 
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
           <div className="scrollBody">
             <main>
@@ -141,4 +168,4 @@ class Home extends Component<HomeProps, HomeState> {
   }
 }
 
-export default Home
+export default withRouter(withTranslation()(Home))

@@ -7,17 +7,21 @@ import styles from '../../../styles/studies/Summaries.module.css'
 import { FrontEndController } from '../../../controller/frontEndController';
 import { Header } from '../../../components/header'
 import { Footer } from '../../../components/footer'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { I18n, withTranslation, WithTranslation } from 'next-i18next';
+import withRouter, { WithRouterProps } from 'next/dist/client/with-router';
 
 export interface SummariesState {
   isLoggedIn: boolean;
   currentToken: string;
 }
 
-export interface SummariesProps {
+export interface SummariesProps extends WithTranslation, WithRouterProps {
   data: string[];
+  i18n: I18n;
 }
 
-export const getStaticProps = async () => {
+export const getStaticProps = async ({ locale }) => {
   const directory = fs.readdirSync(`${process.cwd()}/content/studies/summaries`, 'utf-8');
   const files = directory.filter(fn => fn.endsWith(".md"));
   const data = files.map(file => {
@@ -30,7 +34,8 @@ export const getStaticProps = async () => {
 
   return {
     props: {
-      data
+      data,
+      ...(await serverSideTranslations(locale, ['common', 'summaries'])),
     }
   }
 }
@@ -70,8 +75,6 @@ class Summaries extends Component<SummariesProps, SummariesState> {
    * @returns Nothing
    */
   async updateLoginState() {
-    console.log("updateLogin");
-
     const currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
       this.setState({ isLoggedIn: true, currentToken: currentToken })
@@ -81,17 +84,26 @@ class Summaries extends Component<SummariesProps, SummariesState> {
   }
 
   render() {
+    const { router } = this.props
     if (this.state.isLoggedIn === undefined) {
       return (
         <div>
           <Head>
-            <title>Summaries</title>
+            <title>{this.props.t('common:Summaries')}</title>
             <meta name="description" content="Summaries" />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={""} hideLogin={true} hideLogout={true} />
+            <Header 
+              username={""} 
+              hideLogin={true} 
+              hideLogout={true}
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router} 
+              t={this.props.t}
+            />
           </header>
         </div>
       )
@@ -99,19 +111,27 @@ class Summaries extends Component<SummariesProps, SummariesState> {
       return (
         <div>
           <Head>
-            <title>Summaries</title>
+            <title>{this.props.t('common:Summaries')}</title>
             <meta name="description" content="Summaries" />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
+            <Header 
+              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+              hideLogin={this.state.isLoggedIn} 
+              hideLogout={!this.state.isLoggedIn} 
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
 
           <div className='scrollBody'>
             <main>
               <h1>
-                Zusammenfassungen
+                {this.props.t('common:Summaries')}
               </h1>
               <div className={styles.container}>
                 <div>
@@ -132,4 +152,4 @@ class Summaries extends Component<SummariesProps, SummariesState> {
   }
 }
 
-export default Summaries
+export default withRouter(withTranslation()(Summaries))

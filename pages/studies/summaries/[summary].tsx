@@ -10,17 +10,21 @@ import rehypeRaw from 'rehype-raw'
 import { FrontEndController } from '../../../controller/frontEndController';
 import { Header } from '../../../components/header'
 import { Footer } from '../../../components/footer'
+import { I18n, withTranslation, WithTranslation } from 'next-i18next';
+import withRouter, { WithRouterProps } from 'next/dist/client/with-router';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 export interface SummaryState {
   isLoggedIn: boolean;
   currentToken: string;
 }
 
-export interface SummaryProps {
+export interface SummaryProps extends WithTranslation, WithRouterProps {
   content: string;
+  i18n: I18n;
 }
 
-export const getServerSideProps = async context => {
+export const getServerSideProps = async (context) => {
   const { summary } = context.params;
 
   let content: string;
@@ -33,7 +37,8 @@ export const getServerSideProps = async context => {
 
   return {
     props: {
-      content
+      ...(await serverSideTranslations(context.locale, ['common', 'summary'])),
+      content,
     }
   }
 }
@@ -72,8 +77,6 @@ class Summary extends Component<SummaryProps, SummaryState> {
    * @returns Nothing
    */
   async updateLoginState() {
-    console.log("updateLogin");
-
     const currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
       this.setState({ isLoggedIn: true, currentToken: currentToken })
@@ -83,6 +86,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
   }
 
   render() {
+    const { router } = this.props
     if (this.state.isLoggedIn === undefined) {
       return (
         <div>
@@ -93,7 +97,15 @@ class Summary extends Component<SummaryProps, SummaryState> {
           </Head>
 
           <header>
-            <Header username={""} hideLogin={true} hideLogout={true} />
+            <Header 
+              username={""} 
+              hideLogin={true} 
+              hideLogout={true} 
+              path={router.asPath} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
         </div>
       )
@@ -107,7 +119,15 @@ class Summary extends Component<SummaryProps, SummaryState> {
           </Head>
 
           <header>
-            <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
+            <Header 
+              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+              hideLogin={this.state.isLoggedIn} 
+              hideLogout={!this.state.isLoggedIn} 
+              path={router.asPath} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
 
           <div className='scrollBody'>
@@ -133,4 +153,4 @@ class Summary extends Component<SummaryProps, SummaryState> {
   }
 }
 
-export default Summary
+export default withRouter(withTranslation()(Summary))

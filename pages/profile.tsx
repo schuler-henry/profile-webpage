@@ -6,15 +6,25 @@ import { User } from '../interfaces'
 import styles from '../styles/Profile.module.css'
 import { Header } from '../components/header'
 import { Footer } from '../components/footer'
+import { I18n, withTranslation, WithTranslation } from 'next-i18next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
 export interface ProfileState {
-  isLoggedIn: boolean | undefined,
-  currentToken: string,
-  currentUser: User | undefined,
+  isLoggedIn: boolean | undefined;
+  currentToken: string;
+  currentUser: User | undefined;
 }
 
-export interface ProfileProps extends WithRouterProps {
+export interface ProfileProps extends WithTranslation, WithRouterProps {
+  i18n: I18n;
+}
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common', 'profile'])),
+    }
+  }
 }
 
 /**
@@ -70,17 +80,26 @@ class Profile extends Component<ProfileProps, ProfileState> {
    * @returns JSX Output
    */
   render() {
+    const { router } = this.props
     if (this.state.isLoggedIn === undefined) {
       return (
         <div>
           <Head>
-            <title>Profile</title>
+            <title>{this.props.t('common:Profile')}</title>
             <meta name="description" content="Profile page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={""} hideLogin={true} hideLogout={true} />
+            <Header 
+              username={""} 
+              hideLogin={true} 
+              hideLogout={true} 
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
         </div>
       )
@@ -100,20 +119,28 @@ class Profile extends Component<ProfileProps, ProfileState> {
       return (
         <div>
           <Head>
-            <title>Profile</title>
+            <title>{this.props.t('common:Profile')}</title>
             <meta name="description" content="Profile page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
+            <Header 
+              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+              hideLogin={this.state.isLoggedIn} 
+              hideLogout={!this.state.isLoggedIn} 
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
 
           <div className='scrollBody'>
             <main>
               <div className={styles.content}>
-                <h1>User: {FrontEndController.getUsernameFromToken(FrontEndController.getUserToken())}</h1>
-                <h2>Information</h2>
+                <h1>{this.props.t('profile:User')}: {FrontEndController.getUsernameFromToken(FrontEndController.getUserToken())}</h1>
+                <h2>{this.props.t('profile:Information')}</h2>
                 <table>
                   <thead>
                     <tr>
@@ -123,7 +150,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                   </thead>
                   <tbody>
                     <tr>
-                      <td>Access Level:</td>
+                      <td>{this.props.t('profile:AccessLevel')}:</td>
                       <td>{getAccessString(this.state.currentUser?.accessLevel)}</td>
                     </tr>
                   </tbody>
@@ -141,4 +168,4 @@ class Profile extends Component<ProfileProps, ProfileState> {
   }
 }
 
-export default withRouter(Profile)
+export default withRouter(withTranslation()(Profile))
