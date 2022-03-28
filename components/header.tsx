@@ -8,6 +8,9 @@ import LogoName from '../public/favicon.ico'
 import { LanguageSwitcher } from './LanguageSwitcher/LanguageSwitcher';
 import { I18n, TFunction } from 'next-i18next';
 import { WithRouterProps } from 'next/dist/client/with-router';
+import { DarkmodeSwitcher } from './DarkmodeSwitcher/DarkmodeSwitcher';
+import { ColorTheme } from '../enums/colorTheme';
+import { DefaultButton } from '@fluentui/react';
 
 export interface HeaderState {
 
@@ -56,9 +59,12 @@ export class Header extends Component<HeaderProps, HeaderState> {
       loginButton = <></>
     } else {
       loginButton = <Link href={'/login'} passHref>
-        <button>
+        <DefaultButton>
           {this.props.t('common:Login')}
-        </button>
+        </DefaultButton>
+        {/* <button>
+          {this.props.t('common:Login')}
+        </button> */}
       </Link>
     }
 
@@ -163,7 +169,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
               </Link>
               <Link href={'/studies'} passHref>
                 <div className={styles.nav}>
-                  <span>
+                  <span className={styles.navContent}>
                     {this.props.t('common:Studies')}
                   </span>
                 </div>
@@ -185,11 +191,14 @@ export class Header extends Component<HeaderProps, HeaderState> {
                   router={this.props.router}
                 />
               </div>
+              <div className={`${styles.nav} ${styles.languageSwitcher}`}>
+                <DarkmodeSwitcher />
+              </div>
               {username}
               <div className={styles.mobileSpacing}>
                 {/* Spacing for Mobile (side bar) View */}
               </div>
-              <div className={`${styles.nav} ${styles.button}`}>
+              <div className={`${styles.nav} ${styles.languageSwitcher}`}>
                 {loginButton}
                 {logoutButton}
               </div>

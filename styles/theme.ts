@@ -26,3 +26,29 @@ export const darkTheme = createTheme({
     white: '#151515',
   }
 });
+
+export const lightTheme = createTheme({
+  palette: {
+    themePrimary: '#0400ff',
+    themeLighterAlt: '#f5f5ff',
+    themeLighter: '#d7d6ff',
+    themeLight: '#b4b3ff',
+    themeTertiary: '#6966ff',
+    themeSecondary: '#221fff',
+    themeDarkAlt: '#0400e6',
+    themeDark: '#0300c2',
+    themeDarker: '#02008f',
+    neutralLighterAlt: '#f8f8f8',
+    neutralLighter: '#f4f4f4',
+    neutralLight: '#eaeaea',
+    neutralQuaternaryAlt: '#dadada',
+    neutralQuaternary: '#d0d0d0',
+    neutralTertiaryAlt: '#c8c8c8',
+    neutralTertiary: '#070707',
+    neutralSecondary: '#090909',
+    neutralPrimaryAlt: '#0b0b0b',
+    neutralPrimary: '#151515',
+    neutralDark: '#101010',
+    black: '#121212',
+    white: '#ffffff',
+  }});

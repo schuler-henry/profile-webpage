@@ -1,8 +1,7 @@
 import { Component } from "react";
-import { Dropdown, IDropdownOption, IDropdownStyles, ThemeProvider } from '@fluentui/react'
+import { Dropdown, IDropdownOption, IDropdownStyles } from '@fluentui/react'
 import { WithRouterProps } from "next/dist/client/with-router";
 import { I18n } from "next-i18next";
-import { darkTheme } from '../../styles/theme'
 import { Icon } from '@fluentui/react/lib/Icon'
 
 const dropdownStyles: Partial<IDropdownStyles> = {
@@ -63,25 +62,23 @@ export class LanguageSwitcher extends Component<LanguageSwitcherProps, LanguageS
   private onChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
     if (this.state.selectedItem.key !== item.key) {
       const { router } = this.props;
-      router.push(this.props.path, this.props.path, {locale: item.key.toString()})
-      this.setState({selectedItem: item});
+      router.push(this.props.path, this.props.path, { locale: item.key.toString() })
+      this.setState({ selectedItem: item });
     }
   };
 
   render() {
     return (
       <div>
-        <ThemeProvider theme={darkTheme}>
         <Dropdown
           id="language-dropdown"
-          selectedKey={this.state.selectedItem ? this.state.selectedItem.key: undefined}
+          selectedKey={this.state.selectedItem ? this.state.selectedItem.key : undefined}
           onChange={this.onChange}
           onRenderOption={onRenderOption}
           onRenderTitle={onRenderTitle}
           options={dropdownControlledLanguageOptions}
           styles={dropdownStyles}
         />
-        </ThemeProvider>
       </div>
     )
   }

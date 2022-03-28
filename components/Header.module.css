@@ -1,5 +1,6 @@
 .navBar {
-  background-color: #151515;
+  /* background-color: inherit; */
+  font-family: 'Montserrat', sans-serif;
   display: grid;
   grid-template-columns: 40pt auto 40pt;
   column-gap: 5vw;
@@ -49,7 +50,7 @@
   padding: 0px;
   padding-top: 65px;
   padding-bottom: 65px;
-  background-color: #151515;
+  background-color: green;
   -webkit-font-smoothing: antialiased;
   left: -91vw;
   transform: translate(0, 0);
@@ -57,7 +58,7 @@
   z-index: 3;
 
   display: grid;
-  grid-template-rows: 70pt min-content min-content min-content min-content min-content auto 40pt;
+  grid-template-rows: 70pt min-content min-content min-content min-content min-content min-content auto 40pt;
   overflow: auto;
 }
 
@@ -73,12 +74,12 @@
   padding: 0 60px;
   font-size: 1.5em;
   align-items: center;
-  color: white;
+  /* color: white; */
 }
 
 .nav:hover {
   cursor: pointer;
-  background-color: #333333;
+  /* background-color: #333333; */
   color: #00D0FF;
 }
 
@@ -111,7 +112,7 @@
 }
 
 .languageSwitcher:hover {
-  background-color: initial;
+  /* background-color: initial; */
   cursor: initial;
 }
 
@@ -120,12 +121,12 @@
 }
 
 .button button {
-  color: white;
+  /* color: white; */
 }
 
 .button:hover {
   cursor: default;
-  background-color: #151515;
+  /* background-color: #151515; */
   transform: translateX(0);
   transition: 0;
 }
@@ -179,7 +180,7 @@
     transition: none;
 
     grid-template-rows: initial;
-    grid-template-columns: min-content min-content min-content min-content auto min-content min-content min-content;
+    grid-template-columns: min-content min-content min-content min-content auto min-content min-content min-content min-content;
     row-gap: 0;
     column-gap: 0;
     overflow: hidden;
@@ -195,7 +196,12 @@
   }
 
   .nav {
+    padding: 0 ;
+    height: 60%;
     padding: 0 20px;
+    border-left: solid 1px #00D0FF;
+    border-right: solid 1px #00D0FF;
+    align-self: center;
   }
 
   .nav:hover span {
