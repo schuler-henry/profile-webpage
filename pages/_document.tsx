@@ -3,6 +3,7 @@ import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/do
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
     const initialProps = await Document.getInitialProps(ctx)
+    console.log("Document")
     return { ...initialProps }
   }
 
@@ -23,3 +24,7 @@ class MyDocument extends Document {
 }
 
 export default MyDocument
+
+function getUnicodeFlagIcon(arg0: string): string | JSX.Element {
+  throw new Error('Function not implemented.')
+}

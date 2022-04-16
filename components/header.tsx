@@ -1,16 +1,18 @@
-import { Component } from 'react'
+import { Component, Context, useContext } from 'react'
 import styles from './Header.module.css'
 import { FrontEndController } from '../controller/frontEndController'
 import Link from 'next/link';
 import Image from 'next/image';
-import Logo from '../public/favicon.ico'
-import LogoName from '../public/favicon.ico'
+import Logo from '../public/logo_circle_black.png'
+import LogoNameBlack from '../public/logo_name_black.png'
+import LogoNameWhite from '../public/logo_name_white.png'
 import { LanguageSwitcher } from './LanguageSwitcher/LanguageSwitcher';
 import { I18n, TFunction } from 'next-i18next';
 import { WithRouterProps } from 'next/dist/client/with-router';
 import { DarkmodeSwitcher } from './DarkmodeSwitcher/DarkmodeSwitcher';
 import { ColorTheme } from '../enums/colorTheme';
 import { DefaultButton } from '@fluentui/react';
+import { PWPContext } from './PWPThemeProvider/PWPThemeProvider';
 
 export interface HeaderState {
 
@@ -32,6 +34,37 @@ export interface HeaderProps extends WithRouterProps {
  */
 export class Header extends Component<HeaderProps, HeaderState> {
   isVisible = false;
+
+  static contextType = PWPContext
+
+  private toggleVisibility() {
+    if (this.isVisible) {
+      // remove close-field next to the menu
+      document.getElementById('closeNavField').classList.remove(`${styles.closeNavField}`);
+      // slide side-nav to the left (hide)
+      document.getElementById("menu").classList.remove(`${styles.showHeader}`)
+      // rotate spans for menu icon (parallel lines)
+      document.getElementById("spanOne").classList.remove(`${styles.span}`)
+      document.getElementById("spanTwo").classList.remove(`${styles.span}`)
+      document.getElementById("spanTwo").classList.remove(`${styles.spanTwo}`)
+      document.getElementById("spanThree").classList.remove(`${styles.span}`)
+      document.getElementById("spanThree").classList.remove(`${styles.spanThree}`)
+      this.isVisible = false;
+    } else {
+      // show close-field next to the menu
+      document.getElementById('closeNavField').classList.add(`${styles.closeNavField}`);
+      // slide side-nav to the right (view)
+      document.getElementById("menu").classList.add(`${styles.showHeader}`)
+      // rotate spans for menu close icon (x)
+      document.getElementById("spanOne").classList.add(`${styles.span}`)
+      document.getElementById("spanTwo").classList.add(`${styles.span}`)
+      document.getElementById("spanTwo").classList.add(`${styles.spanTwo}`)
+      document.getElementById("spanThree").classList.add(`${styles.span}`)
+      document.getElementById("spanThree").classList.add(`${styles.spanThree}`)
+      this.isVisible = true;
+    }
+  }
+
   /**
    * Generates the JSX Output for the Client
    * @returns JSX Output
@@ -39,6 +72,8 @@ export class Header extends Component<HeaderProps, HeaderState> {
   render() {
     // Nav-Bar element for profile
     let username;
+
+    console.log(this.context.theme);
 
     if (this.props.hideLogout) {
       username = <div></div>
@@ -95,27 +130,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
               className={`${styles.navElement} ${styles.menuIcon}`}
               id={styles.menuIcon}
               onClick={() => {
-                if (this.isVisible) {
-                  // slide side-nav to the left (hide)
-                  document.getElementById("menu").classList.remove(`${styles.showHeader}`)
-                  // rotate spans for menu icon (parallel lines)
-                  document.getElementById("spanOne").classList.remove(`${styles.span}`)
-                  document.getElementById("spanTwo").classList.remove(`${styles.span}`)
-                  document.getElementById("spanTwo").classList.remove(`${styles.spanTwo}`)
-                  document.getElementById("spanThree").classList.remove(`${styles.span}`)
-                  document.getElementById("spanThree").classList.remove(`${styles.spanThree}`)
-                  this.isVisible = false;
-                } else {
-                  // slide side-nav to the right (view)
-                  document.getElementById("menu").classList.add(`${styles.showHeader}`)
-                  // rotate spans for menu close icon (x)
-                  document.getElementById("spanOne").classList.add(`${styles.span}`)
-                  document.getElementById("spanTwo").classList.add(`${styles.span}`)
-                  document.getElementById("spanTwo").classList.add(`${styles.spanTwo}`)
-                  document.getElementById("spanThree").classList.add(`${styles.span}`)
-                  document.getElementById("spanThree").classList.add(`${styles.spanThree}`)
-                  this.isVisible = true;
-                }
+                this.toggleVisibility();
               }}>
               {/* Three bars that make up the menu-icon */}
               <span id="spanOne"></span>
@@ -124,10 +139,21 @@ export class Header extends Component<HeaderProps, HeaderState> {
             </div>
             {/* Logo for Top-Nav-Bar in mobile view */}
             <Link href={'/'} passHref>
+              <div className={styles.logo}>
+                <Image
+                  src={Logo}
+                  alt='Logo missing.'
+                  objectFit='contain'
+                  sizes='fitContent'
+                  layout="fill">
+                </Image>
+              </div>
+            </Link>
+            <Link href={'/'} passHref>
               <div className={styles.logoName}>
                 <Image
-                  src={LogoName}
-                  alt='Logo_Schrift_Weiss.png missing.'
+                  src={this.context.theme === "light" ? LogoNameBlack : LogoNameWhite}
+                  alt='Logo missing.'
                   objectFit='contain'
                   sizes='fitContent'
                   layout="fill">
@@ -135,6 +161,15 @@ export class Header extends Component<HeaderProps, HeaderState> {
               </div>
             </Link>
             {/* Nav-Bar elements (top and left-side) */}
+            <div 
+              className='invisible'
+              id="closeNavField"
+              onClick={
+                () => {
+                  console.log("clicked");
+                  this.toggleVisibility();
+                }
+              } />
             <div
               className={styles.menu}
               id="menu">
@@ -152,8 +187,8 @@ export class Header extends Component<HeaderProps, HeaderState> {
               <Link href={'/'} passHref>
                 <div className={styles.navLogoName}>
                   <Image
-                    src={LogoName}
-                    alt='Logo_Schrift_Weiss.png missing.'
+                    src={this.context.theme === "light" ? LogoNameBlack : LogoNameWhite}
+                    alt='Logo missing.'
                     objectFit='contain'
                     sizes='fitContent'
                     layout="fill">

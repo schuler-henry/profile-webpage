@@ -2,7 +2,7 @@
 slug: geschaeftsprozesse
 title: "Geschäftsprozesse U. Maulhardt (S3)"
 description: Eine Zusammenfassung der Vorlesungsinhalte und Gruppenarbeiten über das Modul Geschäftsprozesse in Semester 3 (Theoriephase 4)
-img: https://web-notes.me/Logo.png
+img: https://henry-schuler.vercel.app/favicon.ico
 date: 21 March 2022
 ---
 # Zusammenfassung Geschäftsprozesse

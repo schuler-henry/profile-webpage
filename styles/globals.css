@@ -3,9 +3,24 @@ body {
   padding: 0;
   margin: 0;
   font-family: 'Montserrat', sans-serif;
-  color: white;
-  background-color: #151515;
+  color: var(--color-text-primary);
+  background-color: var(--color-background-primary);
   width: 100vw;
+  transition: background 2.5s ease-in-out;
+}
+
+body[data-theme="light"] {
+  --color-text-primary: black;
+  --color-text-secondary: #0400FF;
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #0400FF;
+}
+
+body[data-theme="dark"] {
+  --color-text-primary: white;
+  --color-text-secondary: #00C0FF;
+  --color-bg-primary: #151515;
+  --color-bg-secondary: #00C0FF;
 }
 
 /* width */
@@ -66,7 +81,7 @@ button {
 
 button:hover {
   background-color: #2A2A2A;
-  color: #00C0FF;
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: 0.3s;
 }
@@ -85,4 +100,17 @@ input {
   border-color: #2A2A2A;
   border-width: 2pt;
   border-radius: 2pt;
+}
+
+:not(ul.contains-task-list) ul.contains-task-list {
+  list-style-type: none;
+  transform: translateX(-2em);
+}
+
+ul.contains-task-list > li > ul.contains-task-list {
+  transform: translateX(0);
+}
+
+.invisible {
+  display: none;
 }

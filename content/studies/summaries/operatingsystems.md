@@ -1,8 +1,8 @@
 ---
-slug: operatingSystems
+slug: operatingsystems
 title: "Operating Systems A. Maier (S3)"
 description: A summary containing the most important information from the lecture in semester 3 (theory block 4)
-img: https://web-notes.me/Logo.png
+img: https://henry-schuler.vercel.app/favicon.ico
 date: 28 March 2022
 ---
 
@@ -32,7 +32,7 @@ date: 28 March 2022
 - [x] Interrupts, Exceptions, and System Calls (3 points)
   - [x] concept
   - only smaller questions
-  - don't have to know interupt table
+  - don't have to know interrupt table
 
 - [x] Interprocess Communication (4 points)
   - [x] most common forms
@@ -44,9 +44,11 @@ date: 28 March 2022
 - [x] Memory Management (5 points)
   - [x] basic natur of types
   - [x] hierarchy
-  - [x] swaping
+  - [x] swapping
   - [x] problems
   - [x] algorithms
+
+*[list by J. Brandenburger](https://f.brandenburger.dev/operating-systems/summary.md.html)*
 
 ## General Introduction and History
 - OS
@@ -132,7 +134,8 @@ date: 28 March 2022
 | wide compatibility | limited |
 | common kernel within distributions | no common kernel within distributions |
 | frequent bug fixes | infrequent bug fixes |
-[by J. Brandenburger](https://f.brandenburger.dev/operating-systems/summary.md.html)
+
+*[by J. Brandenburger](https://f.brandenburger.dev/operating-systems/summary.md.html)*
 
 ### How Windows came to be
 - Need for user-friendly operating system
@@ -226,87 +229,87 @@ date: 28 March 2022
 
 *image by A. Maier*
 
-- first come first serve
-  - \+ simple to implement
-  - \+ no starvation
-  - \- no priority
-  - \- low throughput
+#### first come first serve
+- \+ simple to implement
+- \+ no starvation
+- \- no priority
+- \- low throughput
 
 <img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/first_come_first_serve.png" alt="first_come_first_serve.png missing">
 
 *image by A. Maier*
 
-- shortest job first
-  - \+ priority is inverse of predicted burst time
-  - \- burst time must be known
-  - \- risk of starvation
+#### shortest job first
+- \+ priority is inverse of predicted burst time
+- \- burst time must be known
+- \- risk of starvation
 
 <img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/shortest_job_first.png" alt="shortest_job_first.png missing">
 
 *image by A. Maier*
 
-- shortest remaining time first
-  - \- overhead due to context starvation
-  - \- starvation possible
+#### shortest remaining time first
+- \- overhead due to context starvation
+- \- starvation possible
 
 <img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/shortest_remaining_time_first.png" alt="shortest_remaining_time_first.png missing">
 
 *image by A. Maier*
 
-- highest response ratio next
-  - **response ration = 1 + (waiting time / estimated run time)**
-  - \+ lowers possibility of starvation
+#### highest response ratio next
+- **response ration = 1 + (waiting time / estimated run time)**
+- \+ lowers possibility of starvation
 
-- round robin
-  - fixed time quantum
-  - \+ process rescheduling if not finished within quantum
-  - \+ no starvation
-  - \- overhead due to context switching
-    - quantum should be significantly higher than context switching time (e.g. 100ms; 10µs)
+#### round robin
+- fixed time quantum
+- \+ process rescheduling if not finished within quantum
+- \+ no starvation
+- \- overhead due to context switching
+  - quantum should be significantly higher than context switching time (e.g. 100ms; 10µs)
 
 <img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/round_robin.png" alt="round_robin.png missing">
 
 *image by A. Maier*
 
-- priority based scheduling
-  - \- same priority -> second scheduling algorithm
-  - \- risk of starvation in preemptive scheduling
+#### priority based scheduling
+- \- same priority -> second scheduling algorithm
+- \- risk of starvation in preemptive scheduling
 
 <img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/priority_based.png" alt="priority_based.png missing">
 
 *image by A. Maier*
 
-- multilevel queue scheduling
-  - processes sorted in different groups with own algorithms
-  - additional scheduling between queues
+#### multilevel queue scheduling
+- processes sorted in different groups with own algorithms
+- additional scheduling between queues
 
 <img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/multilevel_queue.png" alt="multilevel_queue.png missing">
 
 *image by A. Maier*
 
-- multilevel feedback queue scheduling
-  - processes move between queues based on spent CPU time
-    - too much time -> queue with less priority
-    - long waiting -> moved up in queue
-  - \+ most general scheduler
-  - \- most complex to implement
+#### multilevel feedback queue scheduling
+- processes move between queues based on spent CPU time
+  - too much time -> queue with less priority
+  - long waiting -> moved up in queue
+- \+ most general scheduler
+- \- most complex to implement
 
-- completely fair scheduler
-  - used by Linux kernel
-  - every process gets 1/n CPU time
-  - sleeping process earns CPU time -> i.e. boost on wake up
-  - virtual runtime
-    - **vruntime = (runtime / weight)**
-    - runtime = time in CPU
-    - weight = priority
-    - slower increase of vruntime for process with high priority
-    - **choose process with lowest vruntime**
+#### completely fair scheduler
+- used by Linux kernel
+- every process gets 1/n CPU time
+- sleeping process earns CPU time -> i.e. boost on wake up
+- virtual runtime
+  - **vruntime = (runtime / weight)**
+  - runtime = time in CPU
+  - weight = priority
+  - slower increase of vruntime for process with high priority
+  - **choose process with lowest vruntime**
 
-- earliest deadline first
-  - deadlines can be met if enough computing resources available
-  - \- requires system clock
-  - \- overload -> missing deadline (unpredictable)
-  - \- difficult to implement in hardware
+#### earliest deadline first
+- deadlines can be met if enough computing resources available
+- \- requires system clock
+- \- overload -> missing deadline (unpredictable)
+- \- difficult to implement in hardware
 
 ### Real time operating system
 - guarantee certain behavior within predictable time constraint

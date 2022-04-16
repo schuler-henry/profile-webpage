@@ -9,6 +9,7 @@ import { WithRouterProps } from "next/dist/client/with-router";
 function _onChange(ev: React.MouseEvent<HTMLElement>, router: NextRouter, checked?: boolean) {
   FrontEndController.setTheme(checked ? ColorTheme.lightTheme : ColorTheme.darkTheme)
   router.replace(router.asPath)
+  document.body.dataset.theme = checked ? "light" : "dark";
 }
 
 export interface DarkmodeSwitcherState {

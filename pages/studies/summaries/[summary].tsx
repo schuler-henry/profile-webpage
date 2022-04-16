@@ -5,7 +5,9 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from "remark-gfm";
 import { toHtml } from 'hast-util-to-html'
 import fs from 'fs'
-import styles from '../../../styles/studies/Markdown.module.css'
+import styles from '../../../styles/studies/Summary.module.css'
+import stylesDark from '../../../styles/studies/MarkdownDark.module.css'
+import stylesLight from '../../../styles/studies/MarkdownLight.module.css'
 import rehypeRaw from 'rehype-raw'
 import { FrontEndController } from '../../../controller/frontEndController';
 import { Header } from '../../../components/header'
@@ -13,6 +15,7 @@ import { Footer } from '../../../components/footer'
 import { I18n, withTranslation, WithTranslation } from 'next-i18next';
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { ColorTheme } from '../../../enums/colorTheme';
 
 export interface SummaryState {
   isLoggedIn: boolean;
@@ -137,7 +140,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
                   components={{ table: ({ node }) => <div className={styles.tableScroll} dangerouslySetInnerHTML={{ __html: toHtml(node) }}></div> }}
                   rehypePlugins={[rehypeRaw]}
                   remarkPlugins={[remarkGfm]}
-                  className={styles.markdown}>
+                  className={FrontEndController.getTheme() === ColorTheme.darkTheme ? stylesDark.markdown : stylesLight.markdown}>
                   {this.summary.content}
                 </ReactMarkdown>
               </div>

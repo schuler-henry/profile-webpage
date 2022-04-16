@@ -6,7 +6,29 @@
   column-gap: 5vw;
   height: 40pt;
   border-bottom: solid;
-  border-color: #00D0FF;
+  border-color: var(--color-bg-secondary);
+}
+
+.closeNavField {
+  display: inherit !important;
+  position: absolute;
+  z-index: 2;
+  background-color: rgb(80, 80, 80);
+  opacity: 50%;
+  width: 100vw;
+  height: 100vh;
+  cursor: pointer;
+  animation: fadeInOpacity ease-in-out 0.5s;
+}
+
+@keyframes fadeInOpacity {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 50%;
+  }
 }
 
 .menuIcon {
@@ -25,7 +47,7 @@
   height: 2px;
   margin-bottom: 5px;
   position: relative;
-  background: #ffffff;
+  background: var(--color-text-primary);
   border-radius: 3px;
   z-index: 4;
   transform-origin: 5px 0px;
@@ -34,10 +56,18 @@
     opacity 0.55s ease;
 }
 
+.logo {
+  position: relative;
+  height: 30pt;
+  align-self: center;
+  cursor: pointer;
+}
+
 .logoName {
   position: relative;
   height: 30pt;
   align-self: center;
+  display: none;
   cursor: pointer;
 }
 
@@ -50,7 +80,7 @@
   padding: 0px;
   padding-top: 65px;
   padding-bottom: 65px;
-  background-color: green;
+  background-color: var(--color-bg-primary);
   -webkit-font-smoothing: antialiased;
   left: -91vw;
   transform: translate(0, 0);
@@ -58,7 +88,7 @@
   z-index: 3;
 
   display: grid;
-  grid-template-rows: 70pt min-content min-content min-content min-content min-content min-content auto 40pt;
+  grid-template-rows: 80pt min-content min-content min-content min-content min-content min-content auto 40pt;
   overflow: auto;
 }
 
@@ -80,7 +110,7 @@
 .nav:hover {
   cursor: pointer;
   /* background-color: #333333; */
-  color: #00D0FF;
+  color: var(--color-text-secondary);
 }
 
 .nav:hover span {
@@ -94,9 +124,8 @@
 
 .navLogo {
   position: relative;
-  height: 30pt;
+  height: 60pt;
   align-self: center;
-  display: none;
   cursor: pointer;
 }
 
@@ -104,6 +133,8 @@
   position: relative;
   height: 50pt;
   width: 100%;
+  align-self: center;
+  display: none;
   cursor: pointer;
 }
 
@@ -143,6 +174,28 @@
 
 .spanThree {
   transform: rotate(-45deg) translate(0, -1px);
+}
+
+/* Switch the top logo because enough space provided */
+@media only screen and (min-width: 350px) {
+  .logo {
+    display: none;
+  }
+
+  .logoName {
+    display: initial;
+  }
+}
+
+/* Switch the sidebar logo because enough space provided */
+@media only screen and (min-width: 400px) {
+  .navLogo {
+    display: none;
+  }
+
+  .navLogoName {
+    display: initial;
+  }
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
@@ -198,9 +251,9 @@
   .nav {
     padding: 0 ;
     height: 60%;
-    padding: 0 20px;
-    border-left: solid 1px #00D0FF;
-    border-right: solid 1px #00D0FF;
+    padding: 0 10px;
+    /* border-left: solid 1px var(--color-bg-secondary;
+    border-right: solid 1px var(--color-bg-secondary); */
     align-self: center;
   }
 

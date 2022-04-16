@@ -8,7 +8,6 @@ const dropdownStyles: Partial<IDropdownStyles> = {
   dropdown: {
     width: 80,
     margin: 0,
-    borderColor: 'red',
   }
 }
 
@@ -38,6 +37,12 @@ const onRenderTitle = (options: IDropdownOption[]): JSX.Element => {
       )}
       <span>&nbsp;&nbsp;{option.text}</span>
     </div>
+  );
+};
+
+const onRenderCaretDown = (): JSX.Element => {
+  return (
+    <Icon iconName="ChevronDown" aria-hidden="true" title="ChevronDown" />
   );
 };
 
@@ -74,10 +79,11 @@ export class LanguageSwitcher extends Component<LanguageSwitcherProps, LanguageS
           id="language-dropdown"
           selectedKey={this.state.selectedItem ? this.state.selectedItem.key : undefined}
           onChange={this.onChange}
-          onRenderOption={onRenderOption}
           onRenderTitle={onRenderTitle}
-          options={dropdownControlledLanguageOptions}
+          onRenderOption={onRenderOption}
+          onRenderCaretDown={onRenderCaretDown}
           styles={dropdownStyles}
+          options={dropdownControlledLanguageOptions}
         />
       </div>
     )

@@ -7,6 +7,7 @@ import { Footer } from '../components/footer'
 import { I18n, WithTranslation, withTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
+import { getTheme } from '@fluentui/react'
 export interface HomeState {
   isLoggedIn: boolean | undefined,
   currentToken: string,

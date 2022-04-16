@@ -13,7 +13,7 @@ const nextConfig = {
     return config
   },
   images: {
-    domains: ['web-notes.me', 'dev-chat.me'],
+    domains: ['web-notes.me', 'dev-chat.me', 'henry-schuler.vercel.app'],
   },
 }
 
