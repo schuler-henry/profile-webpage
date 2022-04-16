@@ -5,16 +5,26 @@ import { FrontEndController } from '../controller/frontEndController'
 import styles from '../styles/Login.module.css'
 import { Header } from '../components/header'
 import { Footer } from '../components/footer'
+import { I18n, WithTranslation, withTranslation } from 'next-i18next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
 export interface LoginState {
-  isNotLoggedIn: boolean,
-  username: string,
-  password: string,
-  credentialsInfo: boolean,
+  isNotLoggedIn: boolean;
+  username: string;
+  password: string;
+  credentialsInfo: boolean;
 }
 
-export interface LoginProps extends WithRouterProps {
+export interface LoginProps extends WithTranslation, WithRouterProps {
+  i18n: I18n;
+}
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common', 'login'])),
+    }
+  }
 }
 
 /**
@@ -100,22 +110,30 @@ class Login extends Component<LoginProps, LoginState> {
       return (
         <div>
           <Head>
-            <title>Login</title>
+            <title>{this.props.t('common:Login')}</title>
             <meta name="description" content="Login page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={""} hideLogin={true} hideLogout={true} />
+            <Header 
+              username={""} 
+              hideLogin={true} 
+              hideLogout={true} 
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
 
           <div className='scrollBody'>
             <main className={styles.field}>
               <div className={styles.fieldDiv}>
-                <h1>Login</h1>
+                <h1>{this.props.t('common:Login')}</h1>
                 <input
                   type="text"
-                  placeholder="Username..."
+                  placeholder={this.props.t('login:Username') + "..."}
                   id='userInput'
                   autoFocus
                   onChange={(e) => this.setState({ username: e.target.value })}
@@ -123,22 +141,22 @@ class Login extends Component<LoginProps, LoginState> {
                   onKeyDown={loginEnter} />
                 <input
                   type="password"
-                  placeholder="Password..."
+                  placeholder={this.props.t('login:Password') + "..."}
                   onChange={(e) => this.setState({ password: e.target.value })}
                   value={this.state.password}
                   onKeyDown={loginEnter} />
                 <div hidden={!this.state.credentialsInfo} className={styles.error} >
-                  Credentials incorrect!
+                  {this.props.t('login:errorMessage')}!
                 </div>
                 <button onClick={loginVerification}>
-                  Login
+                  {this.props.t('common:Login')}
                 </button>
                 <p>
-                  Or&nbsp;
+                  {this.props.t('login:Or') + " "}
                   <a onClick={() => router.push("/register")}>
-                    register
+                    {this.props.t('login:register')}
                   </a>
-                  &nbsp;instead.
+                  {this.props.t('login:instead')}.
                 </p>
               </div>
             </main>
@@ -153,7 +171,7 @@ class Login extends Component<LoginProps, LoginState> {
       return (
         <div>
           <Head>
-            <title>Login</title>
+            <title>{this.props.t('common:Login')}</title>
             <meta name="description" content="Login page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
@@ -163,4 +181,4 @@ class Login extends Component<LoginProps, LoginState> {
   }
 }
 
-export default withRouter(Login)
+export default withRouter(withTranslation()(Login))

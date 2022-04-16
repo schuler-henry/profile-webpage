@@ -1,5 +1,9 @@
+const { i18n } = require('./next-i18next.config');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  i18n,
+
   reactStrictMode: true,
   webpack: function(config) {
     config.module.rules.push({
@@ -9,7 +13,7 @@ const nextConfig = {
     return config
   },
   images: {
-    domains: ['web-notes.me', 'dev-chat.me'],
+    domains: ['web-notes.me', 'dev-chat.me', 'henry-schuler.vercel.app'],
   },
 }
 

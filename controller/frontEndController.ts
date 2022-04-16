@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { ColorTheme } from '../enums/colorTheme';
 import { User } from '../interfaces';
 
 /**
@@ -7,6 +8,7 @@ import { User } from '../interfaces';
  */
 export class FrontEndController {
   static userTokenName = "pwp.auth.token";
+  static themeName = "pwp.theme.token";
 
   //#region User Methods
 
@@ -203,4 +205,19 @@ export class FrontEndController {
   }
 
   //#endregion
+
+  static setTheme(theme: ColorTheme) {
+    localStorage.setItem(this.themeName, JSON.stringify({theme: theme}));
+  }
+
+  static getTheme(): ColorTheme {
+    const jsonTheme = localStorage.getItem(this.themeName);
+    try {
+      const theme = JSON.parse(jsonTheme).theme
+      return theme
+    } catch (error) {
+      return ColorTheme.darkTheme;
+    }
+  }
+
 }

@@ -5,6 +5,8 @@ import { FrontEndController } from '../controller/frontEndController'
 import styles from '../styles/Register.module.css'
 import { Header } from '../components/header'
 import { Footer } from '../components/footer'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { I18n, withTranslation, WithTranslation } from 'next-i18next'
 
 export interface RegisterState {
   isNotLoggedIn: boolean,
@@ -18,8 +20,16 @@ export interface RegisterState {
   showRequirements: boolean,
 }
 
-export interface RegisterProps extends WithRouterProps {
+export interface RegisterProps extends WithTranslation, WithRouterProps {
+  i18n: I18n;
+}
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common', 'register'])),
+    }
+  }
 }
 
 /**
@@ -149,21 +159,29 @@ class Register extends Component<RegisterProps, RegisterState> {
       return (
         <div>
           <Head>
-            <title>Register</title>
+            <title>{this.props.t('common:Register')}</title>
             <meta name="description" content="Register page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={""} hideLogin={false} hideLogout={true} />
+            <Header 
+              username={""} 
+              hideLogin={false} 
+              hideLogout={true} 
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
           <div className='scrollBody'>
             <main className={styles.field}>
               <div className={styles.fieldDiv}>
-                <h1>Register</h1>
+                <h1>{this.props.t('common:Register')}</h1>
                 <input
                   type="text"
-                  placeholder="Username..."
+                  placeholder={this.props.t('register:Username') + "..."}
                   id='userInput'
                   autoFocus
                   onChange={async (e) => {
@@ -179,7 +197,7 @@ class Register extends Component<RegisterProps, RegisterState> {
                 </div>
                 <input
                   type="password"
-                  placeholder="Password..."
+                  placeholder={this.props.t('register:Password') + "..."}
                   onChange={async (e) => {
                     await this.setState({ password: e.target.value });
                     updateFeedbackMessage();
@@ -192,7 +210,7 @@ class Register extends Component<RegisterProps, RegisterState> {
                 </div>
                 <input
                   type="password"
-                  placeholder="Confirm password..."
+                  placeholder={this.props.t('register:ConfirmPassword') + "..."}
                   onChange={async (e) => {
                     await this.setState({ confirmPassword: e.target.value });
                     updateFeedbackMessage();
@@ -205,35 +223,36 @@ class Register extends Component<RegisterProps, RegisterState> {
                 <button onClick={async () => {
                   registerVerification()
                 }}>
-                  Register
+                  {this.props.t('common:Register')}
                 </button>
                 <div className={styles.flexBox}>
                   <p className={styles.loginInstead}>
-                    Or&nbsp;
+                    {this.props.t('register:Or') + " "}
                     <a onClick={() => { router.push("/login") }}>
-                      login
+                      {this.props.t('register:login')}
                     </a>
-                    &nbsp;instead.
+                    {this.props.t('register:instead')}.
                   </p>
                   <p className={styles.showReq}>
                     <a onClick={() => { this.setState({ showRequirements: !this.state.showRequirements }) }}>
-                      show requirements
+                      {this.props.t('register:showRequirements')}
                     </a>
                   </p>
                 </div>
               </div>
               <div hidden={!this.state.showRequirements} className={styles.requirementsDiv}>
-                <h2>Username</h2>
+                <h2>{this.props.t('register:Username')}</h2>
                 <ul>
-                  <li>4-16 characters</li>
-                  <li>only letters and numbers</li>
-                  <li>keyword &ldquo;admin&ldquo; is not allowed</li>
+                  <li>4-16 {this.props.t('register:characters')}</li>
+                  <li>{this.props.t('register:onlyNumbersCharacters')}</li>
+                  <li>{this.props.t('register:keywordAdmin')}</li>
                 </ul>
-                <h2>Password</h2>
+                <h2>{this.props.t('register:Password')}</h2>
                 <ul>
-                  <li>min. 8 characters</li>
-                  <li>min. 1 number, 1 lowercase, 1 uppercase</li>
-                  <li>min. 1 of: ! * # , ; ? + - _ . = ~ ^ % ( ) &#123; &#125; | : &ldquo; /</li>
+                  <li>min. 8 {this.props.t('register:characters')}</li>
+                  <li>min. 1 {this.props.t('register:number')}, 1 {this.props.t('register:lowercase')}, 1 {this.props.t('register:uppercase')}</li>
+                  <li>min. 1 {this.props.t('register:of')}: ! * # , ; ? + - _ . = ~ ^ % ( ) &#123; &#125; | : &ldquo; /</li>
+                  <li>{this.props.t('register:onlyNumbersCharactersSpecial')}</li>
                 </ul>
               </div>
             </main>
@@ -248,7 +267,7 @@ class Register extends Component<RegisterProps, RegisterState> {
       return (
         <div>
           <Head>
-            <title>Register</title>
+            <title>{this.props.t('common:Register')}</title>
             <meta name="description" content="Register page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
@@ -258,4 +277,4 @@ class Register extends Component<RegisterProps, RegisterState> {
   }
 }
 
-export default withRouter(Register)
+export default withRouter(withTranslation()(Register))

@@ -9,7 +9,7 @@
   border: solid;
   border-radius: 2pt;
   border-width: 2pt;
-  border-color: #00C0FF;
+  border-color: var(--color-bg-secondary);
 }
 
 .fieldDiv * {
@@ -69,7 +69,7 @@
   border: solid;
   border-radius: 2pt;
   border-width: 2pt;
-  border-color: #00C0FF;
+  border-color: var(--color-bg-secondary);
 }
 
 @keyframes fadeIn {

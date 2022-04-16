@@ -1,0 +1,17 @@
+{
+  "Username": "Username",
+  "Password": "Password",
+  "ConfirmPassword": "Confirm password",
+  "Or": "Or",
+  "login": "login",
+  "instead": " instead",
+  "showRequirements": "show requirements",
+  "characters": "characters",
+  "onlyNumbersCharacters": "only letters and numbers",
+  "keywordAdmin": "keyword \"admin\" is not allowed",
+  "number": "number",
+  "lowercase": "lowercase",
+  "uppercase": "uppercase",
+  "of": "of",
+  "onlyNumbersCharactersSpecial": "only letters, numbers and the mentioned special characters"
+}

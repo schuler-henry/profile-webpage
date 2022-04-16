@@ -4,14 +4,25 @@ import { FrontEndController } from '../controller/frontEndController'
 import styles from '../styles/Impressum.module.css'
 import { Header } from '../components/header'
 import { Footer } from '../components/footer'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { I18n, withTranslation, WithTranslation } from 'next-i18next'
+import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 
 export interface ImpressumState {
-  isLoggedIn: boolean | undefined,
-  currentToken: string,
+  isLoggedIn: boolean | undefined;
+  currentToken: string;
 }
 
-export interface ImpressumProps {
+export interface ImpressumProps extends WithTranslation, WithRouterProps {
+  i18n: I18n;
+}
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common', 'impressum'])),
+    }
+  }
 }
 
 /**
@@ -64,17 +75,26 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
    * @returns JSX Output
    */
   render() {
+    const { router } = this.props
     if (this.state.isLoggedIn === undefined) {
       return (
         <div>
           <Head>
-            <title>Impressum</title>
+            <title>{this.props.t('common:Impressum')}</title>
             <meta name="description" content="Impressum page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={""} hideLogin={true} hideLogout={true} />
+            <Header 
+              username={""} 
+              hideLogin={true} 
+              hideLogout={true} 
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
         </div>
       )
@@ -82,28 +102,36 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
       return (
         <div>
           <Head>
-            <title>Impressum</title>
+            <title>{this.props.t('common:Impressum')}</title>
             <meta name="description" content="Impressum page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
           <header>
-            <Header username={FrontEndController.getUsernameFromToken(this.state.currentToken)} hideLogin={this.state.isLoggedIn} hideLogout={!this.state.isLoggedIn} />
+            <Header 
+              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+              hideLogin={this.state.isLoggedIn} 
+              hideLogout={!this.state.isLoggedIn} 
+              path={router.pathname} 
+              i18n={this.props.i18n} 
+              router={this.props.router}
+              t={this.props.t}
+            />
           </header>
 
           <div className='scrollBody'>
             <main>
               <div className={styles.content}>
-                <h1>Impressum</h1>
-                <h2>Verantwortlich</h2>
+                <h1>{this.props.t('common:Impressum')}</h1>
+                <h2>{this.props.t('impressum:Responsible')}</h2>
                 <p>Henry Schuler</p>
-                <h2>Kontakt</h2>
+                <h2>{this.props.t('impressum:Contact')}</h2>
                 <p>
                   Henry Schuler <br />
                   Kastellstra&#223;e 69/1 <br />
                   88316 Isny im Allg&auml;u <br />
                   <br />
-                  Telefon: &#43;49 1590 8481493 <br />
+                  {this.props.t('impressum:Phone')}: &#43;49 1590 8481493 <br />
                   E-Mail: henryschuler&#64;outlook.de <br />
                 </p>
               </div>
@@ -119,4 +147,4 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
   }
 }
 
-export default Impressum
+export default withRouter(withTranslation()(Impressum))
