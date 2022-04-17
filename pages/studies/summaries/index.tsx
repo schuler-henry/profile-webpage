@@ -140,9 +140,6 @@ class Summaries extends Component<SummariesProps, SummariesState> {
                   ))}
                 </div>
               </div>
-              <div>
-                {process.cwd()}
-              </div>
             </main>
 
             <footer>
