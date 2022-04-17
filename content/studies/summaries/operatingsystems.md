@@ -2,7 +2,7 @@
 slug: operatingsystems
 title: "Operating Systems A. Maier (S3)"
 description: A summary containing the most important information from the lecture in semester 3 (theory block 4)
-img: https://henry-schuler.vercel.app/favicon.ico
+img: https://henryschuler.de/favicon.ico
 date: 28 March 2022
 ---
 
@@ -181,7 +181,7 @@ date: 28 March 2022
 - mechanism for synchronization + inter-process communication
 
 ### state model
-<img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/process_states.png" alt="process_states.png missing">
+<img src="https://henryschuler.de/images/studies/operatingsystems/process_states.png" alt="process_states.png missing">
 
 *image by A. Maier*
 
@@ -219,13 +219,13 @@ date: 28 March 2022
 - preemptive scheduling
   - process can be taken from CPU in favour of other process
   
-<img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/scheduling_queue.png" alt="scheduling_queue.png missing">
+<img src="https://henryschuler.de/images/studies/operatingsystems/scheduling_queue.png" alt="scheduling_queue.png missing">
 
 *image by A. Maier*
 
 - scheduling strategy
 
-<img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/scheduling_strategy.png" alt="scheduling_strategy.png missing">
+<img src="https://henryschuler.de/images/studies/operatingsystems/scheduling_strategy.png" alt="scheduling_strategy.png missing">
 
 *image by A. Maier*
 
@@ -235,7 +235,7 @@ date: 28 March 2022
 - \- no priority
 - \- low throughput
 
-<img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/first_come_first_serve.png" alt="first_come_first_serve.png missing">
+<img src="https://henryschuler.de/images/studies/operatingsystems/first_come_first_serve.png" alt="first_come_first_serve.png missing">
 
 *image by A. Maier*
 
@@ -244,7 +244,7 @@ date: 28 March 2022
 - \- burst time must be known
 - \- risk of starvation
 
-<img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/shortest_job_first.png" alt="shortest_job_first.png missing">
+<img src="https://henryschuler.de/images/studies/operatingsystems/shortest_job_first.png" alt="shortest_job_first.png missing">
 
 *image by A. Maier*
 
@@ -252,7 +252,7 @@ date: 28 March 2022
 - \- overhead due to context starvation
 - \- starvation possible
 
-<img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/shortest_remaining_time_first.png" alt="shortest_remaining_time_first.png missing">
+<img src="https://henryschuler.de/images/studies/operatingsystems/shortest_remaining_time_first.png" alt="shortest_remaining_time_first.png missing">
 
 *image by A. Maier*
 
@@ -267,7 +267,7 @@ date: 28 March 2022
 - \- overhead due to context switching
   - quantum should be significantly higher than context switching time (e.g. 100ms; 10µs)
 
-<img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/round_robin.png" alt="round_robin.png missing">
+<img src="https://henryschuler.de/images/studies/operatingsystems/round_robin.png" alt="round_robin.png missing">
 
 *image by A. Maier*
 
@@ -275,7 +275,7 @@ date: 28 March 2022
 - \- same priority -> second scheduling algorithm
 - \- risk of starvation in preemptive scheduling
 
-<img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/priority_based.png" alt="priority_based.png missing">
+<img src="https://henryschuler.de/images/studies/operatingsystems/priority_based.png" alt="priority_based.png missing">
 
 *image by A. Maier*
 
@@ -283,7 +283,7 @@ date: 28 March 2022
 - processes sorted in different groups with own algorithms
 - additional scheduling between queues
 
-<img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/multilevel_queue.png" alt="multilevel_queue.png missing">
+<img src="https://henryschuler.de/images/studies/operatingsystems/multilevel_queue.png" alt="multilevel_queue.png missing">
 
 *image by A. Maier*
 
@@ -488,7 +488,7 @@ date: 28 March 2022
 
 ### Virtual Memory
 
-<img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/virtual_memory.png" alt="virtual_memory.png missing">
+<img src="https://henryschuler.de/images/studies/operatingsystems/virtual_memory.png" alt="virtual_memory.png missing">
 
 *image by A. Maier*
 
@@ -512,7 +512,7 @@ date: 28 March 2022
 - no address ranges
   - base address + offset (can be same in virtual and physical)
 
-<img src="https://henry-schuler.vercel.app/images/studies/operatingsystems/page_in_memory.png" alt="page_in_memory.png missing">
+<img src="https://henryschuler.de/images/studies/operatingsystems/page_in_memory.png" alt="page_in_memory.png missing">
 
 *image by A. Maier*
 
