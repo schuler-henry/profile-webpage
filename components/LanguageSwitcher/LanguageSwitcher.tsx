@@ -6,7 +6,7 @@ import { Icon } from '@fluentui/react/lib/Icon'
 
 const dropdownStyles: Partial<IDropdownStyles> = {
   dropdown: {
-    width: 80,
+    width: 'auto',
     margin: 0,
   }
 }
@@ -84,6 +84,7 @@ export class LanguageSwitcher extends Component<LanguageSwitcherProps, LanguageS
           onRenderCaretDown={onRenderCaretDown}
           styles={dropdownStyles}
           options={dropdownControlledLanguageOptions}
+          dropdownWidth={'auto'}
         />
       </div>
     )

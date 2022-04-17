@@ -18,9 +18,9 @@ body {
 
 body[data-theme="light"] {
   --color-text-primary: black;
-  --color-text-secondary: #0400FF;
+  --color-text-secondary: #00C0FF;
   --color-bg-primary: #FFFFFF;
-  --color-bg-secondary: #0400FF;
+  --color-bg-secondary: #00C0FF;
 }
 
 /* width */
