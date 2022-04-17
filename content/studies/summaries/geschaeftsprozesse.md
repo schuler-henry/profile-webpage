@@ -2,7 +2,7 @@
 slug: geschaeftsprozesse
 title: "Geschäftsprozesse U. Maulhardt (S3)"
 description: Eine Zusammenfassung der Vorlesungsinhalte und Gruppenarbeiten über das Modul Geschäftsprozesse in Semester 3 (Theoriephase 4)
-img: https://henry-schuler.vercel.app/favicon.ico
+img: https://henryschuler.de/favicon.ico
 date: 21 March 2022
 ---
 # Zusammenfassung Geschäftsprozesse
@@ -129,7 +129,7 @@ Anforderung von Kunden -> wertschöpfende Aktivität -> Leistungen für Kunden
 - Zeitziele
 
 #### Zeit- und Kostenziele
-<img src="https://henry-schuler.vercel.app/images/studies/geschaeftsprozesse/Kosten.png">
+<img src="https://henryschuler.de/images/studies/geschaeftsprozesse/Kosten.png">
 
 | Zeiten | Plan A | Plan B |
 | - | - | - |
