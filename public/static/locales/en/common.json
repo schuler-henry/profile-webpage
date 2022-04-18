@@ -6,5 +6,8 @@
   "Profile": "Profile",
   "Register": "Register",
   "Studies": "Studies",
-  "Summaries": "Summaries"
+  "Summaries": "Summaries",
+  "LoadingPage": "Loading page ...",
+  "BackTo": "Back to",
+  "NotLoadingErrorText": "If the page is not loading, please contact "
 }

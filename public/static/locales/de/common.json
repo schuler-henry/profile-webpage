@@ -6,5 +6,8 @@
   "Profile": "Profil",
   "Register": "Registrieren",
   "Studies": "Studium",
-  "Summaries": "Zusammenfassungen"
+  "Summaries": "Zusammenfassungen",
+  "LoadingPage": "Lade Seite ...",
+  "BackTo": "Zurück zu",
+  "NotLoadingErrorText": "Wenn die Seite nicht geladen wird, wenden Sie sich bitte an "
 }

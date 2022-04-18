@@ -219,6 +219,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
               <div className={styles.pcSpacing}>
                 {/* Spacing for PC (top bar) View */}
               </div>
+              {username}
               <div className={`${styles.nav} ${styles.languageSwitcher}`}>
                 <LanguageSwitcher
                   path={this.props.path}
@@ -229,7 +230,6 @@ export class Header extends Component<HeaderProps, HeaderState> {
               <div className={`${styles.nav} ${styles.languageSwitcher}`}>
                 <DarkmodeSwitcher />
               </div>
-              {username}
               <div className={styles.mobileSpacing}>
                 {/* Spacing for Mobile (side bar) View */}
               </div>

@@ -10,6 +10,7 @@ import { Footer } from '../../../components/footer'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { I18n, withTranslation, WithTranslation } from 'next-i18next';
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router';
+import { PageLoadingScreen } from '../../../components/PageLoadingScreen/PageLoadingScreen';
 
 export interface SummariesState {
   isLoggedIn: boolean;
@@ -94,17 +95,9 @@ class Summaries extends Component<SummariesProps, SummariesState> {
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
-          <header>
-            <Header 
-              username={""} 
-              hideLogin={true} 
-              hideLogout={true}
-              path={router.pathname} 
-              i18n={this.props.i18n} 
-              router={this.props.router} 
-              t={this.props.t}
-            />
-          </header>
+          <main>
+            <PageLoadingScreen t={this.props.t} />
+          </main>
         </div>
       )
     } else {

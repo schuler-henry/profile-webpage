@@ -1,0 +1,36 @@
+.container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 84px 84px 84px;
+  height: fit-content;
+  margin: auto
+}
+
+.grid h2 {
+  z-index: 1;
+  align-self: center;
+  justify-self: center;
+}
+
+.spinner {
+  transform: scale(3);
+  display: flex;
+  width: min-content;
+  align-self: center;
+  justify-self: center;
+  z-index: 0;
+}
+
+.footer {
+  padding: 20px;
+  margin-top: auto;
+}

@@ -7,6 +7,7 @@ import { Header } from '../components/header'
 import { Footer } from '../components/footer'
 import { I18n, WithTranslation, withTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 
 export interface LoginState {
   isNotLoggedIn: boolean;
@@ -175,6 +176,10 @@ class Login extends Component<LoginProps, LoginState> {
             <meta name="description" content="Login page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
+
+          <main>
+            <PageLoadingScreen t={this.props.t} />
+          </main>
         </div>
       )
     }

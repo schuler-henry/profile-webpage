@@ -6,23 +6,24 @@ import { Icon } from '@fluentui/react/lib/Icon'
 
 const dropdownStyles: Partial<IDropdownStyles> = {
   dropdown: {
-    width: 'auto',
-    margin: 0,
+    width: 80
   }
 }
 
-const dropdownControlledLanguageOptions = [
+const dropdownControlledLanguageOptions: IDropdownOption[] = [
   { key: 'en', text: 'EN', data: { icon: 'US' } },
   { key: 'de', text: 'DE', data: { icon: 'Germany' } },
 ]
+
+const iconStyles = { marginRight: '8px' };
 
 const onRenderOption = (option: IDropdownOption): JSX.Element => {
   return (
     <div>
       {option.data && option.data.icon && (
-        <Icon iconName={option.data.icon} aria-hidden="true" title={option.data.icon} />
+        <Icon style={iconStyles} iconName={option.data.icon} aria-hidden="true" title={option.data.icon} />
       )}
-      <span>&nbsp;&nbsp;{option.text}</span>
+      <span>{option.text}</span>
     </div>
   );
 };
@@ -33,16 +34,16 @@ const onRenderTitle = (options: IDropdownOption[]): JSX.Element => {
   return (
     <div>
       {option.data && option.data.icon && (
-        <Icon iconName={option.data.icon} aria-hidden="true" title={option.data.icon} />
+        <Icon style={iconStyles} iconName={option.data.icon} aria-hidden="true" title={option.data.icon} />
       )}
-      <span>&nbsp;&nbsp;{option.text}</span>
+      <span>{option.text}</span>
     </div>
   );
 };
 
 const onRenderCaretDown = (): JSX.Element => {
   return (
-    <Icon iconName="ChevronDown" aria-hidden="true" title="ChevronDown" />
+    <Icon iconName="ChevronDown" />
   );
 };
 
@@ -76,7 +77,6 @@ export class LanguageSwitcher extends Component<LanguageSwitcherProps, LanguageS
     return (
       <div>
         <Dropdown
-          id="language-dropdown"
           selectedKey={this.state.selectedItem ? this.state.selectedItem.key : undefined}
           onChange={this.onChange}
           onRenderTitle={onRenderTitle}
@@ -84,7 +84,6 @@ export class LanguageSwitcher extends Component<LanguageSwitcherProps, LanguageS
           onRenderCaretDown={onRenderCaretDown}
           styles={dropdownStyles}
           options={dropdownControlledLanguageOptions}
-          dropdownWidth={'auto'}
         />
       </div>
     )

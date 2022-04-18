@@ -8,6 +8,7 @@ import { Header } from '../components/header'
 import { Footer } from '../components/footer'
 import { I18n, withTranslation, WithTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 
 export interface ProfileState {
   isLoggedIn: boolean | undefined;
@@ -90,17 +91,9 @@ class Profile extends Component<ProfileProps, ProfileState> {
             <link rel="icon" href="/favicon.ico" />
           </Head>
 
-          <header>
-            <Header 
-              username={""} 
-              hideLogin={true} 
-              hideLogout={true} 
-              path={router.pathname} 
-              i18n={this.props.i18n} 
-              router={this.props.router}
-              t={this.props.t}
-            />
-          </header>
+          <main>
+            <PageLoadingScreen t={this.props.t} />
+          </main>
         </div>
       )
     } else {

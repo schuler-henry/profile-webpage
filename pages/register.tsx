@@ -7,6 +7,7 @@ import { Header } from '../components/header'
 import { Footer } from '../components/footer'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { I18n, withTranslation, WithTranslation } from 'next-i18next'
+import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 
 export interface RegisterState {
   isNotLoggedIn: boolean,
@@ -271,6 +272,10 @@ class Register extends Component<RegisterProps, RegisterState> {
             <meta name="description" content="Register page." />
             <link rel="icon" href="/favicon.ico" />
           </Head>
+
+          <main>
+            <PageLoadingScreen t={this.props.t} />
+          </main>
         </div>
       )
     }
