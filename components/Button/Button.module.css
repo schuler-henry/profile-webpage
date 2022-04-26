@@ -1,0 +1,22 @@
+.button {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border: solid;
+  border-width: 1px;
+  border-radius: 2px;
+  border-color: var(--color-border-primary);
+  padding: 6px 18px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  cursor: pointer;
+  height: fit-content;
+  width: fit-content;
+}
+
+.button:hover {
+  background-color: var(--color-bg-hover);
+  color: var(--color-text-primary);
+  /* border-color: var(--color-border-hover); */
+}
