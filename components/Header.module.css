@@ -89,7 +89,7 @@
 
   display: grid;
   grid-template-rows: 80pt min-content min-content min-content min-content min-content min-content auto 40pt;
-  overflow: auto;
+  /* overflow: auto; */
 }
 
 .showHeader {
@@ -236,7 +236,7 @@
     grid-template-columns: min-content min-content min-content min-content auto min-content min-content min-content min-content;
     row-gap: 0;
     column-gap: 0;
-    overflow: hidden;
+    /* overflow: hidden; */
   }
 
   .navLogoName {

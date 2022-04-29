@@ -9,6 +9,7 @@ import { Footer } from '../components/footer'
 import { I18n, withTranslation, WithTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
+import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
 
 export interface ProfileState {
   isLoggedIn: boolean | undefined;
@@ -84,17 +85,19 @@ class Profile extends Component<ProfileProps, ProfileState> {
     const { router } = this.props
     if (this.state.isLoggedIn === undefined) {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Profile')}</title>
-            <meta name="description" content="Profile page." />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Profile')}</title>
+              <meta name="description" content="Profile page." />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <main>
-            <PageLoadingScreen t={this.props.t} />
-          </main>
-        </div>
+            <main>
+              <PageLoadingScreen t={this.props.t} />
+            </main>
+          </div>
+        </PWPLanguageProvider>
       )
     } else {
 
@@ -110,52 +113,52 @@ class Profile extends Component<ProfileProps, ProfileState> {
       }
 
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Profile')}</title>
-            <meta name="description" content="Profile page." />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Profile')}</title>
+              <meta name="description" content="Profile page." />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <header>
-            <Header 
-              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-              hideLogin={this.state.isLoggedIn} 
-              hideLogout={!this.state.isLoggedIn} 
-              path={router.pathname} 
-              i18n={this.props.i18n} 
-              router={this.props.router}
-              t={this.props.t}
-            />
-          </header>
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
 
-          <div className='scrollBody'>
-            <main>
-              <div className={styles.content}>
-                <h1>{this.props.t('profile:User')}: {FrontEndController.getUsernameFromToken(FrontEndController.getUserToken())}</h1>
-                <h2>{this.props.t('profile:Information')}</h2>
-                <table>
-                  <thead>
-                    <tr>
-                      <td>ID:</td>
-                      <td>{this.state.currentUser?.id || "unavailable"}</td>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>{this.props.t('profile:AccessLevel')}:</td>
-                      <td>{getAccessString(this.state.currentUser?.accessLevel)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </main>
+            <div className='scrollBody'>
+              <main>
+                <div className={styles.content}>
+                  <h1>{this.props.t('profile:User')}: {FrontEndController.getUsernameFromToken(FrontEndController.getUserToken())}</h1>
+                  <h2>{this.props.t('profile:Information')}</h2>
+                  <table>
+                    <thead>
+                      <tr>
+                        <td>ID:</td>
+                        <td>{this.state.currentUser?.id || "unavailable"}</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{this.props.t('profile:AccessLevel')}:</td>
+                        <td>{getAccessString(this.state.currentUser?.accessLevel)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </main>
 
-            <footer>
-              <Footer isLoggedIn={this.state.isLoggedIn} />
-            </footer>
+              <footer>
+                <Footer isLoggedIn={this.state.isLoggedIn} />
+              </footer>
+            </div>
           </div>
-        </div>
+        </PWPLanguageProvider>
       )
     }
   }

@@ -17,6 +17,7 @@ import withRouter, { WithRouterProps } from 'next/dist/client/with-router';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { ColorTheme } from '../../../enums/colorTheme';
 import { PageLoadingScreen } from '../../../components/PageLoadingScreen/PageLoadingScreen';
+import { PWPLanguageProvider } from '../../../components/PWPLanguageProvider/PWPLanguageProvider';
 
 export interface SummaryState {
   isLoggedIn: boolean;
@@ -93,57 +94,59 @@ class Summary extends Component<SummaryProps, SummaryState> {
     const { router } = this.props
     if (this.state.isLoggedIn === undefined) {
       return (
-        <div>
-          <Head>
-            <title>{this.summary.data.title}</title>
-            <meta name="description" content="Summary" />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.summary.data.title}</title>
+              <meta name="description" content="Summary" />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <main>
-            <PageLoadingScreen t={this.props.t} />
-          </main>
-        </div>
+            <main>
+              <PageLoadingScreen t={this.props.t} />
+            </main>
+          </div>
+        </PWPLanguageProvider>
       )
     } else {
       return (
-        <div>
-          <Head>
-            <title>{this.summary.data.title}</title>
-            <meta name="description" content="Summary" />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.summary.data.title}</title>
+              <meta name="description" content="Summary" />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <header>
-            <Header 
-              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-              hideLogin={this.state.isLoggedIn} 
-              hideLogout={!this.state.isLoggedIn} 
-              path={router.asPath} 
-              i18n={this.props.i18n} 
-              router={this.props.router}
-              t={this.props.t}
-            />
-          </header>
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.asPath} 
+                router={this.props.router}
+              />
+            </header>
 
-          <div className='scrollBody'>
-            <main>
-              <div className={styles.content}>
-                <ReactMarkdown
-                  components={{ table: ({ node }) => <div className={styles.tableScroll} dangerouslySetInnerHTML={{ __html: toHtml(node) }}></div> }}
-                  rehypePlugins={[rehypeRaw]}
-                  remarkPlugins={[remarkGfm]}
-                  className={FrontEndController.getTheme() === ColorTheme.darkTheme ? stylesDark.markdown : stylesLight.markdown}>
-                  {this.summary.content}
-                </ReactMarkdown>
-              </div>
-            </main>
+            <div className='scrollBody'>
+              <main>
+                <div className={styles.content}>
+                  <ReactMarkdown
+                    components={{ table: ({ node }) => <div className={styles.tableScroll} dangerouslySetInnerHTML={{ __html: toHtml(node) }}></div> }}
+                    rehypePlugins={[rehypeRaw]}
+                    remarkPlugins={[remarkGfm]}
+                    className={FrontEndController.getTheme() === ColorTheme.darkTheme ? stylesDark.markdown : stylesLight.markdown}>
+                    {this.summary.content}
+                  </ReactMarkdown>
+                </div>
+              </main>
 
-            <footer>
-              <Footer isLoggedIn={this.state.isLoggedIn} />
-            </footer>
+              <footer>
+                <Footer isLoggedIn={this.state.isLoggedIn} />
+              </footer>
+            </div>
           </div>
-        </div>
+        </PWPLanguageProvider>
       )
     }
   }

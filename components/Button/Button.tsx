@@ -6,8 +6,9 @@ export interface ButtonState {
 }
 
 export interface ButtonProps {
-  children: JSX.Element | string
-  href?: string
+  children: JSX.Element | string;
+  href?: string;
+  onClick?: (event: React.MouseEvent<any>) => void;
 }
 
 export class Button extends Component<ButtonProps, ButtonState> {
@@ -17,7 +18,7 @@ export class Button extends Component<ButtonProps, ButtonState> {
   }
   render() {
     return (
-      <a href={this.props.href} className={styles.button}>
+      <a href={this.props.href} className={styles.button} onClick={this.props.onClick}>
         <span>
           {this.props.children}
         </span>

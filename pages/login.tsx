@@ -8,6 +8,7 @@ import { Footer } from '../components/footer'
 import { I18n, WithTranslation, withTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
+import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
 
 export interface LoginState {
   isNotLoggedIn: boolean;
@@ -109,78 +110,80 @@ class Login extends Component<LoginProps, LoginState> {
 
     if (this.state.isNotLoggedIn) {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Login')}</title>
-            <meta name="description" content="Login page." />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Login')}</title>
+              <meta name="description" content="Login page." />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <header>
-            <Header 
-              username={""} 
-              hideLogin={true} 
-              hideLogout={true} 
-              path={router.pathname} 
-              i18n={this.props.i18n} 
-              router={this.props.router}
-              t={this.props.t}
-            />
-          </header>
+            <header>
+              <Header 
+                username={""} 
+                hideLogin={true} 
+                hideLogout={true} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
 
-          <div className='scrollBody'>
-            <main className={styles.field}>
-              <div className={styles.fieldDiv}>
-                <h1>{this.props.t('common:Login')}</h1>
-                <input
-                  type="text"
-                  placeholder={this.props.t('login:Username') + "..."}
-                  id='userInput'
-                  autoFocus
-                  onChange={(e) => this.setState({ username: e.target.value })}
-                  value={this.state.username}
-                  onKeyDown={loginEnter} />
-                <input
-                  type="password"
-                  placeholder={this.props.t('login:Password') + "..."}
-                  onChange={(e) => this.setState({ password: e.target.value })}
-                  value={this.state.password}
-                  onKeyDown={loginEnter} />
-                <div hidden={!this.state.credentialsInfo} className={styles.error} >
-                  {this.props.t('login:errorMessage')}!
+            <div className='scrollBody'>
+              <main className={styles.field}>
+                <div className={styles.fieldDiv}>
+                  <h1>{this.props.t('common:Login')}</h1>
+                  <input
+                    type="text"
+                    placeholder={this.props.t('login:Username') + "..."}
+                    id='userInput'
+                    autoFocus
+                    onChange={(e) => this.setState({ username: e.target.value })}
+                    value={this.state.username}
+                    onKeyDown={loginEnter} />
+                  <input
+                    type="password"
+                    placeholder={this.props.t('login:Password') + "..."}
+                    onChange={(e) => this.setState({ password: e.target.value })}
+                    value={this.state.password}
+                    onKeyDown={loginEnter} />
+                  <div hidden={!this.state.credentialsInfo} className={styles.error} >
+                    {this.props.t('login:errorMessage')}!
+                  </div>
+                  <button onClick={loginVerification}>
+                    {this.props.t('common:Login')}
+                  </button>
+                  <p>
+                    {this.props.t('login:Or') + " "}
+                    <a onClick={() => router.push("/register")}>
+                      {this.props.t('login:register')}
+                    </a>
+                    {this.props.t('login:instead')}.
+                  </p>
                 </div>
-                <button onClick={loginVerification}>
-                  {this.props.t('common:Login')}
-                </button>
-                <p>
-                  {this.props.t('login:Or') + " "}
-                  <a onClick={() => router.push("/register")}>
-                    {this.props.t('login:register')}
-                  </a>
-                  {this.props.t('login:instead')}.
-                </p>
-              </div>
-            </main>
+              </main>
 
-            <footer>
-              <Footer isLoggedIn={!this.state.isNotLoggedIn} />
-            </footer>
+              <footer>
+                <Footer isLoggedIn={!this.state.isNotLoggedIn} />
+              </footer>
+            </div>
           </div>
-        </div>
+        </PWPLanguageProvider>
       )
     } else {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Login')}</title>
-            <meta name="description" content="Login page." />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Login')}</title>
+              <meta name="description" content="Login page." />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <main>
-            <PageLoadingScreen t={this.props.t} />
-          </main>
-        </div>
+            <main>
+              <PageLoadingScreen t={this.props.t} />
+            </main>
+          </div>
+        </PWPLanguageProvider>
       )
     }
   }
