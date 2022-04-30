@@ -4,7 +4,6 @@ import matter from 'gray-matter'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from "remark-gfm";
 import { toHtml } from 'hast-util-to-html'
-import fs from 'fs'
 import styles from '../../../styles/studies/Summary.module.css'
 import stylesDark from '../../../styles/studies/MarkdownDark.module.css'
 import stylesLight from '../../../styles/studies/MarkdownLight.module.css'
@@ -22,45 +21,39 @@ import { PWPLanguageProvider } from '../../../components/PWPLanguageProvider/PWP
 export interface SummaryState {
   isLoggedIn: boolean;
   currentToken: string;
+  summary: matter.GrayMatterFile<any>;
 }
 
 export interface SummaryProps extends WithTranslation, WithRouterProps {
-  content: string;
+  summary: string;
   i18n: I18n;
 }
 
 export const getServerSideProps = async (context) => {
   const { summary } = context.params;
 
-  let content: string;
-
-  try {
-    content = fs.readFileSync(`${process.cwd()}/content/studies/summaries/${summary}.md`, 'utf-8');
-  } catch (error) {
-    content = "# This file does not exist!"
-  }
-
   return {
     props: {
       ...(await serverSideTranslations(context.locale, ['common', 'summary'])),
-      content,
+      summary,
     }
   }
 }
 
 class Summary extends Component<SummaryProps, SummaryState> {
-  private summary = matter(this.props.content);
   constructor(props: SummaryProps) {
     super(props)
     this.state = {
       isLoggedIn: undefined,
       currentToken: "",
+      summary: undefined,
     }
   }
 
   componentDidMount() {
     this.updateLoginState();
     window.addEventListener('storage', this.storageTokenListener)
+    this.getMarkdownFileContent();
   }
 
   componentWillUnmount() {
@@ -90,20 +83,34 @@ class Summary extends Component<SummaryProps, SummaryState> {
     this.setState({ isLoggedIn: false })
   }
 
+  async getMarkdownFileContent() {
+    this.setState({ summary: matter(await FrontEndController.getFileContent("/content/studies/summaries/" + this.props.summary + ".md")) });
+  }
+
   render() {
     const { router } = this.props
-    if (this.state.isLoggedIn === undefined) {
+    if (this.state.isLoggedIn === undefined || this.state.summary === undefined) {
       return (
         <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
           <div>
             <Head>
-              <title>{this.summary.data.title}</title>
+              <title>{"Loading"}</title>
               <meta name="description" content="Summary" />
               <link rel="icon" href="/favicon.ico" />
             </Head>
 
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.asPath} 
+                router={this.props.router}
+              />
+            </header>
+
             <main>
-              <PageLoadingScreen t={this.props.t} />
+              <PageLoadingScreen />
             </main>
           </div>
         </PWPLanguageProvider>
@@ -113,7 +120,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
         <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
           <div>
             <Head>
-              <title>{this.summary.data.title}</title>
+              <title>{this.state.summary.data.title}</title>
               <meta name="description" content="Summary" />
               <link rel="icon" href="/favicon.ico" />
             </Head>
@@ -136,7 +143,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
                     rehypePlugins={[rehypeRaw]}
                     remarkPlugins={[remarkGfm]}
                     className={FrontEndController.getTheme() === ColorTheme.darkTheme ? stylesDark.markdown : stylesLight.markdown}>
-                    {this.summary.content}
+                    {this.state.summary.content}
                   </ReactMarkdown>
                 </div>
               </main>

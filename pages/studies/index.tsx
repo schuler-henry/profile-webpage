@@ -80,9 +80,20 @@ class Studies extends Component<StudiesProps, StudiesState> {
               <meta name="description" content="Studies" />
               <link rel="icon" href="/favicon.ico" />
             </Head>
-            {/* <main>
-              <PageLoadingScreen t={this.props.t} />
-            </main> */}
+
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
+
+            <main>
+              <PageLoadingScreen />
+            </main>
           </div>
         </PWPLanguageProvider>
         )

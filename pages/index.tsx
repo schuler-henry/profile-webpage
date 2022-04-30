@@ -119,10 +119,20 @@ class Home extends Component<HomeProps, HomeState> {
               <meta name="description" content="Welcome page." />
               <link rel="icon" href="/favicon.ico" />
             </Head>
-  {/* 
+
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
+  
             <main>
-              <PageLoadingScreen t={this.props.t} />
-            </main> */}
+              <PageLoadingScreen />
+            </main>
           </div>
         </PWPLanguageProvider>
       )

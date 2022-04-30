@@ -31,6 +31,7 @@ export const getStaticProps = async ({ locale }) => {
     const rawContent = fs.readFileSync(path, {
       encoding: "utf-8"
     });
+    console.log(rawContent);
     return rawContent
   });
 
@@ -56,6 +57,7 @@ class Summaries extends Component<SummariesProps, SummariesState> {
   componentDidMount() {
     this.updateLoginState();
     window.addEventListener('storage', this.storageTokenListener)
+    console.log(this.listItems)
   }
 
   componentWillUnmount() {
@@ -97,8 +99,18 @@ class Summaries extends Component<SummariesProps, SummariesState> {
               <link rel="icon" href="/favicon.ico" />
             </Head>
 
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
+
             <main>
-              <PageLoadingScreen t={this.props.t} />
+              <PageLoadingScreen />
             </main>
           </div>
         </PWPLanguageProvider>

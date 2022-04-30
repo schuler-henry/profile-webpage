@@ -1,5 +1,6 @@
 import { DatabaseModel } from '../pages/api/databaseModel';
 import jwt from 'jsonwebtoken';
+import fs from 'fs'
 import * as bcrypt from 'bcrypt';
 import { User } from '../interfaces';
 
@@ -220,6 +221,24 @@ export class BackEndController {
     }
     return false;
   }
+
+  //#endregion
+
+  //#region File Methods
+
+  getFileContent(filePath: string): string {
+    let content: string;
+
+    try {
+      content = fs.readFileSync(`${process.cwd()}${filePath}`, 'utf-8');
+    } catch (error) {
+      content = "# This file does not exist!";
+    }
+
+    return content;
+  }
+
+  get
 
   //#endregion
 }
