@@ -232,7 +232,7 @@ export class BackEndController {
     try {
       content = fs.readFileSync(`${process.cwd()}${filePath}`, 'utf-8');
     } catch (error) {
-      content = "# This file does not exist!";
+      content = "# This file does not exist!" + process.cwd();
     }
 
     return content;
