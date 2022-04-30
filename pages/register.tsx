@@ -276,7 +276,7 @@ class Register extends Component<RegisterProps, RegisterState> {
             </Head>
 
             <main>
-              <PageLoadingScreen t={this.props.t} />
+              <PageLoadingScreen />
             </main>
           </div>
         </PWPLanguageProvider>

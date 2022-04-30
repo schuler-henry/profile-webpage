@@ -152,7 +152,7 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
             </Head>
 
             {/* <main>
-              <PageLoadingScreen t={this.props.t} />
+              <PageLoadingScreen />
             </main> */}
             <header>
               <Header 

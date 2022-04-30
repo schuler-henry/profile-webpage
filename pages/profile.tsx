@@ -94,7 +94,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
             </Head>
 
             <main>
-              <PageLoadingScreen t={this.props.t} />
+              <PageLoadingScreen />
             </main>
           </div>
         </PWPLanguageProvider>

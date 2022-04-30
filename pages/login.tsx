@@ -180,7 +180,7 @@ class Login extends Component<LoginProps, LoginState> {
             </Head>
 
             <main>
-              <PageLoadingScreen t={this.props.t} />
+              <PageLoadingScreen />
             </main>
           </div>
         </PWPLanguageProvider>
