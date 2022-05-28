@@ -25,17 +25,14 @@ export interface SummaryState {
 }
 
 export interface SummaryProps extends WithTranslation, WithRouterProps {
-  summary: string;
   i18n: I18n;
 }
 
 export const getServerSideProps = async (context) => {
-  const { summary } = context.params;
 
   return {
     props: {
       ...(await serverSideTranslations(context.locale, ['common', 'summary'])),
-      summary,
     }
   }
 }
@@ -84,7 +81,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
   }
 
   async getMarkdownFileContent() {
-    this.setState({ summary: matter(await FrontEndController.getFileContent("/content/studies/summaries/" + this.props.summary + ".md")) });
+    this.setState({ summary: matter(await FrontEndController.getFileContent("/content/studies/summaries/" + this.props.router.pathname.substring(this.props.router.pathname.lastIndexOf('/') + 1) + ".md")) });
   }
 
   render() {

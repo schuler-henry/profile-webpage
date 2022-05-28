@@ -5,7 +5,7 @@ import { PWPLanguageContext } from "../PWPLanguageProvider/PWPLanguageProvider"
 import styles from "./PageLoadingScreen.module.css"
 
 export interface PageLoadingScreenState {
-
+  visibility: boolean;
 }
 
 export interface PageLoadingScreenProps {
@@ -13,12 +13,21 @@ export interface PageLoadingScreenProps {
 }
 
 export class PageLoadingScreen extends Component<PageLoadingScreenProps, PageLoadingScreenState> {
-
+  constructor(props: PageLoadingScreenProps) {
+    super(props)
+    this.state = {
+      visibility: false,
+    }
+  }
+  
+  componentDidMount(): void {
+    setTimeout(() => {this.setState({visibility: true})}, 1000)
+  }
   render() {
     return (
       <PWPLanguageContext.Consumer> 
         { LanguageContext => (
-          <div>
+          <div hidden={!this.state.visibility}>
             <div className={styles.container}>
               <div className={styles.grid}>
                 <h2>{LanguageContext.t('common:LoadingPage')}</h2>
