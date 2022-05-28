@@ -24,6 +24,7 @@ export interface SummariesProps extends WithTranslation, WithRouterProps {
 }
 
 export const getStaticProps = async ({ locale }) => {
+  console.log("Process.cmd at getStaticProps", process.cwd())
   const directory = fs.readdirSync(`${process.cwd()}/content/studies/summaries`, 'utf-8');
   const files = directory.filter(fn => fn.endsWith(".md"));
   const data = files.map(file => {
@@ -31,7 +32,7 @@ export const getStaticProps = async ({ locale }) => {
     const rawContent = fs.readFileSync(path, {
       encoding: "utf-8"
     });
-    console.log(rawContent);
+    // console.log(rawContent);
     return rawContent
   });
 
