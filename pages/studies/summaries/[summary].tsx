@@ -135,6 +135,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
 
             <div className='scrollBody'>
               <main>
+                {process.cwd()}
                 <div className={styles.content}>
                   <ReactMarkdown
                     components={{ table: ({ node }) => <div className={styles.tableScroll} dangerouslySetInnerHTML={{ __html: toHtml(node) }}></div> }}
