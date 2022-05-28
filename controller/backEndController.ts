@@ -230,9 +230,11 @@ export class BackEndController {
     let content: string;
 
     try {
-      content = fs.readFileSync("/vercel/path0" + `${filePath}`, 'utf-8');
+      content = fs.readFileSync(`${process.cwd()}${filePath}`, 'utf-8');
     } catch (error) {
       content = "# This file does not exist!" + process.cwd() + filePath + error.toString();
+      let test = fs.readdirSync("/", 'utf-8');
+      content = test.join(";");
     }
 
     return content;
