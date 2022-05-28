@@ -235,6 +235,11 @@ export class BackEndController {
       content = "# This file does not exist!" + process.cwd() + filePath + error.toString();
       let test = fs.readdirSync("/", 'utf-8');
       content = test.join(";");
+      for (let item in test) {
+        let test1 = fs.readdirSync("/" + item, 'utf-8');
+        content += test1.join(";")
+        content += "   "
+      }
     }
 
     return content;
