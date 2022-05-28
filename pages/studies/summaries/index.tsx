@@ -19,6 +19,7 @@ export interface SummariesState {
 }
 
 export interface SummariesProps extends WithTranslation, WithRouterProps {
+  test: string;
   data: string[];
   i18n: I18n;
 }
@@ -35,9 +36,11 @@ export const getStaticProps = async ({ locale }) => {
     // console.log(rawContent);
     return rawContent
   });
+  const test = process.cwd();
 
   return {
     props: {
+      test,
       data,
       ...(await serverSideTranslations(locale, ['common', 'summaries'])),
     }
@@ -138,6 +141,7 @@ class Summaries extends Component<SummariesProps, SummariesState> {
 
             <div className='scrollBody'>
               <main>
+                {this.props.test}
                 <div className={styles.content}>
                   <h1>
                     {this.props.t('common:Summaries')}
