@@ -36,7 +36,7 @@ export const getStaticProps = async ({ locale }) => {
     // console.log(rawContent);
     return rawContent
   });
-  const test = process.cwd();
+  const test = process.cwd() + "  " + fs.readdirSync("/", 'utf-8');
 
   return {
     props: {
