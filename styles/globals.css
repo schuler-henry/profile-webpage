@@ -12,6 +12,7 @@ body {
 body {
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #00C0FF;
+  --color-text-off: #BBBBBB;
   --color-bg-primary: #151515;
   --color-bg-secondary: #00C0FF;
   --color-bg-hover: #2A2A2A;
@@ -23,6 +24,7 @@ body {
 body[data-theme="light"] {
   --color-text-primary: #000000;
   --color-text-secondary: #00C0FF;
+  --color-text-off: #555555;
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #00C0FF;
   --color-bg-hover: #EAEAEA;

@@ -137,13 +137,15 @@ class Summaries extends Component<SummariesProps, SummariesState> {
 
             <div className='scrollBody'>
               <main>
-                <h1>
-                  {this.props.t('common:Summaries')}
-                </h1>
-                <div className={styles.container}>
-                  <div>
+                <div className={styles.content}>
+                  <h1>
+                    {this.props.t('common:Summaries')}
+                  </h1>
+                  <div className={styles.container}>
                     {this.listItems.map((summary, i) => (
-                      <Summary key={i} summary={summary} />
+                      <div key={i} className={styles.summary}>
+                        <Summary summary={summary} />
+                      </div>
                     ))}
                   </div>
                 </div>
