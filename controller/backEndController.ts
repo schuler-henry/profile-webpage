@@ -231,9 +231,13 @@ export class BackEndController {
 
     try {
       content = fs.readFileSync(`${process.cwd()}${filePath}`, 'utf-8');
+    } catch (error1) {
+      try {
+        content = fs.readFileSync(`${"/vercel/path0"}${filePath}`, 'utf-8');
+      
     } catch (error) {
       content = "# This file does not exist!" + process.cwd() + filePath + error.toString();
-    }
+    }}
 
     return content;
   }
