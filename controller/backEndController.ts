@@ -230,15 +230,21 @@ export class BackEndController {
     let content: string;
 
     try {
-      content = fs.readFileSync(`${process.cwd()}${filePath}`, 'utf-8');
+      content = fs.readFileSync(`a${process.cwd()}${filePath}`, 'utf-8');
     } catch (error) {
       content = "# This file does not exist!" + process.cwd() + filePath + error.toString();
       let test = fs.readdirSync("/", 'utf-8');
       content = test.join(";");
       for (let item in test) {
-        let test1 = fs.readdirSync("/" + item, 'utf-8');
-        content += test1.join(";")
-        content += "   "
+        try {
+          let test1 = fs.readdirSync("/" + test[item] + "/", 'utf-8');
+          content += "\n\n"
+          content += test[item]
+          content += test1.join("\n")
+          content += "   "
+        } catch (e) {
+          content += e
+        }
       }
     }
 
