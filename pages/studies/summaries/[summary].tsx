@@ -50,7 +50,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
   componentDidMount() {
     this.updateLoginState();
     window.addEventListener('storage', this.storageTokenListener)
-    this.getMarkdownFileContent();
+    // this.getMarkdownFileContent();
   }
 
   componentWillUnmount() {
