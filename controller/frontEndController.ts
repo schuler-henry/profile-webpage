@@ -222,7 +222,7 @@ export class FrontEndController {
 
   //#region File Methods
 
-  static async getFileContent(filePath: string): Promise<string> {
+  static async getFileContent(filePath: string, fileName: string): Promise<string> {
     const response = await fetch('/api/files/getFileContent', {
       method: 'POST',
       headers: {
@@ -230,6 +230,7 @@ export class FrontEndController {
       },
       body: JSON.stringify({
         filePath: filePath,
+        fileName: fileName,
       })
     });
 

@@ -1,6 +1,7 @@
 import { DatabaseModel } from '../pages/api/databaseModel';
 import jwt from 'jsonwebtoken';
 import fs from 'fs'
+import path from 'path'
 import * as bcrypt from 'bcrypt';
 import { User } from '../interfaces';
 
@@ -226,32 +227,19 @@ export class BackEndController {
 
   //#region File Methods
 
-  getFileContent(filePath: string): string {
+  getFileContent(filePath: string, fileName: string): string {
     let content: string;
 
+    const dir = path.resolve('./public', filePath)
+
     try {
-      content = fs.readFileSync(`a${process.cwd()}${filePath}`, 'utf-8');
+      content = fs.readFileSync(`${dir}${"/"}${fileName}`, 'utf-8');
     } catch (error) {
-      content = "# This file does not exist!" + process.cwd() + filePath + error.toString();
-      let test = fs.readdirSync("/var/task/", 'utf-8');
-      content += test.join(";");
-      for (let item in test) {
-        try {
-          let test1 = fs.readdirSync("/var/task/" + test[item] + "/", 'utf-8');
-          content += "\n\n"
-          content += test[item]
-          content += test1.join("\n")
-          content += "   "
-        } catch (e) {
-          content += e
-        }
-      }
+      content = "# This file does not exist!" + filePath + fileName + error.toString();
     }
 
     return content;
   }
-
-  get
 
   //#endregion
 }

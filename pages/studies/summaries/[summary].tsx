@@ -82,7 +82,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
 
   async getMarkdownFileContent() {
     const { summary } = this.props.router.query
-    this.setState({ summary: matter(await FrontEndController.getFileContent("/content/studies/summaries/" + summary + ".md")) });
+    this.setState({ summary: matter(await FrontEndController.getFileContent("../content/studies/summaries/", summary + ".md")) });
   }
 
   render() {
@@ -135,7 +135,6 @@ class Summary extends Component<SummaryProps, SummaryState> {
 
             <div className='scrollBody'>
               <main>
-                {process.cwd()}
                 <div className={styles.content}>
                   <ReactMarkdown
                     components={{ table: ({ node }) => <div className={styles.tableScroll} dangerouslySetInnerHTML={{ __html: toHtml(node) }}></div> }}

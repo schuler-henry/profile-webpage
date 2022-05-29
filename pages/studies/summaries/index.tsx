@@ -19,13 +19,11 @@ export interface SummariesState {
 }
 
 export interface SummariesProps extends WithTranslation, WithRouterProps {
-  test: string;
   data: string[];
   i18n: I18n;
 }
 
 export const getStaticProps = async ({ locale }) => {
-  console.log("Process.cmd at getStaticProps", process.cwd())
   const directory = fs.readdirSync(`${process.cwd()}/content/studies/summaries`, 'utf-8');
   const files = directory.filter(fn => fn.endsWith(".md"));
   const data = files.map(file => {
@@ -36,11 +34,9 @@ export const getStaticProps = async ({ locale }) => {
     // console.log(rawContent);
     return rawContent
   });
-  const test = process.cwd() + "  " + fs.readdirSync("/", 'utf-8');
 
   return {
     props: {
-      test,
       data,
       ...(await serverSideTranslations(locale, ['common', 'summaries'])),
     }
@@ -141,7 +137,6 @@ class Summaries extends Component<SummariesProps, SummariesState> {
 
             <div className='scrollBody'>
               <main>
-                {this.props.test}
                 <div className={styles.content}>
                   <h1>
                     {this.props.t('common:Summaries')}
