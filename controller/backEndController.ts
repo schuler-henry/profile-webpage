@@ -233,9 +233,9 @@ export class BackEndController {
     const dir = path.resolve('./', filePath)
 
     try {
-      content = fs.readFileSync(`${dir}${"/"}${fileName}`, 'utf-8');
+      content = fs.readFileSync(`${path.join(dir, fileName)}`, 'utf-8');
     } catch (error) {
-      content = "# This file does not exist!" + filePath + fileName + error.toString();
+      content = "# This file does not exist!";
     }
 
     return content;

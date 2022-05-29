@@ -3,6 +3,7 @@ import { Component } from 'react'
 import { FrontEndController } from '../../controller/frontEndController';
 import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
+import styles from '../../styles/Studies.module.css'
 import Link from 'next/link';
 import { withRouter } from 'next/router';
 import { WithRouterProps } from 'next/dist/client/with-router';
@@ -119,7 +120,14 @@ class Studies extends Component<StudiesProps, StudiesState> {
 
             <div className='scrollBody'>
               <main>
-                {this.props.t('studies:Get_to_the')} <Link href="/studies/summaries">{this.props.t('studies:summaries')}</Link>!
+                <div className={styles.content}>
+                  <h1>
+                    {this.props.t('common:Studies')}
+                  </h1>
+                  <p>
+                    {this.props.t('studies:Get_to_the')} <Link href="/studies/summaries">{this.props.t('studies:summaries')}</Link>!
+                  </p>
+                </div>
               </main>
 
               <footer>
