@@ -82,7 +82,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
 
   async getMarkdownFileContent() {
     const { summary } = this.props.router.query
-    this.setState({ summary: matter(await FrontEndController.getFileContent("../content/studies/summaries/", summary + ".md")) });
+    this.setState({ summary: matter(await FrontEndController.getFileContent("content/studies/summaries/", summary + ".md")) });
   }
 
   render() {

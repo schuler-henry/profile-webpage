@@ -230,7 +230,7 @@ export class BackEndController {
   getFileContent(filePath: string, fileName: string): string {
     let content: string;
 
-    const dir = path.resolve('./public', filePath)
+    const dir = path.resolve('./', filePath)
 
     try {
       content = fs.readFileSync(`${dir}${"/"}${fileName}`, 'utf-8');
