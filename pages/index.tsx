@@ -8,6 +8,7 @@ import { I18n, WithTranslation, withTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
+import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
 
 export interface HomeState {
   isLoggedIn: boolean | undefined,
@@ -111,52 +112,64 @@ class Home extends Component<HomeProps, HomeState> {
     const { router } = this.props
     if (this.state.isLoggedIn === undefined) {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('home:Welcome')}</title>
-            <meta name="description" content="Welcome page." />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('home:Welcome')}</title>
+              <meta name="description" content="Welcome page." />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <main>
-            <PageLoadingScreen t={this.props.t} />
-          </main>
-        </div>
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
+  
+            <main>
+              <PageLoadingScreen />
+            </main>
+          </div>
+        </PWPLanguageProvider>
       )
     } else {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('home:Welcome')}</title>
-            <meta name="description" content="Welcome page." />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('home:Welcome')}</title>
+              <meta name="description" content="Welcome page." />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <header>
-            <Header 
-              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-              hideLogin={this.state.isLoggedIn} 
-              hideLogout={!this.state.isLoggedIn} 
-              path={router.pathname} 
-              i18n={this.props.i18n} 
-              router={this.props.router}
-              t={this.props.t}
-            />
-          </header>
-          <div className="scrollBody">
-            <main>
-              <div className={styles.contentOne}>
-                <div>
-                  <h1 className={this.state.cursorClass}>{this.state.headerText}</h1>
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
+            <div className="scrollBody">
+              <main>
+                <div className={styles.contentOne}>
+                  <div>
+                    <h1 className={this.state.cursorClass}>{this.state.headerText}</h1>
+                  </div>
                 </div>
-              </div>
-            </main>
+              </main>
 
-            <footer>
-              <Footer isLoggedIn={this.state.isLoggedIn} />
-            </footer>
+              <footer>
+                <Footer isLoggedIn={this.state.isLoggedIn} />
+              </footer>
+            </div>
           </div>
-        </div>
+        </PWPLanguageProvider>
       )
     }
   }

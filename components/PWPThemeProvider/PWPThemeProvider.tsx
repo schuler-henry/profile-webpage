@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-type PWPContextType = {
+type PWPThemeContextType = {
   theme: string;
 }
 
@@ -9,20 +9,20 @@ type Props = {
   theme: string;
 }
 
-const PWPContextDefaultValues: PWPContextType = {
+const PWPContextDefaultValues: PWPThemeContextType = {
   theme: 'light',
 };
 
-export const PWPContext = createContext<PWPContextType>(PWPContextDefaultValues);
+export const PWPThemeContext = createContext<PWPThemeContextType>(PWPContextDefaultValues);
 
 export function PWPThemeProvider({ children, theme }: Props) {
   return (
-    <PWPContext.Provider value={{theme}}>
+    <PWPThemeContext.Provider value={{theme}}>
       {children}
-    </PWPContext.Provider>
+    </PWPThemeContext.Provider>
   );
 }
 
-export function usePWPContext() {
-  return useContext(PWPContext);
+export function usePWPThemeContext() {
+  return useContext(PWPThemeContext);
 }

@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { Component } from 'react'
+import React, { Component } from 'react'
 import { FrontEndController } from '../controller/frontEndController'
 import styles from '../styles/Impressum.module.css'
 import { Header } from '../components/header'
@@ -8,10 +8,20 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { I18n, withTranslation, WithTranslation } from 'next-i18next'
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
+import { LanguageSwitcher } from '../components/LanguageSwitcher/LanguageSwitcher'
+import { Dropdown, DropdownOption } from '../components/Dropdown/Dropdown'
+import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
+import { Icon } from '@fluentui/react'
+
+const options: DropdownOption[] = [
+  {key: "de", text: "DE", data: {icon: "Germany"}},
+  {key: "en", text: "EN", data: {icon: "US"}},
+]
 
 export interface ImpressumState {
   isLoggedIn: boolean | undefined;
   currentToken: string;
+  currentSelectedKey: string;
 }
 
 export interface ImpressumProps extends WithTranslation, WithRouterProps {
@@ -36,6 +46,7 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
     this.state = {
       isLoggedIn: undefined,
       currentToken: "",
+      currentSelectedKey: this.props.i18n.language,
     }
   }
 
@@ -71,70 +82,134 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
     this.setState({ isLoggedIn: false })
   }
 
+  private onchange = (event: React.FormEvent<HTMLDivElement>, item: DropdownOption): void => {
+    if (this.state.currentSelectedKey !== item.key) {
+      const { router } = this.props;
+      router.push(router.pathname, router.pathname, { locale: item.key.toString() })
+      this.setState({ currentSelectedKey: item.key });
+    }
+  }
+
+  private onRenderOption = (option: DropdownOption): JSX.Element => {
+    return(
+      <div>
+        <span className={styles.icon}>
+          <Icon style={{ marginRight: '8px' }} iconName={option.data.icon} />
+        </span>
+        <span>
+          {option.text}
+        </span>
+      </div>
+    )
+  }
+
+  private onRenderCaretDown = (): JSX.Element => {
+    return(
+      <Icon iconName="ChevronDown" />
+    )
+  }
+
   /**
    * Generates the JSX Output for the Client
    * @returns JSX Output
    */
   render() {
     const { router } = this.props
+
+    // return (
+    //   <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+    //     <div>
+    //       <header>
+    //           <Header 
+    //             username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+    //             hideLogin={this.state.isLoggedIn} 
+    //             hideLogout={!this.state.isLoggedIn} 
+    //             path={router.pathname} 
+    //             router={this.props.router}
+    //           />
+    //         </header>
+    //         <LanguageSwitcher id={"Test"} path={router.pathname} i18n={this.props.i18n} router={this.props.router}>
+              
+    //         </LanguageSwitcher>
+    //         <Dropdown 
+    //           id={"Hallo"}
+    //           options={options} 
+    //           selectedKey={this.state.currentSelectedKey} 
+    //           onChange={this.onchange}
+    //           onRenderOption={this.onRenderOption}
+    //           onRenderCaretDown={this.onRenderCaretDown}></Dropdown>
+    //     </div>
+    //   </PWPLanguageProvider>
+    // )
     if (this.state.isLoggedIn === undefined) {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Impressum')}</title>
-            <meta name="description" content="Impressum page." />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Impressum')}</title>
+              <meta name="description" content="Impressum page." />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <main>
-            <PageLoadingScreen t={this.props.t} />
-          </main>
-        </div>
+            {/* <main>
+              <PageLoadingScreen />
+            </main> */}
+            <header>
+              <Header 
+                username={""} 
+                hideLogin={true} 
+                hideLogout={true} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
+          </div>
+        </PWPLanguageProvider>
       )
     } else {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Impressum')}</title>
-            <meta name="description" content="Impressum page." />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Impressum')}</title>
+              <meta name="description" content="Impressum page." />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <header>
-            <Header 
-              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-              hideLogin={this.state.isLoggedIn} 
-              hideLogout={!this.state.isLoggedIn} 
-              path={router.pathname} 
-              i18n={this.props.i18n} 
-              router={this.props.router}
-              t={this.props.t}
-            />
-          </header>
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
 
-          <div className='scrollBody'>
-            <main>
-              <div className={styles.content}>
-                <h1>{this.props.t('common:Impressum')}</h1>
-                <h2>{this.props.t('impressum:Responsible')}</h2>
-                <p>Henry Schuler</p>
-                <h2>{this.props.t('impressum:Contact')}</h2>
-                <p>
-                  Henry Schuler <br />
-                  Kastellstra&#223;e 69/1 <br />
-                  88316 Isny im Allg&auml;u <br />
-                  <br />
-                  {this.props.t('impressum:Phone')}: &#43;49 1590 8481493 <br />
-                  E-Mail: henryschuler&#64;outlook.de <br />
-                </p>
-              </div>
-            </main>
+            <div className='scrollBody'>
+              <main>
+                <div className={styles.content}>
+                  <h1>{this.props.t('common:Impressum')}</h1>
+                  <h2>{this.props.t('impressum:Responsible')}</h2>
+                  <p>Henry Schuler</p>
+                  <h2>{this.props.t('impressum:Contact')}</h2>
+                  <p>
+                    Henry Schuler <br />
+                    Kastellstra&#223;e 69/1 <br />
+                    88316 Isny im Allg&auml;u <br />
+                    <br />
+                    {this.props.t('impressum:Phone')}: &#43;49 1590 8481493 <br />
+                    E-Mail: contact&#64;henryschuler.de <br />
+                  </p>
+                </div>
+              </main>
 
-            <footer>
-              <Footer isLoggedIn={this.state.isLoggedIn} />
-            </footer>
+              <footer>
+                <Footer isLoggedIn={this.state.isLoggedIn} />
+              </footer>
+            </div>
           </div>
-        </div>
+        </PWPLanguageProvider>
       )
     }
   }

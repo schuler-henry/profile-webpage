@@ -26,7 +26,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setTheme(FrontEndController.getTheme());
-    console.log("MyApp");
+    // console.log("MyApp");
     
     document.body.dataset.theme = theme === ColorTheme.lightTheme ? "light" : "dark";
   })

@@ -8,6 +8,7 @@ import { Footer } from '../components/footer'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { I18n, withTranslation, WithTranslation } from 'next-i18next'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
+import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
 
 export interface RegisterState {
   isNotLoggedIn: boolean,
@@ -158,125 +159,127 @@ class Register extends Component<RegisterProps, RegisterState> {
 
     if (this.state.isNotLoggedIn) {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Register')}</title>
-            <meta name="description" content="Register page." />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Register')}</title>
+              <meta name="description" content="Register page." />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <header>
-            <Header 
-              username={""} 
-              hideLogin={false} 
-              hideLogout={true} 
-              path={router.pathname} 
-              i18n={this.props.i18n} 
-              router={this.props.router}
-              t={this.props.t}
-            />
-          </header>
-          <div className='scrollBody'>
-            <main className={styles.field}>
-              <div className={styles.fieldDiv}>
-                <h1>{this.props.t('common:Register')}</h1>
-                <input
-                  type="text"
-                  placeholder={this.props.t('register:Username') + "..."}
-                  id='userInput'
-                  autoFocus
-                  onChange={async (e) => {
-                    this.setState({ username: e.target.value });
-                    this.setState({ doesUserExist: await FrontEndController.doesUserExist(e.target.value) });
-                    updateFeedbackMessage();
-                    updateUsernameValid();
-                  }}
-                  value={this.state.username}
-                  onKeyDown={registerEnter} />
-                <div hidden={this.state.usernameReqMessage === ""} className={styles.inputRequirements}>
-                  {this.state.usernameReqMessage}
+            <header>
+              <Header 
+                username={""} 
+                hideLogin={false} 
+                hideLogout={true} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
+            <div className='scrollBody'>
+              <main className={styles.field}>
+                <div className={styles.fieldDiv}>
+                  <h1>{this.props.t('common:Register')}</h1>
+                  <input
+                    type="text"
+                    placeholder={this.props.t('register:Username') + "..."}
+                    id='userInput'
+                    autoFocus
+                    onChange={async (e) => {
+                      this.setState({ username: e.target.value });
+                      this.setState({ doesUserExist: await FrontEndController.doesUserExist(e.target.value) });
+                      updateFeedbackMessage();
+                      updateUsernameValid();
+                    }}
+                    value={this.state.username}
+                    onKeyDown={registerEnter} />
+                  <div hidden={this.state.usernameReqMessage === ""} className={styles.inputRequirements}>
+                    {this.state.usernameReqMessage}
+                  </div>
+                  <input
+                    type="password"
+                    placeholder={this.props.t('register:Password') + "..."}
+                    onChange={async (e) => {
+                      await this.setState({ password: e.target.value });
+                      updateFeedbackMessage();
+                      updatePasswordValid();
+                    }}
+                    value={this.state.password}
+                    onKeyDown={registerEnter} />
+                  <div hidden={this.state.passwordReqMessage === ""} className={styles.inputRequirements}>
+                    {this.state.passwordReqMessage}
+                  </div>
+                  <input
+                    type="password"
+                    placeholder={this.props.t('register:ConfirmPassword') + "..."}
+                    onChange={async (e) => {
+                      await this.setState({ confirmPassword: e.target.value });
+                      updateFeedbackMessage();
+                    }}
+                    value={this.state.confirmPassword}
+                    onKeyDown={registerEnter} />
+                  <div hidden={this.state.feedbackMessage === ""} className={styles.error} >
+                    {this.state.feedbackMessage}
+                  </div>
+                  <button onClick={async () => {
+                    registerVerification()
+                  }}>
+                    {this.props.t('common:Register')}
+                  </button>
+                  <div className={styles.flexBox}>
+                    <p className={styles.loginInstead}>
+                      {this.props.t('register:Or') + " "}
+                      <a onClick={() => { router.push("/login") }}>
+                        {this.props.t('register:login')}
+                      </a>
+                      {this.props.t('register:instead')}.
+                    </p>
+                    <p className={styles.showReq}>
+                      <a onClick={() => { this.setState({ showRequirements: !this.state.showRequirements }) }}>
+                        {this.props.t('register:showRequirements')}
+                      </a>
+                    </p>
+                  </div>
                 </div>
-                <input
-                  type="password"
-                  placeholder={this.props.t('register:Password') + "..."}
-                  onChange={async (e) => {
-                    await this.setState({ password: e.target.value });
-                    updateFeedbackMessage();
-                    updatePasswordValid();
-                  }}
-                  value={this.state.password}
-                  onKeyDown={registerEnter} />
-                <div hidden={this.state.passwordReqMessage === ""} className={styles.inputRequirements}>
-                  {this.state.passwordReqMessage}
+                <div hidden={!this.state.showRequirements} className={styles.requirementsDiv}>
+                  <h2>{this.props.t('register:Username')}</h2>
+                  <ul>
+                    <li>4-16 {this.props.t('register:characters')}</li>
+                    <li>{this.props.t('register:onlyNumbersCharacters')}</li>
+                    <li>{this.props.t('register:keywordAdmin')}</li>
+                  </ul>
+                  <h2>{this.props.t('register:Password')}</h2>
+                  <ul>
+                    <li>min. 8 {this.props.t('register:characters')}</li>
+                    <li>min. 1 {this.props.t('register:number')}, 1 {this.props.t('register:lowercase')}, 1 {this.props.t('register:uppercase')}</li>
+                    <li>min. 1 {this.props.t('register:of')}: ! * # , ; ? + - _ . = ~ ^ % ( ) &#123; &#125; | : &ldquo; /</li>
+                    <li>{this.props.t('register:onlyNumbersCharactersSpecial')}</li>
+                  </ul>
                 </div>
-                <input
-                  type="password"
-                  placeholder={this.props.t('register:ConfirmPassword') + "..."}
-                  onChange={async (e) => {
-                    await this.setState({ confirmPassword: e.target.value });
-                    updateFeedbackMessage();
-                  }}
-                  value={this.state.confirmPassword}
-                  onKeyDown={registerEnter} />
-                <div hidden={this.state.feedbackMessage === ""} className={styles.error} >
-                  {this.state.feedbackMessage}
-                </div>
-                <button onClick={async () => {
-                  registerVerification()
-                }}>
-                  {this.props.t('common:Register')}
-                </button>
-                <div className={styles.flexBox}>
-                  <p className={styles.loginInstead}>
-                    {this.props.t('register:Or') + " "}
-                    <a onClick={() => { router.push("/login") }}>
-                      {this.props.t('register:login')}
-                    </a>
-                    {this.props.t('register:instead')}.
-                  </p>
-                  <p className={styles.showReq}>
-                    <a onClick={() => { this.setState({ showRequirements: !this.state.showRequirements }) }}>
-                      {this.props.t('register:showRequirements')}
-                    </a>
-                  </p>
-                </div>
-              </div>
-              <div hidden={!this.state.showRequirements} className={styles.requirementsDiv}>
-                <h2>{this.props.t('register:Username')}</h2>
-                <ul>
-                  <li>4-16 {this.props.t('register:characters')}</li>
-                  <li>{this.props.t('register:onlyNumbersCharacters')}</li>
-                  <li>{this.props.t('register:keywordAdmin')}</li>
-                </ul>
-                <h2>{this.props.t('register:Password')}</h2>
-                <ul>
-                  <li>min. 8 {this.props.t('register:characters')}</li>
-                  <li>min. 1 {this.props.t('register:number')}, 1 {this.props.t('register:lowercase')}, 1 {this.props.t('register:uppercase')}</li>
-                  <li>min. 1 {this.props.t('register:of')}: ! * # , ; ? + - _ . = ~ ^ % ( ) &#123; &#125; | : &ldquo; /</li>
-                  <li>{this.props.t('register:onlyNumbersCharactersSpecial')}</li>
-                </ul>
-              </div>
-            </main>
+              </main>
 
-            <footer>
-              <Footer isLoggedIn={!this.state.isNotLoggedIn} />
-            </footer>
+              <footer>
+                <Footer isLoggedIn={!this.state.isNotLoggedIn} />
+              </footer>
+            </div>
           </div>
-        </div>
+        </PWPLanguageProvider>
       )
     } else {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Register')}</title>
-            <meta name="description" content="Register page." />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Register')}</title>
+              <meta name="description" content="Register page." />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <main>
-            <PageLoadingScreen t={this.props.t} />
-          </main>
-        </div>
+            <main>
+              <PageLoadingScreen />
+            </main>
+          </div>
+        </PWPLanguageProvider>
       )
     }
   }

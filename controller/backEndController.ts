@@ -1,5 +1,7 @@
 import { DatabaseModel } from '../pages/api/databaseModel';
 import jwt from 'jsonwebtoken';
+import fs from 'fs'
+import path from 'path'
 import * as bcrypt from 'bcrypt';
 import { User } from '../interfaces';
 
@@ -219,6 +221,24 @@ export class BackEndController {
       }
     }
     return false;
+  }
+
+  //#endregion
+
+  //#region File Methods
+
+  getFileContent(filePath: string, fileName: string): string {
+    let content: string;
+
+    const dir = path.resolve('./', filePath)
+
+    try {
+      content = fs.readFileSync(`${path.join(dir, fileName)}`, 'utf-8');
+    } catch (error) {
+      content = "# This file does not exist!";
+    }
+
+    return content;
   }
 
   //#endregion

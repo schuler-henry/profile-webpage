@@ -68,6 +68,7 @@ export class Footer extends Component<FooterProps, FooterState> {
                   <Image
                     title='github/schuler-henry'
                     src={GitHubIcon}
+                    className="whiteImage"
                     objectFit='contain'
                     height={40}
                     width={40}
@@ -82,6 +83,7 @@ export class Footer extends Component<FooterProps, FooterState> {
                   <Image
                     title='github/DHBW-FN-TIT20'
                     src={GitHubIcon}
+                    className="whiteImage"
                     objectFit='contain'
                     height={40}
                     width={40}

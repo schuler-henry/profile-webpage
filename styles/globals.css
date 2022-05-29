@@ -10,17 +10,27 @@ body {
 }
 
 body {
-  --color-text-primary: white;
+  --color-text-primary: #FFFFFF;
   --color-text-secondary: #00C0FF;
+  --color-text-off: #BBBBBB;
   --color-bg-primary: #151515;
   --color-bg-secondary: #00C0FF;
+  --color-bg-hover: #2A2A2A;
+  --color-bg-selected: #3A3A3A;
+  --color-border-primary: #CACACA;
+  --color-border-hover: #FFFFFF;
 }
 
 body[data-theme="light"] {
-  --color-text-primary: black;
+  --color-text-primary: #000000;
   --color-text-secondary: #00C0FF;
+  --color-text-off: #555555;
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #00C0FF;
+  --color-bg-hover: #EAEAEA;
+  --color-bg-selected: #DADADA;
+  --color-border-primary: #151515;
+  --color-border-hover: #000000;
 }
 
 /* width */
@@ -71,17 +81,17 @@ button {
   font-size: 14pt;
   width: 100%;
   background-color: transparent;
-  color: white;
+  color: var(--color-text-primary);
   padding: 5pt 10pt;
   border: solid;
-  border-color: #2A2A2A;
+  border-color: var(--color-border-primary);
   border-width: 2pt;
   border-radius: 2pt;
 }
 
 button:hover {
-  background-color: #2A2A2A;
-  color: var(--color-text-secondary);
+  background-color: var(--color-bg-hover);
+  border-color: var(--color-border-hover);
   cursor: pointer;
   transition: 0.3s;
 }
@@ -94,10 +104,10 @@ input {
   font-size: 14pt;
   width: 100%;
   background-color: transparent;
-  color: white;
+  color: var(--color-text-primary);
   padding: 5pt 10pt;
   border: solid;
-  border-color: #2A2A2A;
+  border-color: var(--color-border-primary);
   border-width: 2pt;
   border-radius: 2pt;
 }
@@ -113,4 +123,8 @@ ul.contains-task-list > li > ul.contains-task-list {
 
 .invisible {
   display: none;
+}
+
+body[data-theme="light"] .whiteImage {
+  filter: invert();
 }

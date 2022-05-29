@@ -11,6 +11,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { I18n, withTranslation, WithTranslation } from 'next-i18next';
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router';
 import { PageLoadingScreen } from '../../../components/PageLoadingScreen/PageLoadingScreen';
+import { PWPLanguageProvider } from '../../../components/PWPLanguageProvider/PWPLanguageProvider';
 
 export interface SummariesState {
   isLoggedIn: boolean;
@@ -30,6 +31,7 @@ export const getStaticProps = async ({ locale }) => {
     const rawContent = fs.readFileSync(path, {
       encoding: "utf-8"
     });
+    // console.log(rawContent);
     return rawContent
   });
 
@@ -55,6 +57,7 @@ class Summaries extends Component<SummariesProps, SummariesState> {
   componentDidMount() {
     this.updateLoginState();
     window.addEventListener('storage', this.storageTokenListener)
+    // console.log(this.listItems)
   }
 
   componentWillUnmount() {
@@ -88,58 +91,72 @@ class Summaries extends Component<SummariesProps, SummariesState> {
     const { router } = this.props
     if (this.state.isLoggedIn === undefined) {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Summaries')}</title>
-            <meta name="description" content="Summaries" />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Summaries')}</title>
+              <meta name="description" content="Summaries" />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <main>
-            <PageLoadingScreen t={this.props.t} />
-          </main>
-        </div>
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
+
+            <main>
+              <PageLoadingScreen />
+            </main>
+          </div>
+        </PWPLanguageProvider>
       )
     } else {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Summaries')}</title>
-            <meta name="description" content="Summaries" />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Summaries')}</title>
+              <meta name="description" content="Summaries" />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <header>
-            <Header 
-              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-              hideLogin={this.state.isLoggedIn} 
-              hideLogout={!this.state.isLoggedIn} 
-              path={router.pathname} 
-              i18n={this.props.i18n} 
-              router={this.props.router}
-              t={this.props.t}
-            />
-          </header>
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
 
-          <div className='scrollBody'>
-            <main>
-              <h1>
-                {this.props.t('common:Summaries')}
-              </h1>
-              <div className={styles.container}>
-                <div>
-                  {this.listItems.map((summary, i) => (
-                    <Summary key={i} summary={summary} />
-                  ))}
+            <div className='scrollBody'>
+              <main>
+                <div className={styles.content}>
+                  <h1>
+                    {this.props.t('common:Summaries')}
+                  </h1>
+                  <div className={styles.container}>
+                    {this.listItems.map((summary, i) => (
+                      <div key={i} className={styles.summary}>
+                        <Summary summary={summary} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </main>
+              </main>
 
-            <footer>
-              <Footer isLoggedIn={this.state.isLoggedIn} />
-            </footer>
+              <footer>
+                <Footer isLoggedIn={this.state.isLoggedIn} />
+              </footer>
+            </div>
           </div>
-        </div>
+        </PWPLanguageProvider>
       )
     }
   }

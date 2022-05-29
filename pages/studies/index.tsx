@@ -3,12 +3,14 @@ import { Component } from 'react'
 import { FrontEndController } from '../../controller/frontEndController';
 import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
+import styles from '../../styles/Studies.module.css'
 import Link from 'next/link';
 import { withRouter } from 'next/router';
 import { WithRouterProps } from 'next/dist/client/with-router';
 import { I18n, withTranslation, WithTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { PageLoadingScreen } from '../../components/PageLoadingScreen/PageLoadingScreen';
+import { PWPLanguageProvider } from '../../components/PWPLanguageProvider/PWPLanguageProvider';
 
 export interface StudiesState {
   isLoggedIn: boolean;
@@ -72,49 +74,68 @@ class Studies extends Component<StudiesProps, StudiesState> {
     const { router } = this.props
     if (this.state.isLoggedIn === undefined) {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Studies')}</title>
-            <meta name="description" content="Studies" />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Studies')}</title>
+              <meta name="description" content="Studies" />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <main>
-            <PageLoadingScreen t={this.props.t} />
-          </main>
-        </div>
-      )
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
+
+            <main>
+              <PageLoadingScreen />
+            </main>
+          </div>
+        </PWPLanguageProvider>
+        )
     } else {
       return (
-        <div>
-          <Head>
-            <title>{this.props.t('common:Studies')}</title>
-            <meta name="description" content="Studies" />
-            <link rel="icon" href="/favicon.ico" />
-          </Head>
+        <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
+          <div>
+            <Head>
+              <title>{this.props.t('common:Studies')}</title>
+              <meta name="description" content="Studies" />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
 
-          <header>
-            <Header 
-              username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-              hideLogin={this.state.isLoggedIn} 
-              hideLogout={!this.state.isLoggedIn} 
-              path={router.pathname} 
-              i18n={this.props.i18n} 
-              router={this.props.router}
-              t={this.props.t}
-            />
-          </header>
+            <header>
+              <Header 
+                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                hideLogin={this.state.isLoggedIn} 
+                hideLogout={!this.state.isLoggedIn} 
+                path={router.pathname} 
+                router={this.props.router}
+              />
+            </header>
 
-          <div className='scrollBody'>
-            <main>
-              {this.props.t('studies:Get_to_the')} <Link href="/studies/summaries">{this.props.t('studies:summaries')}</Link>!
-            </main>
+            <div className='scrollBody'>
+              <main>
+                <div className={styles.content}>
+                  <h1>
+                    {this.props.t('common:Studies')}
+                  </h1>
+                  <p>
+                    {this.props.t('studies:Get_to_the')} <Link href="/studies/summaries">{this.props.t('studies:summaries')}</Link>!
+                  </p>
+                </div>
+              </main>
 
-            <footer>
-              <Footer isLoggedIn={this.state.isLoggedIn} />
-            </footer>
+              <footer>
+                <Footer isLoggedIn={this.state.isLoggedIn} />
+              </footer>
+            </div>
           </div>
-        </div>
+        </PWPLanguageProvider>
       )
     }
   }

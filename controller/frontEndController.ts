@@ -220,4 +220,24 @@ export class FrontEndController {
     }
   }
 
+  //#region File Methods
+
+  static async getFileContent(filePath: string, fileName: string): Promise<string> {
+    const response = await fetch('/api/files/getFileContent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        filePath: filePath,
+        fileName: fileName,
+      })
+    });
+
+    const data = await response.json();
+    // console.log(data.content)
+    return data.content;
+  }
+
+  //#endregion
 }

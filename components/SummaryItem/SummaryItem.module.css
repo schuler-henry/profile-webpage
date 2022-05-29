@@ -1,0 +1,44 @@
+.summaryItem {
+  border: solid;
+  border-width: 1px;
+  border-radius: 5px;
+  border-color: var(--color-border-primary);
+  padding: 15px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.summaryItem:hover {
+  transition: 0.5s;
+  border-color: var(--color-border-hover);
+  background-color: var(--color-bg-hover);
+}
+
+.heading {
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 10px;
+  border-bottom: solid;
+  border-color: var(--color-border-primary);
+}
+
+.headText {
+  padding-left: 10px;
+  width: 100%;
+}
+
+.summaryTitle {
+  font-weight: bold;
+}
+
+.date {
+  color: var(--color-text-off);
+}
+
+.description {
+  margin: 0;
+  padding-top: 10px;
+  width: 100%;
+}
