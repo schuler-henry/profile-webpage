@@ -57,7 +57,7 @@ class Summaries extends Component<SummariesProps, SummariesState> {
   componentDidMount() {
     this.updateLoginState();
     window.addEventListener('storage', this.storageTokenListener)
-    console.log(this.listItems)
+    // console.log(this.listItems)
   }
 
   componentWillUnmount() {

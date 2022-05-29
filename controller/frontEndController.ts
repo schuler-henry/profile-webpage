@@ -235,7 +235,7 @@ export class FrontEndController {
     });
 
     const data = await response.json();
-    console.log(data.content)
+    // console.log(data.content)
     return data.content;
   }
 

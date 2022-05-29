@@ -167,7 +167,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
                       id="closeNavField"
                       onClick={
                         () => {
-                          console.log("clicked");
+                          // console.log("clicked");
                           this.toggleVisibility();
                         }
                       } />
