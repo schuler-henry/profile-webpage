@@ -67,9 +67,9 @@ export class GitHubRepository extends Component<GitHubRepositoryProps, GitHubRep
                       </Link>
                       <div className={styles.gitHubHeaderText}>
                         <p className={styles.repositoryHeaderName}>
-                          <Link href={`https://github.com/${this.props.username}/${this.props.reponame}`} passHref>
+                          <a href={`https://github.com/${this.props.username}/${this.props.reponame}`} onClick={() => { document.location.href = `https://github.com/${this.props.username}/${this.props.reponame}` }}>
                             {this.props.heading}
-                          </Link>
+                          </a>
                         </p>
                         <p className={styles.repositoryHeaderInfo}>
                           <div className={this.state.windowWidth || this.state.repoData ? document.getElementById(uid(this.props.reponame))?.scrollWidth > document.getElementById(uid(this.props.reponame))?.clientWidth ? styles.scrollText : null : null} id={uid(this.props.reponame)}>
@@ -108,9 +108,9 @@ export class GitHubRepository extends Component<GitHubRepositoryProps, GitHubRep
                                 alt='GitHub Logo missing.'
                               />
                               {" "}
-                              <Link href={user.html_url} passHref>
+                              <a href={user.html_url} onClick={() => {document.location.href = user.html_url}}>
                                 {user.login}
-                              </Link>
+                              </a>
                               {`${"".padEnd(contributorsLength - user.login.length, "\u00A0")} - ${LanguageContext.t('gitHub:Contributions')}: ${user.contributions}`}
                             </li>
                           ))}
