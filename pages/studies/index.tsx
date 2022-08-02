@@ -5,12 +5,16 @@ import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
 import styles from '../../styles/Studies.module.css'
 import Link from 'next/link';
+import Image from 'next/image'
 import { withRouter } from 'next/router';
 import { WithRouterProps } from 'next/dist/client/with-router';
 import { I18n, withTranslation, WithTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { PageLoadingScreen } from '../../components/PageLoadingScreen/PageLoadingScreen';
 import { PWPLanguageProvider } from '../../components/PWPLanguageProvider/PWPLanguageProvider';
+import DHBWLogo from '../../public/DHBW_logo.jpg';
+import NotebookPen from '../../public/notebook-pen.svg';
+import CodeIcon from '../../public/web-page-source-code.svg';
 
 export interface StudiesState {
   isLoggedIn: boolean;
@@ -121,12 +125,53 @@ class Studies extends Component<StudiesProps, StudiesState> {
             <div className='scrollBody'>
               <main>
                 <div className={styles.content}>
-                  <h1>
-                    {this.props.t('common:Studies')}
-                  </h1>
-                  <p>
-                    {this.props.t('studies:Get_to_the')} <Link href="/studies/summaries">{this.props.t('studies:summaries')}</Link>!
-                  </p>
+                  <span className={styles.header}>
+                    <h1>
+                      {this.props.t('common:Studies')}
+                    </h1>
+                    <Link
+                      href={'https://www.ravensburg.dhbw.de/startseite'}
+                      passHref>
+                      <div className={styles.dhbw}>
+                        <Image
+                          title='DHBW Logo'
+                          src={DHBWLogo}
+                          objectFit='contain'
+                          alt='DHBW Logo'
+                        />
+                      </div>
+                    </Link>
+                  </span>
+                  <span className={styles.element}>
+                    <div className={styles.icon}>
+                      <Image
+                        title='Notebook'
+                        src={NotebookPen}
+                        objectFit='contain'
+                        height={40}
+                        width={40}
+                        alt='Notebook Icon'
+                      />
+                    </div>
+                    <p className={styles.elementHeader}>
+                      {this.props.t('studies:Get_to_the')} <Link href="/studies/summaries">{this.props.t('studies:summaries')}</Link>!
+                    </p>
+                  </span>
+                  <span className={styles.element}>
+                    <div className={styles.icon}>
+                      <Image
+                        title='Code'
+                        src={CodeIcon}
+                        objectFit='contain'
+                        height={40}
+                        width={40}
+                        alt='Code Icon'
+                      />
+                    </div>
+                    <p className={styles.elementHeader}>
+                      {this.props.t('studies:Get_to_the')} <Link href="/studies/projects">{this.props.t('studies:projects')}</Link>!
+                    </p>
+                  </span>
                 </div>
               </main>
 

@@ -11,8 +11,8 @@ import { WithRouterProps } from 'next/dist/client/with-router';
 import { DarkmodeSwitcher } from './DarkmodeSwitcher/DarkmodeSwitcher';
 import { Button } from './Button/Button';
 import { PWPLanguageContext } from './PWPLanguageProvider/PWPLanguageProvider';
-import { I18n, TFunction } from 'next-i18next';
 import { PWPThemeContext } from './PWPThemeProvider/PWPThemeProvider';
+import { Icon } from '@fluentui/react/lib/Icon';
 
 export interface HeaderState {
 
@@ -32,6 +32,12 @@ export interface HeaderProps extends WithRouterProps {
  */
 export class Header extends Component<HeaderProps, HeaderState> {
   isVisible = false;
+
+  componentDidMount(): void {
+    let item = document.getElementById('NavBarStudies');
+    item.addEventListener('mouseenter', () => {document.getElementById("SubContentStudies").classList.toggle(`${styles.active}`)});
+    item.addEventListener('mouseleave', () => {document.getElementById("SubContentStudies").classList.toggle(`${styles.active}`)});
+  }
 
   private toggleVisibility() {
     if (this.isVisible) {
@@ -74,7 +80,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
     } else {
       username = <Link href={'/profile'} passHref>
         <div className={styles.nav}>
-          <span>
+          <span className={styles.navContent}>
             {this.props.username}
           </span>
         </div>
@@ -198,21 +204,56 @@ export class Header extends Component<HeaderProps, HeaderState> {
                       </Link>
                       <Link href={'/'} passHref>
                         <div className={styles.nav}>
-                          <span>
+                          <span className={styles.navContent}>
                             {LanguageContext.t('common:Home')}
                           </span>
                         </div>
                       </Link>
-                      <Link href={'/studies'} passHref>
-                        <div className={styles.nav}>
-                          <span className={styles.navContent}>
-                            {LanguageContext.t('common:Studies')}
+                      <div className={`${styles.relative}`} id="NavBarStudies">
+                        <Link href={'/studies'} passHref>
+                          <div className={styles.nav}>
+                            <span className={styles.navContent}>
+                              {LanguageContext.t('common:Studies')}
+                            </span>
+                            <div className={styles.navContentIcon}>
+                              <Link href={''} passHref>
+                                <Icon 
+                                  iconName="ChevronRight" 
+                                  className={styles.mobileMenuExtender}
+                                  id="studiesChevron"
+                                  onClick={() => {
+                                    document.getElementById("SubContentStudies").classList.toggle(`${styles.activeMobile}`);
+                                    document.getElementById("studiesChevron").classList.toggle(`${styles.rotate90}`);
+                                  }}
+                                />
+                              </Link>
+                            </div>
+                          </div>
+                        </Link>
+                        <div className={styles.navSubContent} id="SubContentStudies">
+                          <span className={styles.navSubContentItem}>
+                            <Link href={'/studies/summaries'} passHref>
+                              <div className={styles.nav}>
+                                <span className={styles.navContent}>
+                                  {LanguageContext.t('common:Summaries')}
+                                </span>
+                              </div>
+                            </Link>
                           </span>
+                          <Link href={'/studies/projects'} passHref>
+                            <div className={styles.navSubContentItem}>
+                              <div className={styles.nav}>
+                                <span className={styles.navContent}>
+                                  {LanguageContext.t('common:Projects')}
+                                </span>
+                              </div>
+                            </div>
+                          </Link>
                         </div>
-                      </Link>
+                      </div>
                       <Link href={'/impressum'} passHref>
                         <div className={styles.nav}>
-                          <span>
+                          <span className={styles.navContent}>
                             {LanguageContext.t('common:Impressum')}
                           </span>
                         </div>

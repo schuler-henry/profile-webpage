@@ -1,4 +1,4 @@
-import { Component, createRef, forwardRef, RefObject } from "react";
+import { Component } from "react";
 import styles from "./Button.module.css";
 
 export interface ButtonState {

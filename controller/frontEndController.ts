@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { ColorTheme } from '../enums/colorTheme';
 import { User } from '../interfaces';
+import { GitHubUser, Repository } from '../interfaces/Github';
 
 /**
  * This is the Frontend Controller of PersonalWebPage
@@ -237,6 +238,34 @@ export class FrontEndController {
     const data = await response.json();
     // console.log(data.content)
     return data.content;
+  }
+
+  //#endregion
+
+  //#region Github API
+
+  static async getRepoInformation(user: string, repoName: string): Promise<Repository> {
+    const response = await fetch(`https://api.github.com/repos/${user}/${repoName}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+
+    const data = await response.json();
+    return data;
+  }
+
+  static async getRepoSubItem(user: string, repoName: string, subItem: string): Promise<GitHubUser[]> {
+    const response = await fetch(`https://api.github.com/repos/${user}/${repoName}/${subItem}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+
+    const data = await response.json();
+    return data;
   }
 
   //#endregion

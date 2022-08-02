@@ -11,10 +11,10 @@ import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingSc
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
 
 export interface HomeState {
-  isLoggedIn: boolean | undefined,
-  currentToken: string,
-  cursorClass: any,
-  headerText: string,
+  isLoggedIn: boolean | undefined;
+  currentToken: string;
+  cursorClass: any;
+  headerText: string;
 }
 
 export interface HomeProps extends WithTranslation, WithRouterProps {

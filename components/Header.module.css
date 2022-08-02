@@ -9,6 +9,10 @@
   border-color: var(--color-bg-secondary);
 }
 
+.navBar * {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .closeNavField {
   display: inherit !important;
   position: absolute;
@@ -25,7 +29,6 @@
   0% {
     opacity: 0;
   }
-
   100% {
     opacity: 50%;
   }
@@ -92,36 +95,6 @@
   /* overflow: auto; */
 }
 
-.showHeader {
-  transform: translate(100%, 0);
-  transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0);
-}
-
-.nav {
-  height: 40pt;
-  display: flex;
-  white-space: nowrap;
-  padding: 0 60px;
-  font-size: 1.5em;
-  align-items: center;
-  /* color: white; */
-}
-
-.nav:hover {
-  cursor: pointer;
-  /* background-color: #333333; */
-  color: var(--color-text-secondary);
-}
-
-.nav:hover span {
-  transform: translateX(5px);
-  transition: 0.5s;
-}
-
-.nav:not(:hover) span {
-  transition: 0.5s;
-}
-
 .navLogo {
   position: relative;
   height: 60pt;
@@ -138,6 +111,87 @@
   cursor: pointer;
 }
 
+.relative {
+  position: relative;
+  height: 100%;
+  width: inherit;
+}
+
+.showHeader {
+  transform: translate(100%, 0);
+  transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0);
+}
+
+.nav {
+  height: 40pt;
+  width: inherit;
+  display: flex;
+  white-space: nowrap;
+  padding: 0 60px;
+  font-size: 1.5em;
+  align-items: center;
+  justify-content: space-between;
+  /* color: white; */
+}
+
+.nav:hover {
+  cursor: pointer;
+  /* background-color: #333333; */
+  color: var(--color-text-secondary);
+}
+
+.navContent {
+  overflow: hidden;
+}
+
+.nav:hover .navContent {
+  transform: translateX(5px);
+  transition: 0.5s;
+}
+
+.nav:not(:hover) .navContent {
+  transition: 0.5s;
+}
+
+.navContentIcon {
+  height: fit-content;
+  width: fit-content;
+}
+
+.mobileMenuExtender {
+  height: 53.33px;
+  width: 53.33px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  transition: 0.3s;
+}
+
+.rotate90 {
+  transform: rotate(90deg);
+}
+
+.navSubContentItem {
+  display: none;
+  background-color: var(--color-bg-primary);
+}
+
+.activeMobile .navSubContentItem {
+  display: block;
+  animation: slideOptions 0.3s;
+  padding-left: 5px;
+}
+
+@keyframes slideOptions {
+  from {
+    padding-left: 0px;
+  }
+  to {
+    padding-left: 5px;
+  }
+}
+
 .pcSpacing {
   display: none;
 }
@@ -149,17 +203,6 @@
 
 .languageSwitcher:hover span {
   transform: initial;
-}
-
-.button button {
-  /* color: white; */
-}
-
-.button:hover {
-  cursor: default;
-  /* background-color: #151515; */
-  transform: translateX(0);
-  transition: 0;
 }
 
 .span {
@@ -236,9 +279,8 @@
     grid-template-columns: min-content min-content min-content min-content auto min-content min-content min-content min-content;
     row-gap: 0;
     column-gap: 0;
-    /* overflow: hidden; */
   }
-
+  
   .navLogoName {
     height: 30pt;
     width: 90pt;
@@ -247,23 +289,69 @@
     justify-self: center;
     cursor: pointer;
   }
-
-  .nav {
+  
+  .relative {
     padding: 0 ;
-    height: 60%;
-    padding: 0 10px;
-    /* border-left: solid 1px var(--color-bg-secondary;
-    border-right: solid 1px var(--color-bg-secondary); */
     align-self: center;
+    width: initial;
+  }
+  
+  .navSubContent {
+    position: absolute;
+    height: fit-content;
+    top: 53.33px;
+    background-color: var(--color-bg-primary);
+    box-shadow: 0px 8px 16px 0px rgb(0, 0, 0, 0.3);
   }
 
-  .nav:hover span {
+  .navSubContentItem {
+    height: 53.33px;
+  }
+
+  .navSubContentItem:hover {
+    background-color: var(--color-bg-hover);
+    transition: 0.5s;
+  }
+
+  .activeMobile .navSubContentItem {
+    display: none;
+  }
+
+  .active .navSubContentItem {
+    display: block;
+    animation: slideOptions 0.2s;
+  }
+
+  @keyframes slideOptions {
+    from {
+      transform: translateY(-6px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .nav {
+    height: 100%;
+    width: initial;
+    padding: 0 10px;
+    align-self: center;
+    justify-content: initial;
+  }
+  
+  .navSubContentItem .nav {
+    padding: 0 calc((53.33px - 25px) / 2);
+  }
+
+  .nav:hover .navContent {
     transform: translateX(0);
     transform: translateY(2px);
   }
-  
-  .languageSwitcher:hover span {
-    transform: initial;
+
+  .navContentIcon {
+    display: none;
   }
 
   .pcSpacing {
@@ -272,10 +360,6 @@
 
   .mobileSpacing {
     display: none;
-  }
-
-  .button:hover {
-    padding: 0 20px;
   }
 }
 
