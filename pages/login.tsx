@@ -103,9 +103,10 @@ class Login extends Component<LoginProps, LoginState> {
     const loginVerification = async () => {
       if (await FrontEndController.loginUser(this.state.username, this.state.password)) {
         router.push("/");
+      } else {
+        this.setState({ username: "", password: "", credentialsInfo: true })
+        document.getElementById("userInput")?.focus()
       }
-      this.setState({ username: "", password: "", credentialsInfo: true })
-      document.getElementById("userInput")?.focus()
     }
 
     if (this.state.isNotLoggedIn) {
