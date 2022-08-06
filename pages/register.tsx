@@ -20,6 +20,7 @@ export interface RegisterState {
   doesUserExist: boolean,
   feedbackMessage: string,
   showRequirements: boolean,
+  readOnlyInput: boolean,
 }
 
 export interface RegisterProps extends WithTranslation, WithRouterProps {
@@ -51,6 +52,7 @@ class Register extends Component<RegisterProps, RegisterState> {
       doesUserExist: false,
       feedbackMessage: "",
       showRequirements: false,
+      readOnlyInput: false,
     }
   }
 
@@ -112,11 +114,14 @@ class Register extends Component<RegisterProps, RegisterState> {
      */
     const registerVerification = async () => {
       if (this.state.password === this.state.confirmPassword && this.state.usernameReqMessage === "" && this.state.passwordReqMessage === "") {
+        this.setState({ readOnlyInput: true });
         if (await FrontEndController.registerUser(this.state.username, this.state.password)) {
           router.push("/");
+        } else {
+          this.setState({ username: "", password: "", confirmPassword: "" });
+          document.getElementById("userInput")?.focus();
+          this.setState({ readOnlyInput: false });
         }
-        this.setState({ username: "", password: "", confirmPassword: "" });
-        document.getElementById("userInput")?.focus();
       }
     }
 
@@ -192,7 +197,8 @@ class Register extends Component<RegisterProps, RegisterState> {
                       updateUsernameValid();
                     }}
                     value={this.state.username}
-                    onKeyDown={registerEnter} />
+                    onKeyDown={registerEnter}
+                    readOnly={this.state.readOnlyInput} />
                   <div hidden={this.state.usernameReqMessage === ""} className={styles.inputRequirements}>
                     {this.state.usernameReqMessage}
                   </div>
@@ -205,7 +211,8 @@ class Register extends Component<RegisterProps, RegisterState> {
                       updatePasswordValid();
                     }}
                     value={this.state.password}
-                    onKeyDown={registerEnter} />
+                    onKeyDown={registerEnter}
+                    readOnly={this.state.readOnlyInput} />
                   <div hidden={this.state.passwordReqMessage === ""} className={styles.inputRequirements}>
                     {this.state.passwordReqMessage}
                   </div>
@@ -217,7 +224,8 @@ class Register extends Component<RegisterProps, RegisterState> {
                       updateFeedbackMessage();
                     }}
                     value={this.state.confirmPassword}
-                    onKeyDown={registerEnter} />
+                    onKeyDown={registerEnter}
+                    readOnly={this.state.readOnlyInput} />
                   <div hidden={this.state.feedbackMessage === ""} className={styles.error} >
                     {this.state.feedbackMessage}
                   </div>

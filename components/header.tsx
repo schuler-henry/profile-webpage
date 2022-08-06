@@ -67,6 +67,22 @@ export class Header extends Component<HeaderProps, HeaderState> {
     }
   }
 
+  private closeNav(event) {
+    if (this.isVisible && event.target === event.currentTarget) {
+      // remove close-field next to the menu
+      document.getElementById('closeNavField').classList.remove(`${styles.closeNavField}`);
+      // slide side-nav to the left (hide)
+      document.getElementById("menu").classList.remove(`${styles.showHeader}`)
+      // rotate spans for menu icon (parallel lines)
+      document.getElementById("spanOne").classList.remove(`${styles.span}`)
+      document.getElementById("spanTwo").classList.remove(`${styles.span}`)
+      document.getElementById("spanTwo").classList.remove(`${styles.spanTwo}`)
+      document.getElementById("spanThree").classList.remove(`${styles.span}`)
+      document.getElementById("spanThree").classList.remove(`${styles.spanThree}`)
+      this.isVisible = false;
+    }
+  }
+
   /**
    * Generates the JSX Output for the Client
    * @returns JSX Output
@@ -171,17 +187,12 @@ export class Header extends Component<HeaderProps, HeaderState> {
                     <div 
                       className='invisible'
                       id="closeNavField"
-                      onClick={
-                        () => {
-                          // console.log("clicked");
-                          this.toggleVisibility();
-                        }
-                      } />
+                      onClick={(event) => { this.closeNav(event); }} />
                     <div
                       className={styles.menu}
                       id="menu">
                       <Link href={'/'} passHref>
-                        <div className={styles.navLogo}>
+                        <div className={styles.navLogo} onClick={(event) => { this.closeNav(event); }}>
                           <Image
                             src={Logo}
                             alt='Logo_Schrift_Weiss.png missing.'
@@ -192,27 +203,28 @@ export class Header extends Component<HeaderProps, HeaderState> {
                         </div>
                       </Link>
                       <Link href={'/'} passHref>
-                        <div className={styles.navLogoName}>
+                        <div className={styles.navLogoName} onClick={(event) => { this.closeNav(event); }}>
                           <Image
                             src={ThemeContext.theme === "light" ? LogoNameBlack : LogoNameWhite}
                             alt='Logo missing.'
                             objectFit='contain'
                             sizes='fitContent'
-                            layout="fill">
+                            layout="fill"
+                            onClick={(event) => { this.closeNav(event); }}>
                           </Image>
                         </div>
                       </Link>
                       <Link href={'/'} passHref>
-                        <div className={styles.nav}>
-                          <span className={styles.navContent}>
+                        <div className={styles.nav} onClick={(event) => { this.closeNav(event); }}>
+                          <span className={styles.navContent} onClick={(event) => { this.closeNav(event); }}>
                             {LanguageContext.t('common:Home')}
                           </span>
                         </div>
                       </Link>
                       <div className={`${styles.relative}`} id="NavBarStudies">
                         <Link href={'/studies'} passHref>
-                          <div className={styles.nav}>
-                            <span className={styles.navContent}>
+                          <div className={styles.nav} onClick={(event) => { this.closeNav(event); }}>
+                            <span className={styles.navContent} onClick={(event) => { this.closeNav(event); }}>
                               {LanguageContext.t('common:Studies')}
                             </span>
                             <div className={styles.navContentIcon}>
@@ -231,29 +243,29 @@ export class Header extends Component<HeaderProps, HeaderState> {
                           </div>
                         </Link>
                         <div className={styles.navSubContent} id="SubContentStudies">
-                          <span className={styles.navSubContentItem}>
+                          <div className={styles.navSubContentItem}>
                             <Link href={'/studies/summaries'} passHref>
-                              <div className={styles.nav}>
-                                <span className={styles.navContent}>
+                              <div className={styles.nav} onClick={(event) => { this.closeNav(event); }}>
+                                <span className={styles.navContent} onClick={(event) => { this.closeNav(event); }}>
                                   {LanguageContext.t('common:Summaries')}
                                 </span>
                               </div>
                             </Link>
-                          </span>
-                          <Link href={'/studies/projects'} passHref>
-                            <div className={styles.navSubContentItem}>
-                              <div className={styles.nav}>
-                                <span className={styles.navContent}>
+                          </div>
+                          <div className={styles.navSubContentItem}>
+                            <Link href={'/studies/projects'} passHref>
+                              <div className={styles.nav} onClick={(event) => { this.closeNav(event); }}>
+                                <span className={styles.navContent} onClick={(event) => { this.closeNav(event); }}>
                                   {LanguageContext.t('common:Projects')}
                                 </span>
                               </div>
-                            </div>
-                          </Link>
+                            </Link>
+                          </div>
                         </div>
                       </div>
                       <Link href={'/impressum'} passHref>
-                        <div className={styles.nav}>
-                          <span className={styles.navContent}>
+                        <div className={styles.nav} onClick={(event) => { this.closeNav(event); }}>
+                          <span className={styles.navContent} onClick={(event) => { this.closeNav(event); }}>
                             {LanguageContext.t('common:Impressum')}
                           </span>
                         </div>
