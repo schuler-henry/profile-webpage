@@ -14,7 +14,7 @@
 }
 
 .closeNavField {
-  display: inherit !important;
+  display: inherit;
   position: absolute;
   z-index: 2;
   background-color: rgb(80, 80, 80);
@@ -257,6 +257,10 @@
   .navBar {
     grid-template-columns: 100vw;
     column-gap: 0;
+  }
+
+  .closeNavField {
+    display: none;
   }
 
   .menuIcon {
