@@ -2,7 +2,7 @@
 
 import { AccessLevel } from "./enums/accessLevel";
 
-export interface User {
+export interface IUser {
   /** 
    * user.id=0 -> broadcast
    * user.id=1 -> system
@@ -12,4 +12,14 @@ export interface User {
   name: string;
   password: string;
   accessLevel: AccessLevel;
+}
+
+// Timer:
+
+export interface ITimer {
+  id: number;
+  user: IUser;
+  name: string;
+  elapsedSeconds: number;
+  startTime: Date;
 }
