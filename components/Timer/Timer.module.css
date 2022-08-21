@@ -1,0 +1,68 @@
+.timerItem {
+  border: solid 1px;
+  height: fit-content;
+  width: fit-content;
+  padding: 10px;
+  font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  padding-bottom: 10px;
+  min-height: 43px;
+  border-bottom: solid 1px;
+  position: relative;
+}
+
+.header h3 {
+  margin: 0;
+}
+
+.fetchButton {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.elapsedTime {
+  padding: 10px 0 15px 0;
+  border-bottom: solid 1px;
+}
+
+.elapsedTime p {
+  font-size: 18pt;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.elapsedTime p span {
+  font-weight: bold;
+}
+
+.currentWorkTime {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-off);
+  padding-top: 10px;
+}
+
+.currentWorkTime p {
+  font-size: 14pt;
+  margin: 0;
+}
+
+.currentWorkTime p span {
+  font-weight: bold;
+}
+
+.control {
+  margin-left: 10px;
+}
+
+.buttonSize {
+  height: 0;
+  overflow: hidden;
+}

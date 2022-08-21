@@ -2,7 +2,7 @@ import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import Head from 'next/head'
 import { Component } from 'react'
 import { FrontEndController } from '../controller/frontEndController'
-import { User } from '../interfaces'
+import { ITimer, IUser } from '../interfaces'
 import styles from '../styles/Profile.module.css'
 import { Header } from '../components/header'
 import { Footer } from '../components/footer'
@@ -10,11 +10,13 @@ import { I18n, withTranslation, WithTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
+import { Timer } from '../components/Timer/Timer'
 
 export interface ProfileState {
   isLoggedIn: boolean | undefined;
   currentToken: string;
-  currentUser: User | undefined;
+  currentUser: IUser | undefined;
+  timers: ITimer[];
 }
 
 export interface ProfileProps extends WithTranslation, WithRouterProps {
@@ -40,13 +42,14 @@ class Profile extends Component<ProfileProps, ProfileState> {
       isLoggedIn: undefined,
       currentToken: "",
       currentUser: undefined,
+      timers: [],
     }
   }
 
   async componentDidMount() {
     this.updateLoginState();
     window.addEventListener('storage', this.storageTokenListener)
-    this.setState({ currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()) });
+    this.setState({ currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()), timers: await FrontEndController.getTimers(FrontEndController.getUserToken()) });
   }
 
   componentWillUnmount() {
@@ -150,6 +153,14 @@ class Profile extends Component<ProfileProps, ProfileState> {
                       </tr>
                     </tbody>
                   </table>
+                  <h2>ProjectTimer</h2>
+                  {
+                    this.state.timers?.map((timer: ITimer, id) => {
+                      return (
+                        <Timer timer={timer} key={"Timer" + id} />
+                      )
+                    })
+                  }
                 </div>
               </main>
 

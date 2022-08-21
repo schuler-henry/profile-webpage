@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { BackEndController } from "../../../controller/backEndController";
-import { User } from "../../../interfaces";
+import { IUser } from "../../../interfaces";
 
 type Data = {
-  user: User,
+  user: IUser,
 }
 
 const BACK_END_CONTROLLER = new BackEndController();
@@ -15,7 +15,7 @@ const BACK_END_CONTROLLER = new BackEndController();
 async function getUserHandler(req: NextApiRequest, res: NextApiResponse<Data>) {
   const token: string = req.body.token;
   
-  const user: User = await BACK_END_CONTROLLER.handleGetUserFromToken(token);
+  const user: IUser = await BACK_END_CONTROLLER.handleGetUserFromToken(token);
 
   res.status(200).json({ user: user })
 }
