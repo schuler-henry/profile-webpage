@@ -273,7 +273,6 @@ export class FrontEndController {
   //#region Timer Functions
 
   static async getTimers(token: string): Promise<ITimer[]> {
-    console.log("hlalo")
     const response = await fetch('/api/timers/get_timers', {
       method: 'POST',
       headers: {
