@@ -34,7 +34,7 @@
 
 .elapsedTime p {
   font-size: 18pt;
-  color: var(--color-text-primary);
+  color: var(--color-text-primary) !important;
   margin: 0;
 }
 
