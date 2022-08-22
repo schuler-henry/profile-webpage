@@ -75,7 +75,7 @@ export class Timer extends Component<TimerProps, TimerState> {
       <div className={styles.timerItem}>
         <div className={styles.header}>
           <h3>
-            Timer: {this.state.timer.name}
+            {this.state.timer.name}
           </h3>
           <div className={styles.fetchButton}>
             <Button onClick={async () => {this.syncTimer()}}>
@@ -102,7 +102,7 @@ export class Timer extends Component<TimerProps, TimerState> {
             <Button onClick={() => {this.state.update ? null : this.updateTimer()}}>
               <>
                 <div className={styles.buttonSize}>Start</div>
-                {this.state.update ? "..." : this.state.timer.startTime === null ? "Start" : "Stop"}
+                {this.state.update ? "..." : this.state.timer.startTime === null ? "Start" : "Add"}
               </>
             </Button>
           </div>
