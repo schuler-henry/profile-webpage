@@ -11,6 +11,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
 import { Timer } from '../components/Timer/Timer'
+import { Icon } from '@fluentui/react'
 
 export interface ProfileState {
   isLoggedIn: boolean | undefined;
@@ -77,6 +78,21 @@ class Profile extends Component<ProfileProps, ProfileState> {
     } else {
       const { router } = this.props
       router.push("/login")
+    }
+  }
+
+  async addTimer() {
+    const inputElement = (document.getElementById("addTimerInput") as HTMLInputElement);
+    const inputText = inputElement.value.trim();
+    if (inputText !== "") {
+      inputElement.disabled = true;
+      await FrontEndController.addTimer(FrontEndController.getUserToken(), inputText);
+      this.setState({ timers: await FrontEndController.getTimers(FrontEndController.getUserToken()) });
+      inputElement.value = "";
+      inputElement.disabled = false;
+    } else {
+      inputElement.value = "";
+      inputElement.focus();
     }
   }
 
@@ -153,7 +169,35 @@ class Profile extends Component<ProfileProps, ProfileState> {
                       </tr>
                     </tbody>
                   </table>
-                  <h2>ProjectTimer</h2>
+                  <span className={styles.timerHeader}>
+                    <h2>
+                      ProjectTimer
+                    </h2>
+                    <span id={styles.addTimer}>
+                      <Icon 
+                        iconName="Add"
+                        id={styles.addTimerIcon}
+                        />
+                      <input 
+                        type="text" 
+                        className={styles.addTimerInput}
+                        id="addTimerInput"
+                        placeholder="Timer Name"
+                        onKeyDown={async (event) => {
+                          if (event.key === "Enter") {
+                            await this.addTimer();
+                          }
+                        }}
+                        />
+                      <Icon 
+                        iconName="Send"
+                        id={styles.submitAddTimerIcon}
+                        onClick={async () => {
+                          await this.addTimer();
+                        }}
+                      />
+                    </span>
+                  </span>
                   {
                     this.state.timers?.map((timer: ITimer, id) => {
                       return (

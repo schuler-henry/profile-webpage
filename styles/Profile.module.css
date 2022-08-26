@@ -17,3 +17,69 @@
   overflow: hidden;
   padding: 2pt 10pt 2pt 0;
 }
+
+.timerHeader {
+  display: inline-flex;
+}
+
+#addTimer {
+  align-self: center;
+  display: flex;
+  align-content: center;
+  border: solid 1px;
+  border-radius: 5px;
+  height: fit-content;
+  width: fit-content;
+  padding: 5px;
+  margin: 0 10px;
+  transition: 0.5s;
+}
+
+#addTimer:hover {
+  transition: 0.5s;
+  background-color: var(--color-bg-hover);
+}
+
+#addTimerIcon {
+  display: flex;
+  height: fit-content;
+  width: fit-content;
+  transition: 0.5s;
+}
+
+#addTimer:hover #addTimerIcon {
+  transition: 0.5s;
+  transform: rotate(90deg);
+}
+
+.addTimerInput {
+  display: flex;
+  height: 14px;
+  width: 0;
+  margin: 0;
+  padding: 0;
+  border: hidden;
+  font-size: 12px;
+  overflow: hidden;
+  transition: 0.5s;
+  outline: none;
+}
+
+#addTimer:hover .addTimerInput {
+  width: 100px;
+  margin: 0 10px;
+  overflow: visible;
+}
+
+#submitAddTimerIcon {
+  display: flex;
+  height: fit-content;
+  width: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+#addTimer:hover #submitAddTimerIcon {
+  width: fit-content;
+  overflow: visible;
+}

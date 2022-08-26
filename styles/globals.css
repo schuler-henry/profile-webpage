@@ -13,10 +13,12 @@ body {
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #00C0FF;
   --color-text-off: #BBBBBB;
+  --color-text-inverted: #000000;
   --color-bg-primary: #151515;
   --color-bg-secondary: #00C0FF;
   --color-bg-hover: #2A2A2A;
   --color-bg-selected: #3A3A3A;
+  --color-bg-inverted: #FFFFFF;
   --color-border-primary: #CACACA;
   --color-border-hover: #FFFFFF;
 }
@@ -25,10 +27,12 @@ body[data-theme="light"] {
   --color-text-primary: #000000;
   --color-text-secondary: #00C0FF;
   --color-text-off: #555555;
+  --color-text-inverted: #FFFFFF;
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #00C0FF;
   --color-bg-hover: #EAEAEA;
   --color-bg-selected: #DADADA;
+  --color-bg-inverted: #151515;
   --color-border-primary: #151515;
   --color-border-hover: #000000;
 }
