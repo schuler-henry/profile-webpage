@@ -1,5 +1,5 @@
 .content {
-  padding-left: 10pt;
+  padding: 0 10pt;
 }
 
 .content p {
@@ -20,16 +20,18 @@
 
 .timerHeader {
   display: inline-flex;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
 }
 
 #addTimer, #syncTimer {
-  align-self: center;
   display: flex;
   align-content: center;
-  border: solid 1px;
   border-radius: 5px;
   height: fit-content;
   width: fit-content;
+  max-width: 170px;
   padding: 5px;
   margin: 0 0 0 10px;
   transition: 0.5s;
@@ -67,6 +69,7 @@
 
 .addTimerInput {
   display: flex;
+  align-self: center;
   height: 14px;
   width: 0;
   margin: 0;
@@ -79,7 +82,8 @@
 }
 
 #addTimer:hover .addTimerInput {
-  width: 100px;
+  width: 100%;
+  max-width: 100px;
   margin: 0 10px;
   overflow: visible;
 }

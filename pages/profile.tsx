@@ -193,6 +193,9 @@ class Profile extends Component<ProfileProps, ProfileState> {
                       <Icon 
                         iconName="Add"
                         id={styles.addTimerIcon}
+                        onClick={() => {
+                          (document.getElementById("addTimerInput") as HTMLInputElement).focus();
+                        }}
                         />
                       <input 
                         type="text" 
