@@ -79,7 +79,7 @@ export class Timer extends Component<TimerProps, TimerState> {
   render() {
     if (this.state.timer !== undefined) {
       return(
-        <div className={styles.timerItem} style={this.state.timer ? {} : { display: "none" } }>
+        <div className={styles.timerItem}>
           <div className={styles.header}>
             <h3>
               Timer: {this.state.timer.name}
