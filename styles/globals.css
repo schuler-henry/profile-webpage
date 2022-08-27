@@ -14,6 +14,7 @@ body {
   --color-text-secondary: #00C0FF;
   --color-text-off: #BBBBBB;
   --color-text-inverted: #000000;
+  --color-text-warning: #ff2222;
   --color-bg-primary: #151515;
   --color-bg-secondary: #00C0FF;
   --color-bg-hover: #2A2A2A;
@@ -28,6 +29,7 @@ body[data-theme="light"] {
   --color-text-secondary: #00C0FF;
   --color-text-off: #555555;
   --color-text-inverted: #FFFFFF;
+  --color-text-warning: #ff0000;
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #00C0FF;
   --color-bg-hover: #EAEAEA;

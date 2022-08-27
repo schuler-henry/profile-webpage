@@ -4,11 +4,15 @@ import { ITimer } from "../../interfaces";
 import { Button } from "../Button/Button";
 import { secondsToFormattedTimeString } from "../../shared/secondsToFormattedTimeString";
 import { FrontEndController } from "../../controller/frontEndController";
+import { Icon } from "@fluentui/react";
+import { ConfirmPopUp } from "../ConfirmPopUp/ConfirmPopUp";
 
 export interface TimerState {
   timer: ITimer | undefined;
   timerValue: number;
   update: boolean;
+  showDeleteConfirmation: boolean;
+  itemDeleted: boolean;
 }
 
 export interface TimerProps {
@@ -22,6 +26,8 @@ export class Timer extends Component<TimerProps, TimerState> {
       timer: this.props.timer,
       timerValue: 0,
       update: false,
+      showDeleteConfirmation: false,
+      itemDeleted: false,
     }
   }
 
@@ -72,7 +78,7 @@ export class Timer extends Component<TimerProps, TimerState> {
 
   render() {
     return(
-      <div className={styles.timerItem}>
+      <div className={styles.timerItem} style={this.state.itemDeleted ? { display: "none" } : {}}>
         <div className={styles.header}>
           <h3>
             Timer: {this.state.timer.name}
@@ -82,6 +88,28 @@ export class Timer extends Component<TimerProps, TimerState> {
               sync
             </Button>
           </div>
+          <div className={styles.deleteButton} onClick={() => {
+            this.setState({ showDeleteConfirmation: true })
+          }}>
+            <Icon
+              iconName="Delete"
+              className={styles.deleteIcon}
+              />
+          </div>
+          {
+            this.state.showDeleteConfirmation && <ConfirmPopUp 
+              title="Confirm delete" 
+              message={`Do you really want to delete timer \"${this.state.timer.name}\" with time ${secondsToFormattedTimeString(this.state.timer.elapsedSeconds)}?`}
+              warning="This action cannot be undone!" 
+              onCancel={() => { 
+                this.setState({ showDeleteConfirmation: false }) 
+              }} 
+              onConfirm={async () => {
+                await FrontEndController.deleteTimer(FrontEndController.getUserToken(), this.state.timer.id);
+                this.setState({ showDeleteConfirmation: false, itemDeleted: true })
+              }} 
+            />
+          }
         </div>
         <div className={styles.elapsedTime}>
           <p>

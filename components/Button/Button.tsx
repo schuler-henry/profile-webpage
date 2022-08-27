@@ -12,7 +12,6 @@ export interface ButtonProps {
 }
 
 export class Button extends Component<ButtonProps, ButtonState> {
-  newRef;
   constructor(props) {
     super(props);
   }
