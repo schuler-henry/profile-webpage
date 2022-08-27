@@ -18,6 +18,7 @@ export interface ProfileState {
   currentToken: string;
   currentUser: IUser | undefined;
   timers: ITimer[];
+  sync: boolean;
 }
 
 export interface ProfileProps extends WithTranslation, WithRouterProps {
@@ -44,6 +45,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
       currentToken: "",
       currentUser: undefined,
       timers: [],
+      sync: false,
     }
   }
 
@@ -173,6 +175,20 @@ class Profile extends Component<ProfileProps, ProfileState> {
                     <h2>
                       ProjectTimer
                     </h2>
+                    <span 
+                      id={styles.syncTimer}
+                      onClick={async () => {
+                        this.setState({ sync: true });
+                        this.setState({ timers: await FrontEndController.getTimers(FrontEndController.getUserToken()) });
+                        this.setState({ sync: false });
+                      }}
+                    >
+                      <Icon 
+                        iconName="Sync" 
+                        id={styles.syncTimerIcon}
+                        className={this.state.sync ? styles.spinnerAnimation : ""}
+                      />
+                    </span>
                     <span id={styles.addTimer}>
                       <Icon 
                         iconName="Add"

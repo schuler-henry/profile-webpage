@@ -22,7 +22,7 @@
   display: inline-flex;
 }
 
-#addTimer {
+#addTimer, #syncTimer {
   align-self: center;
   display: flex;
   align-content: center;
@@ -31,20 +31,33 @@
   height: fit-content;
   width: fit-content;
   padding: 5px;
-  margin: 0 10px;
+  margin: 0 0 0 10px;
   transition: 0.5s;
 }
 
-#addTimer:hover {
+#addTimer:hover, #syncTimer:hover {
   transition: 0.5s;
   background-color: var(--color-bg-hover);
 }
 
-#addTimerIcon {
+#addTimerIcon, #syncTimerIcon {
   display: flex;
   height: fit-content;
   width: fit-content;
   transition: 0.5s;
+}
+
+.spinnerAnimation {
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 #addTimer:hover #addTimerIcon {
