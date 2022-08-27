@@ -27,6 +27,21 @@
   right: 0px;
 }
 
+.deleteButton {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 33px;
+  margin: 0 5px;
+  display: flex;
+  align-items: center;
+}
+
+.deleteIcon {
+  font-size: 19px;
+  display: flex;
+}
+
 .elapsedTime {
   padding: 10px 0 15px 0;
   border-bottom: solid 1px;

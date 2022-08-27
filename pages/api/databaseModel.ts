@@ -141,6 +141,25 @@ export class DatabaseModel {
     return timerResponse;
   }
 
+  async addTimer(timer: ITimer): Promise<PostgrestResponse<ITimer>> {
+    const addedTimer = await DatabaseModel.CLIENT
+      .from('Timer')
+      .insert([
+        { user: timer.user.id, name: timer.name, elapsedSeconds: timer.elapsedSeconds, startTime: timer.startTime },
+      ]);
+
+    return addedTimer;
+  }
+
+  async deleteTimer(timerID: number, userID: number): Promise<PostgrestResponse<ITimer>> {
+    const deletedTimer = await DatabaseModel.CLIENT
+      .from('Timer')
+      .delete()
+      .match({ 'id': timerID, 'user': userID });
+      
+    return deletedTimer;
+  }
+
   async updateTimer(userID: number, timer: ITimer): Promise<PostgrestResponse<ITimer>> {
     const updatedTimer = await DatabaseModel.CLIENT
       .from('Timer')

@@ -287,6 +287,38 @@ export class FrontEndController {
     return data.timers;
   }
 
+  static async addTimer(token: string, name: string): Promise<boolean> {
+    const response = await fetch('/api/timers/add_timer', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+        name: name
+      })
+    });
+
+    const data = await response.json();
+    return data.wasSuccessful;
+  }
+
+  static async deleteTimer(token: string, timerId: number): Promise<boolean> {
+    const response = await fetch('/api/timers/delete_timer', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+        timerId: timerId
+      })
+    });
+
+    const data = await response.json();
+    return data.wasSuccessful;
+  }
+
   static async updateTimer(token: string, timer: ITimer): Promise<boolean> {
     const response = await fetch('/api/timers/update_timer', {
       method: 'POST',

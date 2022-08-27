@@ -253,6 +253,23 @@ export class BackEndController {
     return [];
   }
 
+  async handleAddTimer(token: string, name: string): Promise<boolean> {
+    if (this.isTokenValid(token)) {
+      const user: IUser = await this.handleGetUserFromToken(token);
+      const timer: ITimer = {id: null, user: user, name: name, elapsedSeconds: 0, startTime: null};
+      return this.databaseModel.evaluateSuccess(await this.databaseModel.addTimer(timer));
+    }
+    return false;
+  }
+
+  async handleDeleteTimer(token: string, timerId: number): Promise<boolean> {
+    if (this.isTokenValid(token)) {
+      const user: IUser = await this.handleGetUserFromToken(token);
+      return this.databaseModel.evaluateSuccess(await this.databaseModel.deleteTimer(timerId, user.id));
+    }
+    return false;
+  }
+
   async handleUpdateTimer(token: string, timer: ITimer): Promise<boolean> {
     if (this.isTokenValid(token)) {
       const user: IUser = await this.handleGetUserFromToken(token);
