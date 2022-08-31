@@ -78,6 +78,8 @@
   position: absolute;
   width: 90vw;
   height: 100vh;
+  overflow: hidden;
+  overflow-y: scroll;
   box-shadow: 0 0 5px #4e5052;
   margin: 0 0 0 0;
   padding: 0px;
@@ -134,23 +136,8 @@
   /* color: white; */
 }
 
-.nav:hover {
-  cursor: pointer;
-  /* background-color: #333333; */
-  color: var(--color-text-secondary);
-}
-
 .navContent {
   overflow: hidden;
-}
-
-.nav:hover .navContent {
-  transform: translateX(5px);
-  transition: 0.5s;
-}
-
-.nav:not(:hover) .navContent {
-  transition: 0.5s;
 }
 
 .navContentIcon {
@@ -196,15 +183,6 @@
   display: none;
 }
 
-.languageSwitcher:hover {
-  /* background-color: initial; */
-  cursor: initial;
-}
-
-.languageSwitcher:hover span {
-  transform: initial;
-}
-
 .span {
   opacity: 1;
   transform: rotate(45deg) translate(1px, -1px);
@@ -217,6 +195,32 @@
 
 .spanThree {
   transform: rotate(-45deg) translate(0, -1px);
+}
+
+@media only screen and (any-hover) {
+  .nav:hover {
+    cursor: pointer;
+    /* background-color: #333333; */
+    color: var(--color-text-secondary);
+  }
+
+  .nav:hover .navContent {
+    transform: translateX(5px);
+    transition: 0.5s;
+  }
+  
+  .nav:not(:hover) .navContent {
+    transition: 0.5s;
+  }
+
+  .languageSwitcher:hover {
+    /* background-color: initial; */
+    cursor: initial;
+  }
+  
+  .languageSwitcher:hover span {
+    transform: initial;
+  }
 }
 
 /* Switch the top logo because enough space provided */
@@ -253,7 +257,7 @@
 @media only screen and (min-width: 768px) {}
 
 /* Large devices (laptops/desktops, 992px and up) */
-@media only screen and (min-width: 992px) {
+@media only screen and (min-width: 992px) and (any-hover) {
   .navBar {
     grid-template-columns: 100vw;
     column-gap: 0;
@@ -275,6 +279,7 @@
     left: 0;
     width: 100vw;
     height: 40pt;
+    overflow: initial;
     padding: 0;
     transform: none;
     transition: none;
