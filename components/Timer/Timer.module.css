@@ -32,9 +32,18 @@
   top: 0px;
   left: 0px;
   height: 33px;
-  margin: 0 5px;
+  width: 33px;
+  border-radius: 5px;
+  transition: 0.5s;
   display: flex;
   align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  transition: 0.5s;
+  background-color: var(--color-bg-hover);
 }
 
 .deleteIcon {
