@@ -1,0 +1,8 @@
+{
+  "timerName": "Timer name",
+  "sync": "sync",
+  "totalTime": "Total Time",
+  "currentTime": "Current Time",
+  "start": "Start",
+  "stop": "Stop"
+}

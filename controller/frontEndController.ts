@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { ColorTheme } from '../enums/colorTheme';
-import { User } from '../interfaces';
+import { ITimer, IUser } from '../interfaces';
 import { GitHubUser, Repository } from '../interfaces/Github';
 
 /**
@@ -34,7 +34,7 @@ export class FrontEndController {
   /**
    * This method returns a filled User object for the given user.
    */
-  static async getUserFromToken(token: string): Promise<User> {
+  static async getUserFromToken(token: string): Promise<IUser> {
     const response = await fetch('/api/users/get_user', {
       method: 'POST',
       headers: {
@@ -266,6 +266,73 @@ export class FrontEndController {
 
     const data = await response.json();
     return data;
+  }
+
+  //#endregion
+
+  //#region Timer Functions
+
+  static async getTimers(token: string): Promise<ITimer[]> {
+    const response = await fetch('/api/timers/get_timers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+      })
+    });
+
+    const data = await response.json();
+    return data.timers;
+  }
+
+  static async addTimer(token: string, name: string): Promise<boolean> {
+    const response = await fetch('/api/timers/add_timer', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+        name: name
+      })
+    });
+
+    const data = await response.json();
+    return data.wasSuccessful;
+  }
+
+  static async deleteTimer(token: string, timerId: number): Promise<boolean> {
+    const response = await fetch('/api/timers/delete_timer', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+        timerId: timerId
+      })
+    });
+
+    const data = await response.json();
+    return data.wasSuccessful;
+  }
+
+  static async updateTimer(token: string, timer: ITimer): Promise<boolean> {
+    const response = await fetch('/api/timers/update_timer', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+        timer: timer,
+      })
+    });
+
+    const data = await response.json();
+    return data.wasSuccessful;
   }
 
   //#endregion

@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs'
 import path from 'path'
 import * as bcrypt from 'bcrypt';
-import { User } from '../interfaces';
+import { ITimer, IUser } from '../interfaces';
 
 /**
  * Backend Controller of PersonalWebPage
@@ -111,7 +111,7 @@ export class BackEndController {
   /**
    * This method returns a filled User object for the given User.
    */
-  async handleGetUserFromToken(token: string): Promise<User> {
+  async handleGetUserFromToken(token: string): Promise<IUser> {
     if (this.isTokenValid(token)) {
       const username = this.getUsernameFromToken(token);
       return this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, username))[0];
@@ -239,6 +239,43 @@ export class BackEndController {
     }
 
     return content;
+  }
+
+  //#endregion
+
+  //#region Timer Methods
+
+  async handleGetTimersByToken(token: string): Promise<ITimer[]> {
+    if (this.isTokenValid(token)) {
+      const user: IUser = await this.handleGetUserFromToken(token);
+      return this.databaseModel.getTimersFromResponse(await this.databaseModel.selectTimerTable(user.id));
+    }
+    return [];
+  }
+
+  async handleAddTimer(token: string, name: string): Promise<boolean> {
+    if (this.isTokenValid(token)) {
+      const user: IUser = await this.handleGetUserFromToken(token);
+      const timer: ITimer = {id: null, user: user, name: name, elapsedSeconds: 0, startTime: null};
+      return this.databaseModel.evaluateSuccess(await this.databaseModel.addTimer(timer));
+    }
+    return false;
+  }
+
+  async handleDeleteTimer(token: string, timerId: number): Promise<boolean> {
+    if (this.isTokenValid(token)) {
+      const user: IUser = await this.handleGetUserFromToken(token);
+      return this.databaseModel.evaluateSuccess(await this.databaseModel.deleteTimer(timerId, user.id));
+    }
+    return false;
+  }
+
+  async handleUpdateTimer(token: string, timer: ITimer): Promise<boolean> {
+    if (this.isTokenValid(token)) {
+      const user: IUser = await this.handleGetUserFromToken(token);
+      return this.databaseModel.evaluateSuccess(await this.databaseModel.updateTimer(user.id, timer));
+    }
+    return false;
   }
 
   //#endregion

@@ -15,6 +15,7 @@ export interface LoginState {
   username: string;
   password: string;
   credentialsInfo: boolean;
+  readOnlyInput: boolean;
 }
 
 export interface LoginProps extends WithTranslation, WithRouterProps {
@@ -41,6 +42,7 @@ class Login extends Component<LoginProps, LoginState> {
       username: "",
       password: "",
       credentialsInfo: false,
+      readOnlyInput: false,
     }
   }
 
@@ -101,11 +103,14 @@ class Login extends Component<LoginProps, LoginState> {
      * This method logs the user in with the currently entered credentials. If the login was successfull, it routes to root, else all fields are cleared.
      */
     const loginVerification = async () => {
+      this.setState({ readOnlyInput: true });
       if (await FrontEndController.loginUser(this.state.username, this.state.password)) {
         router.push("/");
+      } else {
+        this.setState({ username: "", password: "", credentialsInfo: true })
+        document.getElementById("userInput")?.focus()
+        this.setState({ readOnlyInput: false });
       }
-      this.setState({ username: "", password: "", credentialsInfo: true })
-      document.getElementById("userInput")?.focus()
     }
 
     if (this.state.isNotLoggedIn) {
@@ -139,13 +144,15 @@ class Login extends Component<LoginProps, LoginState> {
                     autoFocus
                     onChange={(e) => this.setState({ username: e.target.value })}
                     value={this.state.username}
-                    onKeyDown={loginEnter} />
+                    onKeyDown={loginEnter}
+                    readOnly={this.state.readOnlyInput} />
                   <input
                     type="password"
                     placeholder={this.props.t('login:Password') + "..."}
                     onChange={(e) => this.setState({ password: e.target.value })}
                     value={this.state.password}
-                    onKeyDown={loginEnter} />
+                    onKeyDown={loginEnter}
+                    readOnly={this.state.readOnlyInput} />
                   <div hidden={!this.state.credentialsInfo} className={styles.error} >
                     {this.props.t('login:errorMessage')}!
                   </div>

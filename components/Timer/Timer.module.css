@@ -1,0 +1,95 @@
+.timerItem {
+  border: solid 1px;
+  height: fit-content;
+  width: 100%;
+  padding: 10px;
+  font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  padding-bottom: 10px;
+  min-height: 43px;
+  border-bottom: solid 1px;
+  position: relative;
+}
+
+.header h3 {
+  margin: 0;
+}
+
+.fetchButton {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.deleteButton {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 33px;
+  width: 33px;
+  border-radius: 5px;
+  transition: 0.5s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  transition: 0.5s;
+  background-color: var(--color-bg-hover);
+}
+
+.deleteIcon {
+  font-size: 19px;
+  display: flex;
+}
+
+.elapsedTime {
+  padding: 10px 0 15px 0;
+  border-bottom: solid 1px;
+}
+
+.elapsedTime p {
+  font-size: 18pt;
+  color: var(--color-text-primary) !important;
+  margin: 0;
+}
+
+.elapsedTime p span {
+  font-weight: bold;
+}
+
+.currentWorkTime {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  color: var(--color-text-off);
+  padding-top: 10px;
+}
+
+.currentWorkTime p {
+  font-size: 14pt;
+  margin: 0;
+}
+
+.currentWorkTime p span {
+  font-weight: bold;
+}
+
+.control {
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+.buttonSize {
+  height: 0;
+  overflow: hidden;
+}
