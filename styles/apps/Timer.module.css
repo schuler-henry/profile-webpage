@@ -1,0 +1,101 @@
+.content {
+  padding: 0 20px;
+}
+
+.content p {
+  color: #AAAAAA;
+}
+
+.timerHeader {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
+}
+
+#addTimer, #syncTimer {
+  display: flex;
+  align-content: center;
+  border-radius: 5px;
+  height: fit-content;
+  width: fit-content;
+  padding: 5px;
+  margin: 0 0 0 10px;
+  transition: 0.5s;
+}
+
+#addTimer:hover, #syncTimer:hover {
+  transition: 0.5s;
+  background-color: var(--color-bg-hover);
+  cursor: pointer;
+}
+
+#addTimerIcon, #syncTimerIcon {
+  display: flex;
+  height: fit-content;
+  width: fit-content;
+  transition: 0.5s;
+}
+
+#addTimerIcon, #syncTimerIcon, #submitAddTimerIcon {
+  font-size: 17px;
+}
+
+.spinnerAnimation {
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#addTimer:hover #addTimerIcon {
+  transition: 0.5s;
+  transform: rotate(90deg);
+}
+
+.addTimerInput {
+  display: flex;
+  align-self: center;
+  height: 17px;
+  width: 0;
+  margin: 0;
+  padding: 0;
+  border: hidden;
+  font-size: 15px;
+  overflow: hidden;
+  transition: 0.5s;
+  outline: none;
+}
+
+#addTimer:hover .addTimerInput, #addTimer:focus .addTimerInput {
+  width: 100%;
+  max-width: 180px;
+  margin: 0 10px;
+  overflow: visible;
+}
+
+#submitAddTimerIcon {
+  display: flex;
+  height: fit-content;
+  width: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+#addTimer:hover #submitAddTimerIcon {
+  width: fit-content;
+  overflow: visible;
+}
+
+.timerGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-gap: 20px;
+  margin: 0 0 20px 0;
+}

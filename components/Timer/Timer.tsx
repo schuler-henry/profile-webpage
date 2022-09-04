@@ -6,6 +6,7 @@ import { secondsToFormattedTimeString } from "../../shared/secondsToFormattedTim
 import { FrontEndController } from "../../controller/frontEndController";
 import { Icon } from "@fluentui/react";
 import { ConfirmPopUp } from "../ConfirmPopUp/ConfirmPopUp";
+import { PWPLanguageContext } from "../PWPLanguageProvider/PWPLanguageProvider";
 
 export interface TimerState {
   timer: ITimer | undefined;
@@ -79,64 +80,68 @@ export class Timer extends Component<TimerProps, TimerState> {
   render() {
     if (this.state.timer !== undefined) {
       return(
-        <div className={styles.timerItem}>
-          <div className={styles.header}>
-            <h3>
-              Timer: {this.state.timer.name}
-            </h3>
-            <div className={styles.fetchButton}>
-              <Button onClick={async () => {this.syncTimer()}}>
-                sync
-              </Button>
+        <PWPLanguageContext.Consumer>
+          { LanguageContext => (
+            <div className={styles.timerItem}>
+              <div className={styles.header}>
+                <h3>
+                  {this.state.timer.name}
+                </h3>
+                <div className={styles.fetchButton}>
+                  <Button onClick={async () => {this.syncTimer()}}>
+                    { LanguageContext.t('timer:sync') }
+                  </Button>
+                </div>
+                <div className={styles.deleteButton} onClick={() => {
+                  this.setState({ showDeleteConfirmation: true })
+                }}>
+                  <Icon
+                    iconName="Delete"
+                    className={styles.deleteIcon}
+                    />
+                </div>
+                {
+                  this.state.showDeleteConfirmation && <ConfirmPopUp 
+                    title="Confirm delete" 
+                    message={`Do you really want to delete timer \"${this.state.timer.name}\" with time ${secondsToFormattedTimeString(this.state.timer.elapsedSeconds)}?`}
+                    warning="This action cannot be undone!" 
+                    onCancel={() => { 
+                      this.setState({ showDeleteConfirmation: false }) 
+                    }} 
+                    onConfirm={async () => {
+                      await FrontEndController.deleteTimer(FrontEndController.getUserToken(), this.state.timer.id);
+                      this.setState({ showDeleteConfirmation: false, timer: undefined })
+                    }} 
+                  />
+                }
+              </div>
+              <div className={styles.elapsedTime}>
+                <p>
+                  { LanguageContext.t('timer:totalTime') }:&nbsp; 
+                  <span>
+                    {secondsToFormattedTimeString(this.state.timer.elapsedSeconds)}
+                  </span>
+                </p>
+              </div>
+              <div className={styles.currentWorkTime}>
+                <p>
+                  { LanguageContext.t('timer:currentTime') }:&nbsp;
+                  <span>
+                    {secondsToFormattedTimeString(this.state.timerValue)}
+                  </span>
+                </p>
+                <div className={styles.control}>
+                  <Button onClick={() => {this.state.update ? null : this.updateTimer()}}>
+                    <>
+                      <div className={styles.buttonSize}>Start</div>
+                      {this.state.update ? "..." : this.state.timer.startTime === null ? LanguageContext.t('timer:start') : LanguageContext.t('timer:stop')}
+                    </>
+                  </Button>
+                </div>
+              </div>
             </div>
-            <div className={styles.deleteButton} onClick={() => {
-              this.setState({ showDeleteConfirmation: true })
-            }}>
-              <Icon
-                iconName="Delete"
-                className={styles.deleteIcon}
-                />
-            </div>
-            {
-              this.state.showDeleteConfirmation && <ConfirmPopUp 
-                title="Confirm delete" 
-                message={`Do you really want to delete timer \"${this.state.timer.name}\" with time ${secondsToFormattedTimeString(this.state.timer.elapsedSeconds)}?`}
-                warning="This action cannot be undone!" 
-                onCancel={() => { 
-                  this.setState({ showDeleteConfirmation: false }) 
-                }} 
-                onConfirm={async () => {
-                  await FrontEndController.deleteTimer(FrontEndController.getUserToken(), this.state.timer.id);
-                  this.setState({ showDeleteConfirmation: false, timer: undefined })
-                }} 
-              />
-            }
-          </div>
-          <div className={styles.elapsedTime}>
-            <p>
-              Total workload:&nbsp; 
-              <span>
-                {secondsToFormattedTimeString(this.state.timer.elapsedSeconds)}
-              </span>
-            </p>
-          </div>
-          <div className={styles.currentWorkTime}>
-            <p>
-              Current working for:&nbsp;
-              <span>
-                {secondsToFormattedTimeString(this.state.timerValue)}
-              </span>
-            </p>
-            <div className={styles.control}>
-              <Button onClick={() => {this.state.update ? null : this.updateTimer()}}>
-                <>
-                  <div className={styles.buttonSize}>Start</div>
-                  {this.state.update ? "..." : this.state.timer.startTime === null ? "Start" : "Stop"}
-                </>
-              </Button>
-            </div>
-          </div>
-        </div>
+          )}
+        </PWPLanguageContext.Consumer>
       )
     } else {
       return (
