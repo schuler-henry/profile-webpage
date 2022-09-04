@@ -34,9 +34,20 @@ export class Header extends Component<HeaderProps, HeaderState> {
   isVisible = false;
 
   componentDidMount(): void {
-    let item = document.getElementById('NavBarStudies');
-    item.addEventListener('mouseenter', () => {document.getElementById("SubContentStudies").classList.toggle(`${styles.active}`)});
-    item.addEventListener('mouseleave', () => {document.getElementById("SubContentStudies").classList.toggle(`${styles.active}`)});
+    let studiesElement = document.getElementById('NavBarStudies');
+    let appsElement = document.getElementById('NavBarApps');
+    studiesElement.addEventListener('mouseenter', () => {document.getElementById("SubContentStudies").classList.toggle(`${styles.active}`)});
+    studiesElement.addEventListener('mouseleave', () => {document.getElementById("SubContentStudies").classList.toggle(`${styles.active}`)});
+    appsElement?.addEventListener('mouseenter', () => {document.getElementById("SubContentApps").classList.toggle(`${styles.active}`)});
+    appsElement?.addEventListener('mouseleave', () => {document.getElementById("SubContentApps").classList.toggle(`${styles.active}`)});
+  }
+
+  componentDidUpdate(prevProps: Readonly<HeaderProps>, prevState: Readonly<HeaderState>, snapshot?: any): void {
+    if (this.props.hideLogout !== prevProps.hideLogout) {
+      let appsElement = document.getElementById('NavBarApps');
+      appsElement?.addEventListener('mouseenter', () => {document.getElementById("SubContentApps").classList.toggle(`${styles.active}`)});
+      appsElement?.addEventListener('mouseleave', () => {document.getElementById("SubContentApps").classList.toggle(`${styles.active}`)});  
+    }
   }
 
   private toggleVisibility() {
@@ -263,6 +274,44 @@ export class Header extends Component<HeaderProps, HeaderState> {
                           </div>
                         </div>
                       </div>
+                      {
+                        this.props.hideLogout ? 
+                          <div></div> 
+                        : 
+                          <div className={`${styles.relative}`} id="NavBarApps">
+                            <Link href={'/apps'} passHref>
+                              <div className={styles.nav} onClick={(event) => { this.closeNav(event); }}>
+                                <span className={styles.navContent} onClick={(event) => { this.closeNav(event); }}>
+                                  {LanguageContext.t('common:Apps')}
+                                </span>
+                                <div className={styles.navContentIcon}>
+                                  <Link href={''} passHref>
+                                    <Icon 
+                                      iconName="ChevronRight" 
+                                      className={styles.mobileMenuExtender}
+                                      id="appsChevron"
+                                      onClick={() => {
+                                        document.getElementById("SubContentApps").classList.toggle(`${styles.activeMobile}`);
+                                        document.getElementById("appsChevron").classList.toggle(`${styles.rotate90}`);
+                                      }}
+                                    />
+                                  </Link>
+                                </div>
+                              </div>
+                            </Link>
+                            <div className={styles.navSubContent} id="SubContentApps">
+                              <div className={styles.navSubContentItem}>
+                                <Link href={'/apps/timer'} passHref>
+                                  <div className={styles.nav} onClick={(event) => { this.closeNav(event); }}>
+                                    <span className={styles.navContent} onClick={(event) => { this.closeNav(event); }}>
+                                      {LanguageContext.t('common:Timer')}
+                                    </span>
+                                  </div>
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
+                        }
                       <Link href={'/impressum'} passHref>
                         <div className={styles.nav} onClick={(event) => { this.closeNav(event); }}>
                           <span className={styles.navContent} onClick={(event) => { this.closeNav(event); }}>

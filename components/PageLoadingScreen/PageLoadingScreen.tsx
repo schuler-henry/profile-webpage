@@ -19,10 +19,17 @@ export class PageLoadingScreen extends Component<PageLoadingScreenProps, PageLoa
       visibility: false,
     }
   }
+
+  private timeout;
   
   componentDidMount(): void {
-    setTimeout(() => {this.setState({visibility: true})}, 1000)
+    this.timeout = setTimeout(() => {this.setState({visibility: true})}, 1000)
   }
+
+  componentWillUnmount(): void {
+    clearTimeout(this.timeout);
+  }
+
   render() {
     return (
       <PWPLanguageContext.Consumer> 

@@ -9,10 +9,6 @@
   border-color: var(--color-bg-secondary);
 }
 
-.navBar * {
-  -webkit-tap-highlight-color: transparent;
-}
-
 .closeNavField {
   display: inherit;
   position: absolute;
@@ -93,7 +89,7 @@
   z-index: 3;
 
   display: grid;
-  grid-template-rows: 80pt min-content min-content min-content min-content min-content min-content auto 40pt;
+  grid-template-rows: 80pt min-content min-content min-content min-content min-content min-content min-content auto 40pt;
   /* overflow: auto; */
 }
 
@@ -257,7 +253,8 @@
 @media only screen and (min-width: 768px) {}
 
 /* Large devices (laptops/desktops, 992px and up) */
-@media only screen and (min-width: 992px) and (any-hover) {
+/* TODO: Think about a way that can handle more items (always dropdown / sidebar?) */
+@media only screen and (min-width: 1050px) and (any-hover) {
   .navBar {
     grid-template-columns: 100vw;
     column-gap: 0;
@@ -285,7 +282,7 @@
     transition: none;
 
     grid-template-rows: initial;
-    grid-template-columns: min-content min-content min-content min-content auto min-content min-content min-content min-content;
+    grid-template-columns: min-content min-content min-content min-content min-content auto min-content min-content min-content min-content;
     row-gap: 0;
     column-gap: 0;
   }

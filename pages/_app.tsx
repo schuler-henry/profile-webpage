@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app'
 import { appWithTranslation } from 'next-i18next'
 import { initializeIcons, ThemeProvider } from '@fluentui/react';
 import { registerIcons } from '@fluentui/react/lib/Styling'
-import { ChevronDownIcon, ChevronRightIcon, AddIcon, DeleteIcon, SyncIcon } from '@fluentui/react-icons-mdl2'
+import { ChevronDownIcon, ChevronRightIcon, AddIcon, DeleteIcon, SyncIcon, TimerIcon } from '@fluentui/react-icons-mdl2'
 import getUnicodeFlagIcon from 'country-flag-icons/unicode'
 import { darkTheme, lightTheme } from '../styles/theme';
 import { FrontEndController } from '../controller/frontEndController';
@@ -13,19 +13,24 @@ import { PWPThemeProvider } from '../components/PWPThemeProvider/PWPThemeProvide
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [theme, setTheme] = useState(0);
+  const [executed, setExecuted] = useState(false);
   
-  registerIcons({
-    icons: {
-      Germany: getUnicodeFlagIcon('DE'),
-      US: getUnicodeFlagIcon('US'),
-      ChevronDown: <ChevronDownIcon />,
-      ChevronRight: <ChevronRightIcon />,
-      Add: <AddIcon />,
-      Delete: <DeleteIcon />,
-      Sync: <SyncIcon />,
-    }
-  })
-  initializeIcons();
+  if (!executed) {
+    registerIcons({
+      icons: {
+        Germany: getUnicodeFlagIcon('DE'),
+        US: getUnicodeFlagIcon('US'),
+        ChevronDown: <ChevronDownIcon />,
+        ChevronRight: <ChevronRightIcon />,
+        Add: <AddIcon />,
+        Delete: <DeleteIcon />,
+        Sync: <SyncIcon />,
+        Timer: <TimerIcon />,
+      }
+    })
+    initializeIcons();
+    setExecuted(true);
+  }
   
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
