@@ -2,7 +2,7 @@ import { Component } from "react";
 import styles from './SummaryItem.module.css'
 import Image from "next/image";
 import Link from "next/link";
-import DefaultIcon from "../../public/GitHub.png"
+import DefaultIcon from "../../public/logos/GitHub.png"
 
 export interface SummaryItemState {
 

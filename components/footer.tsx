@@ -3,12 +3,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 import styles from './Footer.module.css'
 import { FrontEndController } from '../controller/frontEndController'
-import InstagramIcon from '../public/Instagram.png'
-import YoutubeIcon from '../public/Youtube.png'
-import GitHubIcon from '../public/GitHub.png'
+import InstagramIcon from '../public/logos/Instagram.png'
+import YoutubeIcon from '../public/logos/Youtube.png'
+import GitHubIcon from '../public/logos/GitHub.png'
 
 export interface FooterState {
-
+  showWebNotes: boolean;
+  showDevChat: boolean;
 }
 
 export interface FooterProps {
@@ -20,6 +21,14 @@ export interface FooterProps {
  * @component
  */
 export class Footer extends Component<FooterProps, FooterState> {
+  constructor(props: FooterProps) {
+    super(props);
+    this.state = {
+      showWebNotes: true,
+      showDevChat: true,
+    }
+  }
+
   /**
    * Generates the JSX Output for the Client
    * @returns JSX Output
@@ -98,34 +107,42 @@ export class Footer extends Component<FooterProps, FooterState> {
               Projekte
             </h4>
             <div className={styles.projects}>
-              <Link
-                href={'https://web-notes.me'}
-                passHref>
-                <div className={styles.icon}>
-                  <Image
-                    title='WebNotes'
-                    src={'https://web-notes.me/Logo.png'}
-                    objectFit='contain'
-                    height={40}
-                    width={40}
-                    alt='WebNotes Icon'
-                  />
-                </div>
-              </Link>
-              <Link
-                href={'https://dev-chat.me'}
-                passHref>
-                <div className={styles.icon}>
-                  <Image
-                    title='DEV-CHAT'
-                    src={'https://dev-chat.me/logo.png'}
-                    objectFit='contain'
-                    height={40}
-                    width={40}
-                    alt='DEV-CHAT Icon'
-                  />
-                </div>
-              </Link>
+              {
+                this.state.showWebNotes &&
+                  <Link
+                    href={'https://web-notes.me'}
+                    passHref>
+                    <div className={styles.icon}>
+                      <Image
+                        title='WebNotes'
+                        src={'https://web-notes.me/Logo.png'}
+                        objectFit='contain'
+                        height={40}
+                        width={40}
+                        alt='WebNotes Icon'
+                        onError={() => this.setState({ showWebNotes: false })}
+                      />
+                    </div>
+                  </Link>
+              }
+              {
+                this.state.showDevChat &&
+                  <Link
+                    href={'https://dev-chat.me'}
+                    passHref>
+                    <div className={styles.icon}>
+                      <Image
+                        title='DEV-CHAT'
+                        src={'https://dev-chat.me/logo.png'}
+                        objectFit='contain'
+                        height={40}
+                        width={40}
+                        alt='DEV-CHAT Icon'
+                        onError={() => {this.setState({ showDevChat: false })}}
+                      />
+                    </div>
+                  </Link>
+              }
             </div>
           </div>
           <div className={styles.footerElement}>

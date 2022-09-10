@@ -12,9 +12,9 @@ import { I18n, withTranslation, WithTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { PageLoadingScreen } from '../../components/PageLoadingScreen/PageLoadingScreen';
 import { PWPLanguageProvider } from '../../components/PWPLanguageProvider/PWPLanguageProvider';
-import DHBWLogo from '../../public/DHBW_logo.jpg';
-import NotebookPen from '../../public/notebook-pen.svg';
-import CodeIcon from '../../public/web-page-source-code.svg';
+import DHBWLogo from '../../public/logos/DHBW_logo.jpg';
+import NotebookPen from '../../public/logos/notebook-pen.svg';
+import CodeIcon from '../../public/logos/web-page-source-code.svg';
 
 export interface StudiesState {
   isLoggedIn: boolean;

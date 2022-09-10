@@ -3,9 +3,9 @@ import styles from './Header.module.css'
 import { FrontEndController } from '../controller/frontEndController'
 import Link from 'next/link';
 import Image from 'next/image';
-import Logo from '../public/logo_circle_black.png'
-import LogoNameBlack from '../public/logo_name_black.png'
-import LogoNameWhite from '../public/logo_name_white.png'
+import Logo from '../public/logos/logo_circle_black.png'
+import LogoNameBlack from '../public/logos/logo_name_black.png'
+import LogoNameWhite from '../public/logos/logo_name_white.png'
 import { LanguageSwitcher } from './LanguageSwitcher/LanguageSwitcher';
 import { WithRouterProps } from 'next/dist/client/with-router';
 import { DarkmodeSwitcher } from './DarkmodeSwitcher/DarkmodeSwitcher';

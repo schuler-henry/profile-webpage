@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Component } from "react";
 import styles from "./GitHubRepository.module.css";
-import GitHubLogo from "../../public/GitHub.png";
+import GitHubLogo from "../../public/logos/GitHub.png";
 import { FrontEndController } from "../../controller/frontEndController";
 import { GitHubUser, Repository } from "../../interfaces/Github";
 import { PWPLanguageContext } from "../PWPLanguageProvider/PWPLanguageProvider";
