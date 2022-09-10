@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app'
 import { appWithTranslation } from 'next-i18next'
 import { initializeIcons, ThemeProvider } from '@fluentui/react';
 import { registerIcons } from '@fluentui/react/lib/Styling'
-import { ChevronDownIcon, ChevronRightIcon, AddIcon, DeleteIcon, SyncIcon, TimerIcon } from '@fluentui/react-icons-mdl2'
+import { ChevronDownIcon, ChevronRightIcon, AddIcon, DeleteIcon, SyncIcon, TimerIcon, PlayIcon, StopIcon, SendIcon } from '@fluentui/react-icons-mdl2'
 import getUnicodeFlagIcon from 'country-flag-icons/unicode'
 import { darkTheme, lightTheme } from '../styles/theme';
 import { FrontEndController } from '../controller/frontEndController';
@@ -26,6 +26,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         Delete: <DeleteIcon />,
         Sync: <SyncIcon />,
         Timer: <TimerIcon />,
+        Play: <PlayIcon />,
+        Stop: <StopIcon />,
+        Send: <SendIcon />,
       }
     })
     initializeIcons();
