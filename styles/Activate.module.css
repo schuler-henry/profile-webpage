@@ -1,50 +1,21 @@
-.field {
+.content {
   padding-top: 20vh;
   padding-bottom: 20vh;
 }
 
-.fieldDiv {
-  width: 90vw;
-  margin: auto;
-  padding: 10pt;
-  border: solid;
-  border-radius: 2pt;
-  border-width: 2pt;
-  border-color: var(--color-bg-secondary);
-}
-
-.fieldDiv * {
-  margin: 5pt 0;
-}
-
-.error {
+.errorMessage {
   animation: fadeIn .5s;
   -moz-animation: fadeIn .5s; /* Firefox */
   -webkit-animation: fadeIn .5s; /* Safari and Chrome */
   -o-animation: fadeIn .5s; /* Opera */
-  font-size: 14pt;
-  width: 100%;
   background-color: var(--color-bg-error);
+  width: 100%;
+  font-size: 20px;
   color: white;
   text-align: center;
-  padding: 5pt 10pt;
-  border: solid;
-  border-color: #2A2A2A;
-  border-width: 2pt;
-  border-radius: 2pt;
-}
-
-.flexBox {
-  width: 100%;
-}
-
-.loginInstead {
-  align-self: flex-start;
-}
-
-.activateInstead {
-  align-self: flex-end;
-  margin-left: auto;
+  padding: 5px 10px;
+  border: 1px solid;
+  border-radius: 5px;
 }
 
 @keyframes fadeIn {
@@ -67,27 +38,60 @@
   to { opacity:1; }
 }
 
-/* Small devices (portrait tablets and large phones, 350px and up) */
-@media only screen and (min-width: 350px) {
-  .flexBox {
-    display: flex;
-  }
+.activateWrapper {
+  width: 90vw;
+  margin: auto;
+  padding: 10pt;
+  border: solid;
+  border-radius: 2pt;
+  border-width: 2pt;
+  border-color: var(--color-bg-secondary);
+}
 
-  .activateInstead {
-    text-align: right;
+.activateWrapper .inputWrapper * {
+  margin: 5pt 0;
+}
+
+.iconWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 50px 0;
+}
+
+.icon {
+  display: flex;
+  font-size: 50px;
+  width: fit-content;
+  height: fit-content;
+  margin: 0;
+}
+
+.spinnerAnimation {
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {}
+
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
-  .fieldDiv {
+  .activateWrapper {
     width: 60vw;
   }
 }
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
-  .fieldDiv {
+  .activateWrapper {
     width: 50vw;
     max-width: 600px;
   }
@@ -95,7 +99,7 @@
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
-  .fieldDiv {
+  .activateWrapper {
     width: 40vw;
   }
 }

@@ -325,7 +325,6 @@ export class Header extends Component<HeaderProps, HeaderState> {
                       {username}
                       <div className={`${styles.nav} ${styles.languageSwitcher}`}>
                         <LanguageSwitcher
-                          id={"HeaderLanguageSwitcher"}
                           path={this.props.path}
                           i18n={LanguageContext.i18n}
                           router={this.props.router}

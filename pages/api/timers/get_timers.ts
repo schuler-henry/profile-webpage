@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { BackEndController } from "../../../controller/backEndController";
-import { ITimer } from "../../../interfaces";
+import { ITimer } from "../../../interfaces/database";
 
 type Data = {
   timers: ITimer[],

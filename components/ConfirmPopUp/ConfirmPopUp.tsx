@@ -10,14 +10,20 @@ export interface ConfirmPopUpProps {
   title: string;
   message?: string;
   warning?: string;
-  onConfirm?: () => void;
+  onConfirm: () => void;
   onCancel?: () => void;
+  children?: JSX.Element | string;
 }
 
 export class ConfirmPopUp extends Component<ConfirmPopUpProps, ConfirmPopUpState> {
   constructor(props) {
     super(props);
   }
+
+  componentDidMount(): void {
+    (document.activeElement as HTMLInputElement).blur();
+  }
+
   render() {
     return (
       <div className={styles.popUp}>
@@ -25,19 +31,39 @@ export class ConfirmPopUp extends Component<ConfirmPopUpProps, ConfirmPopUpState
           <h1>
             {this.props.title}
           </h1>
-          <p id={styles.message}>
-            {this.props.message}
-          </p>
-          <p id={styles.warning}>
-            {this.props.warning}
-          </p>
+          <div className={styles.messageWrapper}>
+            {
+              this.props.message &&
+              <p id={styles.message} className={styles.wrapperItem}>
+                {this.props.message}
+              </p>
+            }
+            {
+              this.props.warning &&
+              <p id={styles.warning} className={styles.wrapperItem}>
+                {this.props.warning}
+              </p>
+            }
+            {
+              this.props.children && 
+              <div className={styles.wrapperItem}>
+                {this.props.children}
+              </div>
+            }
+          </div>
           <div className={styles.buttonContainer}>
-            <Button onClick={this.props.onConfirm}>
-              Confirm
-            </Button>
-            <Button onClick={this.props.onCancel}>
-              Cancel
-            </Button>
+            {
+              this.props.onConfirm &&
+                <Button onClick={this.props.onConfirm}>
+                  Confirm
+                </Button>
+            }
+            {
+              this.props.onCancel &&
+                <Button onClick={this.props.onCancel}>
+                  Cancel
+                </Button>
+            }
           </div>
         </div>
       </div>

@@ -1,7 +1,6 @@
 import { Component } from "react";
 import styles from './Timer.module.css'
-import { ITimer } from "../../interfaces";
-import { Button } from "../Button/Button";
+import { ITimer } from "../../interfaces/database";
 import { secondsToFormattedTimeString } from "../../shared/secondsToFormattedTimeString";
 import { FrontEndController } from "../../controller/frontEndController";
 import { Icon } from "@fluentui/react";
