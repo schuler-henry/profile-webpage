@@ -1,0 +1,11 @@
+{
+  "Username": "Benutzername",
+  "ActivationCode": "Aktivierungscode",
+  "Activate": "Aktivieren",
+  "Or": "Stattdessen",
+  "login": "einloggen",
+  "instead": "",
+  "Activating": "Aktivieren",
+  "SuccessText": "Ihr Konto wurde erfolgreich aktiviert. Mit dem Bestätigen dieser Meldung werden sie automatisch auf die Login-Seite weitergeleitet.",
+  "ErrorText": "Ihr Konto konnte nicht aktiviert werden. Bitte überprüfen Sie den Aktivierungscode und versuchen Sie es erneut. Sollte Ihr Konto bereits aktiviert sein, melden Sie sich bitte auf der Login-Seite an."
+}

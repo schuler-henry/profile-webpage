@@ -3,6 +3,7 @@
   "Impressum": "Impressum",
   "Login": "Login",
   "Logout": "Logout",
+  "Activate": "Activate profile",
   "Profile": "Profile",
   "Register": "Register",
   "Studies": "Studies",
@@ -12,5 +13,7 @@
   "Timer": "Timer",
   "LoadingPage": "Loading page ...",
   "BackTo": "Back to",
-  "NotLoadingErrorText": "If the page is not loading, please contact "
+  "NotLoadingErrorText": "If the page is not loading, please contact ",
+  "Success": "Success",
+  "Error": "Error"
 }

@@ -3,7 +3,9 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs'
 import path from 'path'
 import * as bcrypt from 'bcrypt';
-import { ITimer, IUser } from '../interfaces';
+import { ITimer, IUser } from '../interfaces/database';
+import { randomStringGenerator } from '../shared/randomStringGenerator';
+import { SMTPClient } from 'emailjs';
 
 /**
  * Backend Controller of PersonalWebPage
@@ -127,7 +129,7 @@ export class BackEndController {
       return false;
     }
 
-    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, this.getUsernameFromToken(token)))[0];
+    let user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, this.getUsernameFromToken(token)))[0];
 
     if (user === undefined) {
       return false;
@@ -135,7 +137,8 @@ export class BackEndController {
 
     if (this.isPasswordValid(newPassword) && await this.checkPassword(oldPassword, user.password)) {
       const newHashedPassword = await this.hashPassword(newPassword);
-      return this.databaseModel.evaluateSuccess(await this.databaseModel.changeUserPassword(newHashedPassword, user.id));
+      user.password = newHashedPassword;
+      return this.databaseModel.evaluateSuccess(await this.databaseModel.updateUser(user))
     }
 
     return false;
@@ -170,6 +173,10 @@ export class BackEndController {
       return "";
     }
 
+    if (!user.active) {
+      return "inactive";
+    }
+
     if (await this.checkPassword(password, user.password)) {
       const token = jwt.sign({
         username: username,
@@ -182,17 +189,94 @@ export class BackEndController {
   /**
    * API function to register a user
    */
-  async handleRegisterUser(username: string, password: string): Promise<boolean> {
+  async handleRegisterUser(username: string, password: string, email: string): Promise<boolean> {
     if (!await this.handleUserAlreadyExists(username)) {
       const vUsernameValid = this.isUsernameValid(username);
       const vPasswordValid = this.isPasswordValid(password);
       if (vUsernameValid && vPasswordValid) {
         const hashedPassword = await this.hashPassword(password);
+        const activationCode = randomStringGenerator(10);
 
-        return this.databaseModel.evaluateSuccess(await this.databaseModel.addUser(username, hashedPassword));
+        if (this.databaseModel.evaluateSuccess(await this.databaseModel.addUser(username, hashedPassword, email, activationCode))) {
+          // send email with activation code
+          const emailClient = new SMTPClient({
+            user: process.env.MAIL,
+            password: process.env.MAIL_PASSWORD,
+            host: process.env.MAIL_HOST,
+            ssl: true
+          })
+  
+          try {
+            await emailClient.sendAsync(
+              {
+                from: process.env.NOREPLY,
+                to: email,
+                subject: "Signup | Verification",
+                html: `<h1>Verify your account</h1><p>Click <a href="https://henryschuler.de/activate">here</a> to verify your account.</p>`,
+                text: `Thanks for signing up!
+
+Your account has been created, you can login with your credentials after you have activated your account by pressing the url below.
+
+---------------------------------------------
+username: ${username}
+---------------------------------------------
+              
+Please click this link to activate your account:
+https://henryschuler.de/activate?username=${username}&activationCode=${activationCode}
+
+
+---------------------------------------------
+
+If the link does not work, visit https://henryschuler.de/activate and enter the following information:
+
+username: ${username}
+code: ${activationCode}
+
+
+Thanks,
+Henry Schuler`,
+// TODO: Display E-Mail as styled HTML
+// attachment: [
+//   { data: '<html>i <i>hope</i> this works!</html>', alternative: true },
+//   { path: 'path/to/file.zip', type: 'application/zip', name: 'renamed.zip' },
+// ],
+              }
+            )
+          } catch (e) {
+            // TODO: Handle failed email sending, i.e. delete user from DB
+            console.log("Email send failed !!!!")
+            console.log(e)
+          }
+          return true
+        }
       }
     }
     return false;
+  }
+
+  async handleActivateUser(username: string, activationCode: string): Promise<boolean> {
+    if (username === "" || activationCode === "" || username === undefined || activationCode === undefined) {
+      return false;
+    }
+    
+    let user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, username, undefined, undefined, undefined, activationCode, false))[0];
+
+    if (user === undefined) {
+      return false;
+    }
+
+    // user with correct activationCode and inactive found -> activate user
+
+    user.activationCode = "";
+    user.active = true;
+    return this.databaseModel.evaluateSuccess(await this.databaseModel.updateUser(user));
+  }
+
+  /**
+   * This method checks whether a email already exists in the DB.
+   */
+  async handleEmailAlreadyExists(email: string): Promise<boolean> {
+    return this.databaseModel.evaluateSuccess(await this.databaseModel.selectUserTable(undefined, undefined, undefined, undefined, email));
   }
 
   /**

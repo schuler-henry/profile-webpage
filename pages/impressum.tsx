@@ -7,21 +7,12 @@ import { Footer } from '../components/footer'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { I18n, withTranslation, WithTranslation } from 'next-i18next'
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
-import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
-import { LanguageSwitcher } from '../components/LanguageSwitcher/LanguageSwitcher'
-import { Dropdown, DropdownOption } from '../components/Dropdown/Dropdown'
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
-import { Icon } from '@fluentui/react'
-
-const options: DropdownOption[] = [
-  {key: "de", text: "DE", data: {icon: "Germany"}},
-  {key: "en", text: "EN", data: {icon: "US"}},
-]
+import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 
 export interface ImpressumState {
   isLoggedIn: boolean | undefined;
   currentToken: string;
-  currentSelectedKey: string;
 }
 
 export interface ImpressumProps extends WithTranslation, WithRouterProps {
@@ -37,7 +28,7 @@ export async function getStaticProps({ locale }) {
 }
 
 /**
- * @class Home Component Class
+ * @class Impressum Component Class
  * @component
  */
 class Impressum extends Component<ImpressumProps, ImpressumState> {
@@ -46,7 +37,6 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
     this.state = {
       isLoggedIn: undefined,
       currentToken: "",
-      currentSelectedKey: this.props.i18n.language,
     }
   }
 
@@ -77,36 +67,9 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
     const currentToken = FrontEndController.getUserToken();
     if (await FrontEndController.verifyUserByToken(currentToken)) {
       this.setState({ isLoggedIn: true, currentToken: currentToken })
-      return
+    } else {
+      this.setState({ isLoggedIn: false })
     }
-    this.setState({ isLoggedIn: false })
-  }
-
-  private onchange = (event: React.FormEvent<HTMLDivElement>, item: DropdownOption): void => {
-    if (this.state.currentSelectedKey !== item.key) {
-      const { router } = this.props;
-      router.push(router.pathname, router.pathname, { locale: item.key.toString() })
-      this.setState({ currentSelectedKey: item.key });
-    }
-  }
-
-  private onRenderOption = (option: DropdownOption): JSX.Element => {
-    return(
-      <div>
-        <span className={styles.icon}>
-          <Icon style={{ marginRight: '8px' }} iconName={option.data.icon} />
-        </span>
-        <span>
-          {option.text}
-        </span>
-      </div>
-    )
-  }
-
-  private onRenderCaretDown = (): JSX.Element => {
-    return(
-      <Icon iconName="ChevronDown" />
-    )
   }
 
   /**
@@ -115,32 +78,6 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
    */
   render() {
     const { router } = this.props
-
-    // return (
-    //   <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
-    //     <div>
-    //       <header>
-    //           <Header 
-    //             username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-    //             hideLogin={this.state.isLoggedIn} 
-    //             hideLogout={!this.state.isLoggedIn} 
-    //             path={router.pathname} 
-    //             router={this.props.router}
-    //           />
-    //         </header>
-    //         <LanguageSwitcher id={"Test"} path={router.pathname} i18n={this.props.i18n} router={this.props.router}>
-              
-    //         </LanguageSwitcher>
-    //         <Dropdown 
-    //           id={"Hallo"}
-    //           options={options} 
-    //           selectedKey={this.state.currentSelectedKey} 
-    //           onChange={this.onchange}
-    //           onRenderOption={this.onRenderOption}
-    //           onRenderCaretDown={this.onRenderCaretDown}></Dropdown>
-    //     </div>
-    //   </PWPLanguageProvider>
-    // )
     if (this.state.isLoggedIn === undefined) {
       return (
         <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
@@ -151,9 +88,6 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
               <link rel="icon" href="/favicon.ico" />
             </Head>
 
-            {/* <main>
-              <PageLoadingScreen />
-            </main> */}
             <header>
               <Header 
                 username={""} 
@@ -163,6 +97,10 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
                 router={this.props.router}
               />
             </header>
+
+            <main>
+              <PageLoadingScreen />
+            </main>
           </div>
         </PWPLanguageProvider>
       )

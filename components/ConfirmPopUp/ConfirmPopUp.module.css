@@ -33,17 +33,19 @@
   text-decoration: none;
 }
 
+.messageWrapper {
+  margin: 15px 0;
+}
+
+.wrapperItem {
+  padding: 5px 10px;
+}
+
 #message {
-  padding: 10px;
-  padding-bottom: 5px;
-  margin-top: 10px;
   color: var(--color-text-primary);
 }
 
 #warning {
-  padding: 10px;
-  padding-top: 5px;
-  margin-bottom: 15px;
   color: var(--color-text-warning);
 }
 
