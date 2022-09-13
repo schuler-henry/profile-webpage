@@ -1,6 +1,9 @@
 {
   "Home": "Home",
+  "SocialMedia": "Social Media",
+  "Contact": "Contact",
   "Impressum": "Impressum",
+  "Account": "Account",
   "Login": "Login",
   "Logout": "Logout",
   "Activate": "Activate profile",

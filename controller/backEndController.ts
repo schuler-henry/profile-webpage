@@ -190,6 +190,7 @@ export class BackEndController {
    * API function to register a user
    */
   async handleRegisterUser(username: string, password: string, email: string): Promise<boolean> {
+    email = email.toLowerCase();
     if (!await this.handleUserAlreadyExists(username)) {
       const vUsernameValid = this.isUsernameValid(username);
       const vPasswordValid = this.isPasswordValid(password);
@@ -276,6 +277,7 @@ Henry Schuler`,
    * This method checks whether a email already exists in the DB.
    */
   async handleEmailAlreadyExists(email: string): Promise<boolean> {
+    email = email.toLowerCase();
     return this.databaseModel.evaluateSuccess(await this.databaseModel.selectUserTable(undefined, undefined, undefined, undefined, email));
   }
 

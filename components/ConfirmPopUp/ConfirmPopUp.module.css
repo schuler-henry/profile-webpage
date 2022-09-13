@@ -1,16 +1,19 @@
-.popUp {
+.popUp.popUp {
   position: fixed;
   left: 0;
   right: 0;
   top: 0;
   bottom: 0;
+  margin: 0;
+  padding: 0;
   z-index: 4;
   background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
+  touch-action: none;
 }
 
-.popUpWindow {
+.popUpWindow.popUpWindow {
   width: 100%;
   margin: 0 10vw;
   z-index: 4;
@@ -21,35 +24,37 @@
   filter: blur(0px);
 }
 
-.popUpWindow h1 {
+.popUpWindow.popUpWindow h1 {
   margin: 0;
   text-align: center;
   text-decoration: none;
 }
 
-.popUpWindow p {
+.popUpWindow.popUpWindow p {
   margin: 0;
   text-align: center;
   text-decoration: none;
 }
 
-.messageWrapper {
+.messageWrapper.messageWrapper {
   margin: 15px 0;
 }
 
-.wrapperItem {
+.wrapperItem.wrapperItem {
   padding: 5px 10px;
 }
 
 #message {
   color: var(--color-text-primary);
+  white-space: pre-line;
 }
 
 #warning {
   color: var(--color-text-warning);
+  white-space: pre-line;
 }
 
-.buttonContainer {
+.buttonContainer.buttonContainer {
   display: flex;
   justify-content: center;
   gap: 20px;

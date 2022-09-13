@@ -34,7 +34,6 @@ export interface LanguageSwitcherState {
 }
 
 export interface LanguageSwitcherProps extends WithRouterProps {
-  id: string;
   path: string;
   i18n: I18n;
 }
@@ -60,7 +59,6 @@ export class LanguageSwitcher extends Component<LanguageSwitcherProps, LanguageS
     return (
       <div>
         <Dropdown 
-          id={this.props.id}
           options={options} 
           selectedKey={this.state.selectedKey} 
           onChange={this.onchange}

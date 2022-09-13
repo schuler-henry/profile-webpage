@@ -6,6 +6,6 @@
   "login": "einloggen",
   "instead": "",
   "Activating": "Aktivieren",
-  "SuccessText": "Ihr Konto wurde erfolgreich aktiviert. Mit dem Bestätigen dieser Meldung werden sie automatisch auf die Login-Seite weitergeleitet.",
-  "ErrorText": "Ihr Konto konnte nicht aktiviert werden. Bitte überprüfen Sie den Aktivierungscode und versuchen Sie es erneut. Sollte Ihr Konto bereits aktiviert sein, melden Sie sich bitte auf der Login-Seite an."
+  "SuccessText": "Ihr Konto wurde erfolgreich aktiviert.\n\nMit dem Bestätigen dieser Meldung werden sie automatisch auf die Login-Seite weitergeleitet.",
+  "ErrorText": "Ihr Konto konnte nicht aktiviert werden.\nBitte überprüfen Sie den Aktivierungscode und versuchen Sie es erneut.\n\nSollte Ihr Konto bereits aktiviert sein, melden Sie sich bitte auf der Login-Seite an."
 }

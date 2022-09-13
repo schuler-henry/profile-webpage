@@ -13,5 +13,6 @@
   "lowercase": "lowercase",
   "uppercase": "uppercase",
   "of": "of",
-  "onlyNumbersCharactersSpecial": "only letters, numbers and the mentioned special characters"
+  "onlyNumbersCharactersSpecial": "only letters, numbers and the mentioned special characters",
+  "RegisterSuccessful": "Your account has been created successfully.\nWe have sent you an email with a confirmation link. Please confirm your email address to log in.\n\nIf you have not received an email, please check your spam folder."
 }

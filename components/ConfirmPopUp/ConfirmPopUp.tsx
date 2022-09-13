@@ -19,6 +19,11 @@ export class ConfirmPopUp extends Component<ConfirmPopUpProps, ConfirmPopUpState
   constructor(props) {
     super(props);
   }
+
+  componentDidMount(): void {
+    (document.activeElement as HTMLInputElement).blur();
+  }
+
   render() {
     return (
       <div className={styles.popUp}>

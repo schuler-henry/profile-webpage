@@ -13,5 +13,6 @@
   "lowercase": "Kleinbuchstabe",
   "uppercase": "Großbuchstabe",
   "of": "der folgenden Zeichen",
-  "onlyNumbersCharactersSpecial": "nur Buchstaben, Zahlen und die oben genannten Sonderzeichen"
+  "onlyNumbersCharactersSpecial": "nur Buchstaben, Zahlen und die oben genannten Sonderzeichen",
+  "RegisterSuccessful": "Ihr account wurde erfolgreich erstellt.\nWir haben Ihnen eine E-Mail mit einem Bestätigungslink geschickt. Bitte bestätigen Sie Ihre E-Mail-Adresse, um sich einzuloggen.\n\nWenn Sie keine E-Mail erhalten haben, überprüfen Sie bitte Ihren Spam-Ordner."
 }

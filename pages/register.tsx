@@ -10,6 +10,7 @@ import { I18n, withTranslation, WithTranslation } from 'next-i18next'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
 import { Button } from '../components/Button/Button'
+import { ConfirmPopUp } from '../components/ConfirmPopUp/ConfirmPopUp'
 
 export interface RegisterState {
   isNotLoggedIn: boolean;
@@ -25,6 +26,7 @@ export interface RegisterState {
   feedbackMessage: string;
   showRequirements: boolean;
   readOnlyInput: boolean;
+  registerSuccessful: boolean;
 }
 
 export interface RegisterProps extends WithTranslation, WithRouterProps {
@@ -60,6 +62,7 @@ class Register extends Component<RegisterProps, RegisterState> {
       feedbackMessage: "",
       showRequirements: false,
       readOnlyInput: false,
+      registerSuccessful: false,
     }
   }
 
@@ -123,9 +126,7 @@ class Register extends Component<RegisterProps, RegisterState> {
       if (this.state.password === this.state.confirmPassword && this.state.emailReqMessage === "" && this.state.usernameReqMessage === "" && this.state.passwordReqMessage === "" && this.state.email !== "" && this.state.username !== "" && this.state.password !== "") {
         this.setState({ readOnlyInput: true });
         if (await FrontEndController.registerUser(this.state.username, this.state.password, this.state.email)) {
-          // TODO: PopUp Success + option to go to /activate
-          
-          router.push("/");
+          this.setState({ registerSuccessful: true });
         } else {
           this.setState({ username: "", password: "", confirmPassword: "", email: "" });
           document.getElementById("emailInput")?.focus();
@@ -200,7 +201,7 @@ class Register extends Component<RegisterProps, RegisterState> {
                 <div className={styles.fieldDiv}>
                   <h1>{this.props.t('common:Register')}</h1>
                   <input 
-                    type="text"
+                    type="email"
                     placeholder={"E-Mail..."}
                     id='emailInput'
                     autoFocus
@@ -279,6 +280,16 @@ class Register extends Component<RegisterProps, RegisterState> {
                       </a>
                     </p>
                   </div>
+                  {
+                    this.state.registerSuccessful &&
+                      <ConfirmPopUp
+                        title={this.props.t('common:Success')}
+                        message={this.props.t('register:RegisterSuccessful')}
+                        onConfirm={() => {
+                          router.push({pathname: "/activate", query: {username: this.state.username}});
+                        }}
+                      />
+                  }
                 </div>
                 <div hidden={!this.state.showRequirements} className={styles.requirementsDiv}>
                   <h2>{this.props.t('register:Username')}</h2>

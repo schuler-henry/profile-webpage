@@ -6,6 +6,6 @@
   "login": "login",
   "instead": " instead",
   "Activating": "Activating",
-  "SuccessText": "Your account has been successfully activated. By confirming this message you will be automatically redirected to the login page.",
-  "ErrorText": "Your account could not be activated. Please check the activation code and try again. If your account is already activated, please log in on the login page."
+  "SuccessText": "Your account has been successfully activated.\n\nBy confirming this message you will be automatically redirected to the login page.",
+  "ErrorText": "Your account could not be activated.\nPlease check the activation code and try again.\n\nIf your account is already activated, please log in on the login page."
 }

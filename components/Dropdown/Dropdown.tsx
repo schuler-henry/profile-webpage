@@ -1,4 +1,4 @@
-import { Component, FormEvent } from "react";
+import { Component, FormEvent, createRef, RefObject } from "react";
 import styles from "./Dropdown.module.css";
 
 export interface DropdownOption<T = any> {
@@ -8,11 +8,10 @@ export interface DropdownOption<T = any> {
 }
 
 export interface DropdownState {
-
+  showDropDown: boolean;
 }
 
 export interface DropdownProps {
-  id: string;
   options: DropdownOption[];
   selectedKey?: string;
   onChange: (event: FormEvent<HTMLDivElement>, option?: DropdownOption<any>, index?: number) => void;
@@ -21,26 +20,30 @@ export interface DropdownProps {
 }
 
 export class Dropdown extends Component<DropdownProps, DropdownState> {
+  constructor(props: DropdownProps) {
+    super(props);
+    this.DROPDOWN = createRef();
+    this.state = {
+      showDropDown: false,
+    };
+  }
+
+  private DROPDOWN: RefObject<HTMLDivElement>
+
   componentDidMount() {
-    window.onclick = (event) => {
-      event.preventDefault();
-      // console.log(event.path.find(element => element.id?.toString().includes("PWPDropdown"))?.id);
-      // Search for dropdown in click path -> get ID
-      let dropdownID: string = event.path.find(element => element.id?.toString().includes("PWPDropdown"))?.id;
-      // If dropdown was clicked -> ID could be returned, evaluate ID of dropdown list
-      let dropdownItemID: string = undefined;
-      if (dropdownID) dropdownItemID = dropdownID.substring(0, 11) + "List" + dropdownID.substring(11);
-      // Select every optionList element except the one that was potentially clicked
-      document.querySelectorAll(`.${styles.optionList}:not(#${dropdownItemID})`).forEach((dropdown,i) => {
-        // console.log(dropdown.classList);
-        // console.log(dropdownItemID)
-        // Check for all elements if they are currently shown, if true -> hide them
-        if(dropdown.classList.contains(`${styles.show}`)) {
-          dropdown.classList.remove(`${styles.show}`);
-        }
-      });
+    window.addEventListener("click", this.hideDropdown);
+  }
+
+  componentWillUnmount(): void {
+    window.removeEventListener("click", this.hideDropdown)
+  }
+
+  hideDropdown = (event) => {
+    if (this.state.showDropDown && this.DROPDOWN.current && !this.DROPDOWN.current.contains(event.target)) {
+      this.setState({showDropDown: false});
     }
   }
+
   render() {
 
     const optionDivs = this.props.options.map((option: DropdownOption, idx) => {
@@ -63,12 +66,11 @@ export class Dropdown extends Component<DropdownProps, DropdownState> {
     }
 
     return (
-      <div className={styles.dropdownContainer}>
+      <div className={styles.dropdownContainer} ref={this.DROPDOWN}>
         <div 
           className={styles.dropdown}
-          id={"PWPDropdown" + this.props.id}
           onClick={() => {
-            document.getElementById("PWPDropdownList" + this.props.id).classList.toggle(`${styles.show}`);
+            this.setState({showDropDown: !this.state.showDropDown})
           }}>
           <span className={styles.content}>
             {this.props.onRenderOption(selectedOption)}
@@ -78,9 +80,12 @@ export class Dropdown extends Component<DropdownProps, DropdownState> {
             {this.props.onRenderCaretDown()}
           </span>
         </div>
-        <div className={styles.optionList} id={"PWPDropdownList" + this.props.id}>
-          {optionDivs}
-        </div>
+        {
+          this.state.showDropDown &&
+            <div className={styles.optionList}>
+              {optionDivs}
+            </div>
+        }
       </div>
     )
   }

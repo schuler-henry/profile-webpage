@@ -61,9 +61,15 @@ class Activate extends Component<ActivateProps, ActivateState> {
   queryActivation = false;
 
   async componentDidUpdate(prevProps: Readonly<ActivateProps>, prevState: Readonly<ActivateState>, snapshot?: any) {
-    if (this.props.router.query["username"] && this.props.router.query["activationCode"] && !this.state.activated && !this.queryActivation) {
+    if (this.props.router.query["username"] && !this.state.activated && !this.queryActivation) {
       this.queryActivation = true
-      this.activateUser(this.props.router.query["username"].toString(), this.props.router.query["activationCode"].toString())
+      this.setState({ username: this.props.router.query["username"].toString() })
+      if (this.props.router.query["activationCode"]) {
+        this.setState({ activationCode: this.props.router.query["activationCode"].toString() })
+        this.activateUser(this.state.username, this.state.activationCode)
+      } else {
+        document.getElementById("activationCodeInput")?.focus()
+      }
     }
   }
 
@@ -176,9 +182,11 @@ class Activate extends Component<ActivateProps, ActivateState> {
                         onChange={(e) => this.setState({ username: e.target.value })}
                         value={this.state.username}
                         onKeyDown={this.activateEnter}
+                        autoFocus
                       />
                       <input 
                         type="text"
+                        id="activationCodeInput"
                         placeholder={this.props.t('activate:ActivationCode') + "..."}
                         onChange={(e) => this.setState({ activationCode: e.target.value })}
                         value={this.state.activationCode}
@@ -200,13 +208,17 @@ class Activate extends Component<ActivateProps, ActivateState> {
                       this.state.showActivateConfirmation &&
                       <ConfirmPopUp 
                         title={this.state.activationProcess ? this.props.t('activate:Activating') + "..." : this.state.activated ? this.props.t('common:Success') : this.props.t('common:Error')}
-                        message={this.state.activated && this.props.t('activate:SuccessText')}
+                        message={`${this.props.t('activate:Username')}: ${this.state.username || "undefined"}\n ${this.props.t('activate:ActivationCode')}: ${this.state.activationCode || "undefined"}\n ${this.state.activated ? "\n" + this.props.t('activate:SuccessText') : ""}`}
                         warning={this.state.activated === false && this.props.t('activate:ErrorText')}
                         onConfirm={
                           !this.state.activationProcess ?
                           async () => {
-                            this.state.activated && router.push("/login")
-                            this.setState({ showActivateConfirmation: false })
+                            (this.state.activated ? 
+                              router.push("/login")
+                              :
+                              router.push("/activate"))
+                            this.setState({ showActivateConfirmation: false, activationCode: "" })
+                            document.getElementById("activationCodeInput")?.focus()
                           }
                           :
                           undefined

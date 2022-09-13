@@ -161,9 +161,6 @@ export class FrontEndController {
     });
 
     const data = await response.json();
-    if (data.wasSuccessful) {
-      await FrontEndController.loginUser(username, password);
-    }
 
     return data.wasSuccessful;
   }
