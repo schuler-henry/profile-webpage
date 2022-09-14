@@ -48,7 +48,7 @@ export class DatabaseModel {
     const allUsers = [];
 
     for (const user of dbResponse.data) {
-      allUsers.push({ id: user.id, name: user.name, password: user.password, accessLevel: user.accessLevel, email: user.email, activationCode: user.activationCode, active: user.active })
+      allUsers.push({ id: user.id, username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email, activationCode: user.activationCode, active: user.active })
     }
     return allUsers;
   }
@@ -56,33 +56,39 @@ export class DatabaseModel {
   /**
    * This is a universal select function for the user database
    */
-  async selectUserTable(userID?: number, username?: string, password?: string, accessLevel?: AccessLevel, email?: string, activationCode?: string, active?: boolean): Promise<PostgrestResponse<IUser>> {
+  async selectUserTable(user: {userID?: number, username?: string, password?: string, accessLevel?: AccessLevel, firstName?: string, lastName?: string, email?: string, activationCode?: string, active?: boolean}): Promise<PostgrestResponse<IUser>> {
     let idColumnName = "";
     let usernameColumnName = "";
     let passwordColumnName = "";
     let accessLevelColumnName = "";
+    let firstNameColumnName = "";
+    let lastNameColumnName = "";
     let emailColumnName = "";
     let activationCodeColumnName = "";
     let activeColumnName = "";
 
-    if (!(userID === undefined) && !isNaN(userID)) idColumnName = "id";
-    if (!(username === undefined)) usernameColumnName = "name";
-    if (!(password === undefined)) passwordColumnName = "password";
-    if (!(accessLevel === undefined) && !isNaN(accessLevel)) accessLevelColumnName = "accessLevel";
-    if (!(email === undefined)) emailColumnName = "email";
-    if (!(activationCode === undefined)) activationCodeColumnName = "activationCode";
-    if (!(active === undefined)) activeColumnName = "active";
+    if (!(user.userID === undefined) && !isNaN(user.userID)) idColumnName = "id";
+    if (!(user.username === undefined)) usernameColumnName = "username";
+    if (!(user.password === undefined)) passwordColumnName = "password";
+    if (!(user.accessLevel === undefined) && !isNaN(user.accessLevel)) accessLevelColumnName = "accessLevel";
+    if (!(user.firstName === undefined)) firstNameColumnName = "firstName";
+    if (!(user.lastName === undefined)) lastNameColumnName = "lastName";
+    if (!(user.email === undefined)) emailColumnName = "email";
+    if (!(user.activationCode === undefined)) activationCodeColumnName = "activationCode";
+    if (!(user.active === undefined)) activeColumnName = "active";
 
     const userResponse = await DatabaseModel.CLIENT
       .from('User')
       .select()
-      .eq(idColumnName, userID)
-      .eq(usernameColumnName, username)
-      .eq(passwordColumnName, password)
-      .eq(accessLevelColumnName, accessLevel)
-      .eq(emailColumnName, email)
-      .eq(activationCodeColumnName, activationCode)
-      .eq(activeColumnName, active);
+      .eq(idColumnName, user.userID)
+      .eq(usernameColumnName, user.username)
+      .eq(passwordColumnName, user.password)
+      .eq(accessLevelColumnName, user.accessLevel)
+      .eq(firstNameColumnName, user.firstName)
+      .eq(lastNameColumnName, user.lastName)
+      .eq(emailColumnName, user.email)
+      .eq(activationCodeColumnName, user.activationCode)
+      .eq(activeColumnName, user.active);
 
     return userResponse;
   }
@@ -94,7 +100,7 @@ export class DatabaseModel {
     const addedUser = await DatabaseModel.CLIENT
       .from('User')
       .insert([
-        { name: username, password: hashedPassword, accessLevel: AccessLevel.USER, email: email, activationCode: activationCode, active: false },
+        { username: username, password: hashedPassword, accessLevel: AccessLevel.USER, email: email, activationCode: activationCode, active: false },
       ]);
 
     return addedUser;
@@ -107,7 +113,7 @@ export class DatabaseModel {
   async updateUser(user: IUser): Promise<PostgrestResponse<IUser>> {
     const updatedUser = await DatabaseModel.CLIENT
       .from('User')
-      .update({ name: user.name, password: user.password, accessLevel: user.accessLevel, email: user.email, activationCode: user.activationCode, active: user.active })
+      .update({ username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email, activationCode: user.activationCode, active: user.active })
       .eq('id', user.id);
 
     return updatedUser;
