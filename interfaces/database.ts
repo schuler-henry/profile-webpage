@@ -9,9 +9,11 @@ export interface IUser {
    * user.id=2 -> admin (master-account)
    */
   id: number;
-  name: string;
+  username: string;
   password: string;
   accessLevel: AccessLevel;
+  firstName: string;
+  lastName: string;
   email: string;
   activationCode: string;
   active: boolean;

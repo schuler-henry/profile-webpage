@@ -116,7 +116,7 @@ export class BackEndController {
   async handleGetUserFromToken(token: string): Promise<IUser> {
     if (this.isTokenValid(token)) {
       const username = this.getUsernameFromToken(token);
-      return this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, username))[0];
+      return this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: username}))[0];
     }
     return null;
   }
@@ -129,7 +129,7 @@ export class BackEndController {
       return false;
     }
 
-    let user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, this.getUsernameFromToken(token)))[0];
+    let user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: this.getUsernameFromToken(token)}))[0];
 
     if (user === undefined) {
       return false;
@@ -154,7 +154,7 @@ export class BackEndController {
 
     const userTokenName = this.getUsernameFromToken(userToken);
 
-    const targetUser = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, userTokenName))[0];
+    const targetUser = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: userTokenName}))[0];
 
     if (targetUser === undefined) {
       return false;
@@ -167,7 +167,7 @@ export class BackEndController {
    * This method logs in a user if the given credentials are valid.
    */
   async handleLoginUser(username: string, password: string): Promise<string> {
-    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, username))[0];
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: username}))[0];
 
     if (user === undefined) {
       return "";
@@ -260,7 +260,7 @@ Henry Schuler`,
       return false;
     }
     
-    let user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, username, undefined, undefined, undefined, activationCode, false))[0];
+    let user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: username, activationCode: activationCode, active: false}))[0];
 
     if (user === undefined) {
       return false;
@@ -278,14 +278,14 @@ Henry Schuler`,
    */
   async handleEmailAlreadyExists(email: string): Promise<boolean> {
     email = email.toLowerCase();
-    return this.databaseModel.evaluateSuccess(await this.databaseModel.selectUserTable(undefined, undefined, undefined, undefined, email));
+    return this.databaseModel.evaluateSuccess(await this.databaseModel.selectUserTable({email: email}));
   }
 
   /**
    * This method checks whether a user already exists in the DB.
    */
   async handleUserAlreadyExists(username: string): Promise<boolean> {
-    return this.databaseModel.evaluateSuccess(await this.databaseModel.selectUserTable(undefined, username));
+    return this.databaseModel.evaluateSuccess(await this.databaseModel.selectUserTable({username: username}));
   }
 
   /**
