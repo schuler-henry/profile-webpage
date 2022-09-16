@@ -178,7 +178,7 @@ export class Footer extends Component<FooterProps, FooterState> {
                       {LanguageContext.t('common:Register')}
                     </Link>
                   </div>
-                  <div hidden={this.props.isLoggedIn}>
+                  <div>
                     <Link
                       href={"/activate"}>
                       {LanguageContext.t('common:Activate')}
