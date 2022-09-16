@@ -66,7 +66,7 @@ class Activate extends Component<ActivateProps, ActivateState> {
       this.setState({ username: this.props.router.query["username"].toString() })
       if (this.props.router.query["activationCode"]) {
         this.setState({ activationCode: this.props.router.query["activationCode"].toString() })
-        this.activateUser(this.state.username, this.state.activationCode)
+        this.activateUser(this.props.router.query["username"].toString(), this.props.router.query["activationCode"].toString())
       } else {
         document.getElementById("activationCodeInput")?.focus()
       }

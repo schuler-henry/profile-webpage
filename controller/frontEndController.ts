@@ -28,7 +28,6 @@ export class FrontEndController {
     });
 
     const data = await response.json();
-    console.log("doesEmailExist: " + data.wasSuccessful);
     return data.wasSuccessful;
   }
 
@@ -205,6 +204,49 @@ export class FrontEndController {
   }
 
   /**
+   * This method updates a user profile in the database
+   * username, first and last name
+   */
+  static async updateUserProfile(userToken: string, newUser: IUser): Promise<boolean> {
+    const response = await fetch('/api/users/update_user_profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        newUser: newUser
+      })
+    });
+
+    await this.renewToken();
+
+    const data = await response.json();
+
+    return data.wasSuccessful;
+  }
+
+  /**
+   * This method adds a new email to the user (needs to be activated afterwards)
+   */
+  static async updateUserEmail(userToken: string, newEmail: string): Promise<boolean> {
+    const response = await fetch('/api/users/update_user_email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        newEmail: newEmail
+      })
+    });
+
+    const data = await response.json();
+
+    return data.wasSuccessful;
+  }
+
+  /**
    * This method checks whether the given token has a valid signature and user
    */
   static async verifyUserByToken(token: string): Promise<boolean> {
@@ -219,7 +261,28 @@ export class FrontEndController {
     });
 
     const data = await response.json();
+
     return data.wasSuccessful;
+  }
+
+  /**
+   * This method renews the current user token and updates the username inside.
+   */
+  static async renewToken(): Promise<void> {
+    const response = await fetch('/api/users/renew_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: this.getUserToken(),
+      })
+    });
+
+    const data = await response.json();
+
+    localStorage.removeItem(this.userTokenName);
+    localStorage.setItem(this.userTokenName, data.userToken);
   }
 
   /**

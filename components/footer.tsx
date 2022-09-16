@@ -178,7 +178,7 @@ export class Footer extends Component<FooterProps, FooterState> {
                       {LanguageContext.t('common:Register')}
                     </Link>
                   </div>
-                  <div hidden={this.props.isLoggedIn}>
+                  <div>
                     <Link
                       href={"/activate"}>
                       {LanguageContext.t('common:Activate')}
@@ -186,9 +186,11 @@ export class Footer extends Component<FooterProps, FooterState> {
                   </div>
                   <div hidden={!this.props.isLoggedIn}>
                     <Link
-                      href={"/profile"}>
-                      {/* TODO: Option zum Passwort ändern */}
-                      Passwort ändern
+                      href={{
+                        pathname: "/profile",
+                        query: { menu: "password" },
+                      }}>
+                      {LanguageContext.t('common:ChangePassword')}
                     </Link>
                   </div>
                   <div hidden={!this.props.isLoggedIn}>
@@ -196,7 +198,7 @@ export class Footer extends Component<FooterProps, FooterState> {
                       FrontEndController.logoutUser()
                       location.reload()
                     }}>
-                      Ausloggen
+                      {LanguageContext.t('common:Logout')}
                     </p>
                   </div>
                 </div>

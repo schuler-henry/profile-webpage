@@ -54,6 +54,33 @@
   white-space: pre-line;
 }
 
+.iconWrapper.iconWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 50px 0;
+}
+
+.icon.icon {
+  display: flex;
+  font-size: 50px;
+  width: fit-content;
+  height: fit-content;
+  margin: 0;
+}
+
+.spinnerAnimation.spinnerAnimation {
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .buttonContainer.buttonContainer {
   display: flex;
   justify-content: center;

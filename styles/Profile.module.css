@@ -1,19 +1,74 @@
 .content {
   padding: 0 20px;
+  margin: 20px 0;
 }
 
-.content p {
-  color: #AAAAAA;
+.inputWrapper h1 {
+  margin-bottom: 5px;
+  font-size: 14px;
+  text-decoration: none;
 }
 
-.content table, .content table td{
-  border: hidden;
-  border-width: 0.5pt;
-  border-collapse: collapse;
-  table-layout: fixed;
+.inputWrapper .errorText {
+  margin: 0px;
+  color: var(--color-text-warning);
 }
 
-.content table td {
-  overflow: hidden;
-  padding: 2pt 10pt 2pt 0;
+.input {
+  background-color: var(--color-bg-hover);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-bg-selected);
+  border-radius: 5px;
+  font-size: 14px;
+  padding: 5px 10px;
+  outline: none;
+}
+
+.input:read-write:hover {
+  border-color: var(--color-bg-secondary);
+}
+
+.input:read-only {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-off);
+  cursor: default;
+}
+
+.inputChanged:read-write {
+  border-color: var(--color-border-changed);
+}
+
+.inputError:read-write {
+  border-color: var(--color-border-error);
+}
+
+.inputError:read-write:hover {
+  border-color: var(--color-border-error);
+}
+
+.submitButton {
+  margin-top: 14px;
+}
+
+.confirmWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.confirmWrapper div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.confirmWrapper h1 {
+  margin-bottom: 5px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.confirmWrapper p {
+  text-align: start !important;
+  color: var(--color-text-off);
 }

@@ -15,6 +15,7 @@ export interface IUser {
   firstName: string;
   lastName: string;
   email: string;
+  unconfirmedEmail: string;
   activationCode: string;
   active: boolean;
 }

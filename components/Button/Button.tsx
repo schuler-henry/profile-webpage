@@ -10,6 +10,7 @@ export interface ButtonProps {
   href?: string;
   onClick?: (event: React.MouseEvent<any>) => void;
   width?: string;
+  disabled?: boolean;
 }
 
 export class Button extends Component<ButtonProps, ButtonState> {
@@ -18,7 +19,7 @@ export class Button extends Component<ButtonProps, ButtonState> {
   }
   render() {
     return (
-      <a href={this.props.href} className={styles.button} onClick={this.props.onClick} style={{ width: this.props.width}}>
+      <a href={!this.props.disabled ? this.props.href : undefined} className={`${styles.button} ${this.props.disabled && styles.disabled}`} onClick={!this.props.disabled ? this.props.onClick : undefined} style={{ width: this.props.width}}>
         <span>
           {this.props.children}
         </span>

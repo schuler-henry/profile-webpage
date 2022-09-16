@@ -48,7 +48,7 @@ export class DatabaseModel {
     const allUsers = [];
 
     for (const user of dbResponse.data) {
-      allUsers.push({ id: user.id, username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email, activationCode: user.activationCode, active: user.active })
+      allUsers.push({ id: user.id, username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email, unconfirmedEmail: user.unconfirmedEmail, activationCode: user.activationCode, active: user.active })
     }
     return allUsers;
   }
@@ -56,7 +56,7 @@ export class DatabaseModel {
   /**
    * This is a universal select function for the user database
    */
-  async selectUserTable(user: {userID?: number, username?: string, password?: string, accessLevel?: AccessLevel, firstName?: string, lastName?: string, email?: string, activationCode?: string, active?: boolean}): Promise<PostgrestResponse<IUser>> {
+  async selectUserTable(user: {userID?: number, username?: string, password?: string, accessLevel?: AccessLevel, firstName?: string, lastName?: string, email?: string, unconfirmedEmail?: string, activationCode?: string, active?: boolean}): Promise<PostgrestResponse<IUser>> {
     let idColumnName = "";
     let usernameColumnName = "";
     let passwordColumnName = "";
@@ -64,6 +64,7 @@ export class DatabaseModel {
     let firstNameColumnName = "";
     let lastNameColumnName = "";
     let emailColumnName = "";
+    let unconfirmedEmailColumnName = "";
     let activationCodeColumnName = "";
     let activeColumnName = "";
 
@@ -74,6 +75,7 @@ export class DatabaseModel {
     if (!(user.firstName === undefined)) firstNameColumnName = "firstName";
     if (!(user.lastName === undefined)) lastNameColumnName = "lastName";
     if (!(user.email === undefined)) emailColumnName = "email";
+    if (!(user.unconfirmedEmail === undefined)) unconfirmedEmailColumnName = "unconfirmedEmail";
     if (!(user.activationCode === undefined)) activationCodeColumnName = "activationCode";
     if (!(user.active === undefined)) activeColumnName = "active";
 
@@ -86,7 +88,8 @@ export class DatabaseModel {
       .eq(accessLevelColumnName, user.accessLevel)
       .eq(firstNameColumnName, user.firstName)
       .eq(lastNameColumnName, user.lastName)
-      .eq(emailColumnName, user.email)
+      .eq(emailColumnName, user.email?.toLowerCase())
+      .eq(unconfirmedEmailColumnName, user.unconfirmedEmail?.toLowerCase())
       .eq(activationCodeColumnName, user.activationCode)
       .eq(activeColumnName, user.active);
 
@@ -100,7 +103,7 @@ export class DatabaseModel {
     const addedUser = await DatabaseModel.CLIENT
       .from('User')
       .insert([
-        { username: username, password: hashedPassword, accessLevel: AccessLevel.USER, email: email, activationCode: activationCode, active: false },
+        { username: username, password: hashedPassword, accessLevel: AccessLevel.USER, unconfirmedEmail: email?.toLowerCase(), activationCode: activationCode, active: false },
       ]);
 
     return addedUser;
@@ -113,7 +116,7 @@ export class DatabaseModel {
   async updateUser(user: IUser): Promise<PostgrestResponse<IUser>> {
     const updatedUser = await DatabaseModel.CLIENT
       .from('User')
-      .update({ username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email, activationCode: user.activationCode, active: user.active })
+      .update({ username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email?.toLowerCase() || null, unconfirmedEmail: user.unconfirmedEmail?.toLowerCase() || null, activationCode: user.activationCode, active: user.active })
       .eq('id', user.id);
 
     return updatedUser;

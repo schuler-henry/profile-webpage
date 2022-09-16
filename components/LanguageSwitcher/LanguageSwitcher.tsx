@@ -24,7 +24,7 @@ const onRenderOption = (option: DropdownOption): JSX.Element => {
 
 const onRenderCaretDown = (): JSX.Element => {
   return(
-    <Icon iconName="ChevronDown" />
+    <Icon iconName="ChevronDown" style={{display: "flex"}} />
   )
 }
 
@@ -47,10 +47,10 @@ export class LanguageSwitcher extends Component<LanguageSwitcherProps, LanguageS
     }
   }
 
-  private onchange = (event: React.FormEvent<HTMLDivElement>, item: DropdownOption): void => {
+  private onChange = (event: React.FormEvent<HTMLDivElement>, item: DropdownOption): void => {
     if (this.state.selectedKey !== item.key) {
       const { router } = this.props;
-      router.push(router.pathname, router.pathname, { locale: item.key.toString() })
+      router.push({ pathname: router.pathname, query: router.query}, router.pathname, { locale: item.key.toString() });
       this.setState({ selectedKey: item.key });
     }
   }
@@ -61,7 +61,7 @@ export class LanguageSwitcher extends Component<LanguageSwitcherProps, LanguageS
         <Dropdown 
           options={options} 
           selectedKey={this.state.selectedKey} 
-          onChange={this.onchange}
+          onChange={this.onChange}
           onRenderOption={onRenderOption}
           onRenderCaretDown={onRenderCaretDown}
         />
