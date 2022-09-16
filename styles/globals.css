@@ -20,8 +20,13 @@ body {
   --color-bg-hover: #2A2A2A;
   --color-bg-selected: #3A3A3A;
   --color-bg-inverted: #FFFFFF;
+  --color-bg-error: #FD3737;
+  --color-bg-off: #2A2A2A;
   --color-border-primary: #CACACA;
   --color-border-hover: #FFFFFF;
+  --color-border-changed: #FF9000;
+  --color-border-error: #FF2222;
+  --color-border-off: #2A2A2A;
 }
 
 body[data-theme="light"] {
@@ -35,8 +40,13 @@ body[data-theme="light"] {
   --color-bg-hover: #EAEAEA;
   --color-bg-selected: #DADADA;
   --color-bg-inverted: #151515;
+  --color-bg-error: #FD3737;
+  --color-bg-off: #EAEAEA;
   --color-border-primary: #151515;
   --color-border-hover: #000000;
+  --color-border-changed: #FF9000;
+  --color-border-error: #FF2222;
+  --color-border-off: #EAEAEA;
 }
 
 /* width */

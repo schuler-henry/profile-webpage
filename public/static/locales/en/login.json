@@ -4,5 +4,6 @@
   "errorMessage": "Credentials incorrect",
   "Or": "Or",
   "register": "register",
+  "activate": "activate",
   "instead": " instead"
 }

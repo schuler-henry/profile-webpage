@@ -1,7 +1,6 @@
 import { Component } from "react";
 import styles from './Timer.module.css'
-import { ITimer } from "../../interfaces";
-import { Button } from "../Button/Button";
+import { ITimer } from "../../interfaces/database";
 import { secondsToFormattedTimeString } from "../../shared/secondsToFormattedTimeString";
 import { FrontEndController } from "../../controller/frontEndController";
 import { Icon } from "@fluentui/react";
@@ -11,8 +10,10 @@ import { PWPLanguageContext } from "../PWPLanguageProvider/PWPLanguageProvider";
 export interface TimerState {
   timer: ITimer | undefined;
   timerValue: number;
+  sync: boolean;
   update: boolean;
   showDeleteConfirmation: boolean;
+  showDiscardCurrentTimerConfirmation: boolean;
 }
 
 export interface TimerProps {
@@ -25,12 +26,17 @@ export class Timer extends Component<TimerProps, TimerState> {
     this.state = {
       timer: this.props.timer,
       timerValue: 0,
+      sync: false,
       update: false,
       showDeleteConfirmation: false,
+      showDiscardCurrentTimerConfirmation: false,
     }
   }
 
   private interval;
+  private changeFocus = () => {
+    this.syncTimer();
+  };
 
   componentDidMount() {
     if (this.state.timer.startTime !== null) {
@@ -39,9 +45,22 @@ export class Timer extends Component<TimerProps, TimerState> {
         this.setState({ timerValue: this.state.timerValue + 1 })
       }, 1000)
     }
+    window.addEventListener('focus', this.changeFocus)
+  }
+
+  componentDidUpdate(prevProps: Readonly<TimerProps>, prevState: Readonly<TimerState>, snapshot?: any): void {
+    if (prevProps.timer !== this.props.timer) {
+      this.syncTimer();
+    }
+  }
+
+  componentWillUnmount(): void {
+    window.removeEventListener('focus', this.changeFocus)
+    clearInterval(this.interval)
   }
 
   private async syncTimer() {
+    this.setState({ sync: true })
     this.setState({ timer: (await FrontEndController.getTimers(FrontEndController.getUserToken())).find(timer => timer.id === this.state.timer.id) });
     clearInterval(this.interval)
     if (this.state.timer !== undefined && this.state.timer.startTime !== null) {
@@ -52,6 +71,7 @@ export class Timer extends Component<TimerProps, TimerState> {
     } else {
       this.setState({ timerValue: 0 })
     }
+    this.setState({ sync: false })
   }
 
   private async updateTimer() {
@@ -77,6 +97,20 @@ export class Timer extends Component<TimerProps, TimerState> {
     this.setState({ update: false })
   }
 
+  private async discardCurrentTimer() {
+    this.setState({ update: true })
+    await this.syncTimer();
+    if (this.state.timer !== undefined) {
+      if (this.state.timer.startTime !== null) {
+        clearInterval(this.interval)
+        this.setState({ timerValue: 0 })
+        this.state.timer.startTime = null;
+        await FrontEndController.updateTimer(FrontEndController.getUserToken(), this.state.timer);
+      }
+    }
+    this.setState({ update: false })
+  }
+
   render() {
     if (this.state.timer !== undefined) {
       return(
@@ -87,22 +121,17 @@ export class Timer extends Component<TimerProps, TimerState> {
                 <h3>
                   {this.state.timer.name}
                 </h3>
-                <div className={styles.fetchButton}>
-                  <Button onClick={async () => {this.syncTimer()}}>
-                    { LanguageContext.t('timer:sync') }
-                  </Button>
-                </div>
                 <div className={styles.deleteButton} onClick={() => {
                   this.setState({ showDeleteConfirmation: true })
                 }}>
                   <Icon
                     iconName="Delete"
                     className={styles.deleteIcon}
-                    />
+                  />
                 </div>
                 {
                   this.state.showDeleteConfirmation && <ConfirmPopUp 
-                    title="Confirm delete" 
+                    title="Confirm Delete" 
                     message={`Do you really want to delete timer \"${this.state.timer.name}\" with time ${secondsToFormattedTimeString(this.state.timer.elapsedSeconds)}?`}
                     warning="This action cannot be undone!" 
                     onCancel={() => { 
@@ -114,6 +143,14 @@ export class Timer extends Component<TimerProps, TimerState> {
                     }} 
                   />
                 }
+                <div className={styles.syncButton} onClick={() => {
+                  this.syncTimer()
+                }}>
+                  <Icon 
+                    iconName="Sync"
+                    className={`${styles.syncIcon} ${this.state.sync ? styles.spinnerAnimation : ""}`}
+                  />
+                </div>
               </div>
               <div className={styles.elapsedTime}>
                 <p>
@@ -131,12 +168,50 @@ export class Timer extends Component<TimerProps, TimerState> {
                   </span>
                 </p>
                 <div className={styles.control}>
-                  <Button onClick={() => {this.state.update ? null : this.updateTimer()}}>
-                    <>
-                      <div className={styles.buttonSize}>Start</div>
-                      {this.state.update ? "..." : this.state.timer.startTime === null ? LanguageContext.t('timer:start') : LanguageContext.t('timer:stop')}
-                    </>
-                  </Button>
+                  <div className={this.state.timer.startTime === null ? "invisible" : styles.startButton} onClick={() => {
+                    this.setState({ showDiscardCurrentTimerConfirmation: true })
+                  }}>
+                    <Icon
+                      iconName="Delete"
+                      className={styles.startIcon}
+                    />
+                  </div>
+                  {
+                    this.state.showDiscardCurrentTimerConfirmation && <ConfirmPopUp 
+                    title="Confirm Discard" 
+                    message={`Do you really want to discard the running timer of \"${this.state.timer.name}\" with time ${secondsToFormattedTimeString(this.state.timerValue)}?`}
+                    warning="This action cannot be undone!" 
+                    onCancel={() => { 
+                      this.setState({ showDiscardCurrentTimerConfirmation: false }) 
+                    }} 
+                    onConfirm={async () => {
+                      await this.discardCurrentTimer()
+                      this.setState({ showDiscardCurrentTimerConfirmation: false })
+                    }} 
+                  />
+                  }
+                  <div className={styles.startButton} onClick={() => {
+                    this.state.update ? null : this.updateTimer()
+                  }}>
+                    {
+                      this.state.update ?
+                        <Icon
+                          iconName="Sync"
+                          className={`${styles.startIcon} ${styles.spinnerAnimation}`}
+                        />
+                        :
+                        this.state.timer.startTime === null ?
+                          <Icon 
+                            iconName="Play"
+                            className={styles.startIcon}
+                          />
+                          :
+                          <Icon
+                            iconName="Stop"
+                            className={styles.startIcon}
+                          />
+                    }
+                  </div>
                 </div>
               </div>
             </div>

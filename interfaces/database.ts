@@ -1,6 +1,6 @@
 // User:
 
-import { AccessLevel } from "./enums/accessLevel";
+import { AccessLevel } from "../enums/accessLevel";
 
 export interface IUser {
   /** 
@@ -9,9 +9,15 @@ export interface IUser {
    * user.id=2 -> admin (master-account)
    */
   id: number;
-  name: string;
+  username: string;
   password: string;
   accessLevel: AccessLevel;
+  firstName: string;
+  lastName: string;
+  email: string;
+  unconfirmedEmail: string;
+  activationCode: string;
+  active: boolean;
 }
 
 // Timer:

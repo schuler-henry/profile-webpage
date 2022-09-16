@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app'
 import { appWithTranslation } from 'next-i18next'
 import { initializeIcons, ThemeProvider } from '@fluentui/react';
 import { registerIcons } from '@fluentui/react/lib/Styling'
-import { ChevronDownIcon, ChevronRightIcon, AddIcon, DeleteIcon, SyncIcon, TimerIcon } from '@fluentui/react-icons-mdl2'
+import { ChevronDownIcon, ChevronRightIcon, AddIcon, DeleteIcon, SyncIcon, TimerIcon, PlayIcon, StopIcon, SendIcon, ContactIcon, LockIcon } from '@fluentui/react-icons-mdl2'
 import getUnicodeFlagIcon from 'country-flag-icons/unicode'
 import { darkTheme, lightTheme } from '../styles/theme';
 import { FrontEndController } from '../controller/frontEndController';
@@ -26,12 +26,29 @@ function MyApp({ Component, pageProps }: AppProps) {
         Delete: <DeleteIcon />,
         Sync: <SyncIcon />,
         Timer: <TimerIcon />,
+        Play: <PlayIcon />,
+        Stop: <StopIcon />,
+        Send: <SendIcon />,
+        Contact: <ContactIcon />,
+        Lock: <LockIcon />,
       }
     })
     initializeIcons();
     setExecuted(true);
   }
   
+  // renew Token each time the users switches to the tab
+  useEffect(() => {
+    window.addEventListener('focus', onFocus)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+    }
+  }, [])
+
+  let onFocus = () => {
+    FrontEndController.renewToken();
+  }
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setTheme(FrontEndController.getTheme());

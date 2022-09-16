@@ -1,7 +1,7 @@
 // @ts-check
 import { createClient, PostgrestResponse, SupabaseClient } from '@supabase/supabase-js'
 import { AccessLevel } from '../../enums/accessLevel';
-import { ITimer, IUser } from '../../interfaces'
+import { ITimer, IUser } from '../../interfaces/database'
 
 /**
  * DataBase Model to Connect BackendController with Supabase DB
@@ -48,7 +48,7 @@ export class DatabaseModel {
     const allUsers = [];
 
     for (const user of dbResponse.data) {
-      allUsers.push({ id: user.id, name: user.name, password: user.password, accessLevel: user.accessLevel })
+      allUsers.push({ id: user.id, username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email, unconfirmedEmail: user.unconfirmedEmail, activationCode: user.activationCode, active: user.active })
     }
     return allUsers;
   }
@@ -56,24 +56,42 @@ export class DatabaseModel {
   /**
    * This is a universal select function for the user database
    */
-  async selectUserTable(userID?: number, username?: string, password?: string, accessLevel?: AccessLevel): Promise<PostgrestResponse<IUser>> {
+  async selectUserTable(user: {userID?: number, username?: string, password?: string, accessLevel?: AccessLevel, firstName?: string, lastName?: string, email?: string, unconfirmedEmail?: string, activationCode?: string, active?: boolean}): Promise<PostgrestResponse<IUser>> {
     let idColumnName = "";
     let usernameColumnName = "";
     let passwordColumnName = "";
     let accessLevelColumnName = "";
+    let firstNameColumnName = "";
+    let lastNameColumnName = "";
+    let emailColumnName = "";
+    let unconfirmedEmailColumnName = "";
+    let activationCodeColumnName = "";
+    let activeColumnName = "";
 
-    if (!(userID === undefined) && !isNaN(userID)) idColumnName = "id";
-    if (!(username === undefined)) usernameColumnName = "name";
-    if (!(password === undefined)) passwordColumnName = "password";
-    if (!(accessLevel === undefined) && !isNaN(accessLevel)) accessLevelColumnName = "accessLevel";
+    if (!(user.userID === undefined) && !isNaN(user.userID)) idColumnName = "id";
+    if (!(user.username === undefined)) usernameColumnName = "username";
+    if (!(user.password === undefined)) passwordColumnName = "password";
+    if (!(user.accessLevel === undefined) && !isNaN(user.accessLevel)) accessLevelColumnName = "accessLevel";
+    if (!(user.firstName === undefined)) firstNameColumnName = "firstName";
+    if (!(user.lastName === undefined)) lastNameColumnName = "lastName";
+    if (!(user.email === undefined)) emailColumnName = "email";
+    if (!(user.unconfirmedEmail === undefined)) unconfirmedEmailColumnName = "unconfirmedEmail";
+    if (!(user.activationCode === undefined)) activationCodeColumnName = "activationCode";
+    if (!(user.active === undefined)) activeColumnName = "active";
 
     const userResponse = await DatabaseModel.CLIENT
       .from('User')
       .select()
-      .eq(idColumnName, userID)
-      .eq(usernameColumnName, username)
-      .eq(passwordColumnName, password)
-      .eq(accessLevelColumnName, accessLevel)
+      .eq(idColumnName, user.userID)
+      .eq(usernameColumnName, user.username)
+      .eq(passwordColumnName, user.password)
+      .eq(accessLevelColumnName, user.accessLevel)
+      .eq(firstNameColumnName, user.firstName)
+      .eq(lastNameColumnName, user.lastName)
+      .eq(emailColumnName, user.email?.toLowerCase())
+      .eq(unconfirmedEmailColumnName, user.unconfirmedEmail?.toLowerCase())
+      .eq(activationCodeColumnName, user.activationCode)
+      .eq(activeColumnName, user.active);
 
     return userResponse;
   }
@@ -81,24 +99,25 @@ export class DatabaseModel {
   /**
    * This method adds a user to the db
    */
-  async addUser(username: string, hashedPassword: string): Promise<PostgrestResponse<IUser>> {
+  async addUser(username: string, hashedPassword: string, email: string, activationCode: string): Promise<PostgrestResponse<IUser>> {
     const addedUser = await DatabaseModel.CLIENT
       .from('User')
       .insert([
-        { name: username, password: hashedPassword, accessLevel: AccessLevel.USER },
+        { username: username, password: hashedPassword, accessLevel: AccessLevel.USER, unconfirmedEmail: email?.toLowerCase(), activationCode: activationCode, active: false },
       ]);
 
     return addedUser;
   }
 
-  /** 
-   * This method is used to change the password of a user
+  /**
+   * This method is used to update a user
+   * @param user updated user object
    */
-  async changeUserPassword(newHashedPassword: string, userID: number): Promise<PostgrestResponse<IUser>> {
+  async updateUser(user: IUser): Promise<PostgrestResponse<IUser>> {
     const updatedUser = await DatabaseModel.CLIENT
       .from('User')
-      .update({ password: newHashedPassword })
-      .eq('id', userID);
+      .update({ username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email?.toLowerCase() || null, unconfirmedEmail: user.unconfirmedEmail?.toLowerCase() || null, activationCode: user.activationCode, active: user.active })
+      .eq('id', user.id);
 
     return updatedUser;
   }

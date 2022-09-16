@@ -9,6 +9,7 @@ import { I18n, WithTranslation, withTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
+import { Button } from '../components/Button/Button'
 
 export interface LoginState {
   isNotLoggedIn: boolean;
@@ -104,12 +105,17 @@ class Login extends Component<LoginProps, LoginState> {
      */
     const loginVerification = async () => {
       this.setState({ readOnlyInput: true });
-      if (await FrontEndController.loginUser(this.state.username, this.state.password)) {
-        router.push("/");
-      } else {
+      const login = await FrontEndController.loginUser(this.state.username, this.state.password)
+      if (login === "") {
         this.setState({ username: "", password: "", credentialsInfo: true })
         document.getElementById("userInput")?.focus()
         this.setState({ readOnlyInput: false });
+      } else if (login === "inactive") {
+        // TODO: PopUp / Message that account is inactive and needs to be activated
+        router.push("/activate")
+      } else {
+        localStorage.setItem(FrontEndController.userTokenName, login)
+        router.push("/");
       }
     }
 
@@ -156,16 +162,25 @@ class Login extends Component<LoginProps, LoginState> {
                   <div hidden={!this.state.credentialsInfo} className={styles.error} >
                     {this.props.t('login:errorMessage')}!
                   </div>
-                  <button onClick={loginVerification}>
+                  <Button width="100%" onClick={loginVerification}>
                     {this.props.t('common:Login')}
-                  </button>
-                  <p>
-                    {this.props.t('login:Or') + " "}
-                    <a onClick={() => router.push("/register")}>
-                      {this.props.t('login:register')}
-                    </a>
-                    {this.props.t('login:instead')}.
-                  </p>
+                  </Button>
+                  <div className={styles.flexBox}>
+                    <p className={styles.loginInstead}>
+                      {this.props.t('login:Or') + " "}
+                      <a onClick={() => { router.push("/register") }}>
+                        {this.props.t('login:register')}
+                      </a>
+                      {this.props.t('login:instead')}.
+                    </p>
+                    <p className={styles.activateInstead}>
+                      {this.props.t('login:Or') + " "}
+                      <a onClick={() => { router.push("/activate") }}>
+                        {this.props.t('login:activate')}
+                      </a>
+                      {this.props.t('login:instead')}.
+                    </p>
+                  </div>
                 </div>
               </main>
 

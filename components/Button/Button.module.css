@@ -20,3 +20,8 @@
   color: var(--color-text-primary);
   /* border-color: var(--color-border-hover); */
 }
+
+.disabled {
+  background-color: var(--color-bg-off);
+  border-color: var(--color-border-off);
+}

@@ -7,6 +7,11 @@
   display: grid;
   grid-template-rows: auto auto auto auto;
   row-gap: 20pt;
+  justify-content: center
+}
+
+.footer p {
+  margin: 0;
 }
 
 .footer h4 {
@@ -50,7 +55,7 @@
 
 .account {
   display: grid;
-  grid-template-rows: min-content min-content;
+  grid-template-rows: min-content min-content min-content;
   row-gap: 5pt;
 }
 

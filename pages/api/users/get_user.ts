@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { BackEndController } from "../../../controller/backEndController";
-import { IUser } from "../../../interfaces";
+import { IUser } from "../../../interfaces/database";
 
 type Data = {
   user: IUser,

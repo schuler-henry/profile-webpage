@@ -14,8 +14,9 @@ const BACK_END_CONTROLLER = new BackEndController();
 async function registerHandler(req: NextApiRequest, res: NextApiResponse<Data>) {
   const username: string = req.body.username;
   const password: string = req.body.password;
+  const email: string = req.body.email;
 
-  const userCreate: boolean = await BACK_END_CONTROLLER.handleRegisterUser(username, password);
+  const userCreate: boolean = await BACK_END_CONTROLLER.handleRegisterUser(username, password, email);
 
   res.status(200).json({ wasSuccessful: userCreate })
 }

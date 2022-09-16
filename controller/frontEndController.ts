@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { ColorTheme } from '../enums/colorTheme';
-import { ITimer, IUser } from '../interfaces';
+import { ITimer, IUser } from '../interfaces/database';
 import { GitHubUser, Repository } from '../interfaces/Github';
 
 /**
@@ -12,6 +12,24 @@ export class FrontEndController {
   static themeName = "pwp.theme.token";
 
   //#region User Methods
+
+  /**
+   * This method checks whether a given email exists in the database
+   */
+  static async doesEmailExist(email: string): Promise<boolean> {  
+    const response = await fetch('/api/users/does_email_exist', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        email: email 
+      })
+    });
+
+    const data = await response.json();
+    return data.wasSuccessful;
+  }
 
   /**
    * This method checks whether a given user exists in the database
@@ -68,6 +86,24 @@ export class FrontEndController {
   }
 
   /**
+   * This method checks the email for current email requirements
+   */
+  static async isEmailValid(email: string): Promise<boolean> {
+    const response = await fetch('/api/users/is_email_valid', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email
+      })
+    });
+
+    const data = await response.json();
+    return data.wasSuccessful;
+  }
+
+  /**
    * This method checks the username for current username requirements
    */
   static async isUsernameValid(username: string): Promise<boolean> {
@@ -88,7 +124,7 @@ export class FrontEndController {
   /**
    * This method logs a user in if there is a match with the database. Therfore a token is created which is stored in the browsers local storage.
    */
-  static async loginUser(username: string, password: string): Promise<boolean> {
+  static async loginUser(username: string, password: string): Promise<string> {
     const response = await fetch('/api/users/login', {
       method: 'POST',
       headers: {
@@ -100,20 +136,17 @@ export class FrontEndController {
       })
     });
 
+    localStorage.removeItem(this.userTokenName);
+
     const data = await response.json();
 
-    if (data.userToken === "") {
-      localStorage.removeItem(this.userTokenName);
-      return false;
-    }
-    localStorage.setItem(this.userTokenName, data.userToken);
-    return true;
+    return data.userToken;
   }
 
   /**
    * This method registers a user to the database
    */
-  static async registerUser(username: string, password: string): Promise<boolean> {
+  static async registerUser(username: string, password: string, email: string): Promise<boolean> {
     const response = await fetch('/api/users/register', {
       method: 'POST',
       headers: {
@@ -122,14 +155,31 @@ export class FrontEndController {
       body: JSON.stringify({
         username: username,
         password: password,
+        email: email,
       })
     });
 
     const data = await response.json();
-    if (data.wasSuccessful) {
-      await FrontEndController.loginUser(username, password);
-    }
 
+    return data.wasSuccessful;
+  }
+
+  /**
+   * This method activated a user
+   */
+  static async activateUser(username: string, activationCode: string): Promise<boolean> {
+    const response = await fetch('/api/users/activate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username,
+        activationCode: activationCode,
+      })
+    });
+
+    const data = await response.json();
     return data.wasSuccessful;
   }
 
@@ -154,6 +204,49 @@ export class FrontEndController {
   }
 
   /**
+   * This method updates a user profile in the database
+   * username, first and last name
+   */
+  static async updateUserProfile(userToken: string, newUser: IUser): Promise<boolean> {
+    const response = await fetch('/api/users/update_user_profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        newUser: newUser
+      })
+    });
+
+    await this.renewToken();
+
+    const data = await response.json();
+
+    return data.wasSuccessful;
+  }
+
+  /**
+   * This method adds a new email to the user (needs to be activated afterwards)
+   */
+  static async updateUserEmail(userToken: string, newEmail: string): Promise<boolean> {
+    const response = await fetch('/api/users/update_user_email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        newEmail: newEmail
+      })
+    });
+
+    const data = await response.json();
+
+    return data.wasSuccessful;
+  }
+
+  /**
    * This method checks whether the given token has a valid signature and user
    */
   static async verifyUserByToken(token: string): Promise<boolean> {
@@ -168,7 +261,28 @@ export class FrontEndController {
     });
 
     const data = await response.json();
+
     return data.wasSuccessful;
+  }
+
+  /**
+   * This method renews the current user token and updates the username inside.
+   */
+  static async renewToken(): Promise<void> {
+    const response = await fetch('/api/users/renew_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: this.getUserToken(),
+      })
+    });
+
+    const data = await response.json();
+
+    localStorage.removeItem(this.userTokenName);
+    localStorage.setItem(this.userTokenName, data.userToken);
   }
 
   /**

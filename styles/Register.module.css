@@ -45,7 +45,6 @@
 }
 
 .flexBox {
-  /* display: flex; */
   width: 100%;
 }
 
@@ -93,10 +92,14 @@
   to { opacity: 1; }
 }
 
-/* Small devices (portrait tablets and large phones, 600px and up) */
+/* Small devices (portrait tablets and large phones, 350px and up) */
 @media only screen and (min-width: 350px) {
   .flexBox {
     display: flex;
+  }
+
+  .showReq {
+    text-align: right;
   }
 }
 
@@ -104,19 +107,6 @@
 @media only screen and (min-width: 768px) {
   .fieldDiv, .requirementsDiv {
     width: 60vw;
-  }
-
-  .flexBox {
-    display: flex;
-  }
-
-  .loginInstead {
-    align-self: flex-start;
-  }
-
-  .showReq {
-    align-self: flex-end;
-    margin-left: auto;
   }
 }
 

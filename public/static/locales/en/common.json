@@ -1,10 +1,15 @@
 {
   "Home": "Home",
+  "SocialMedia": "Social Media",
+  "Contact": "Contact",
   "Impressum": "Impressum",
+  "Account": "Account",
   "Login": "Login",
   "Logout": "Logout",
+  "Activate": "Activate profile/e-mail",
   "Profile": "Profile",
   "Register": "Register",
+  "ChangePassword": "Change password",
   "Studies": "Studies",
   "Projects": "Projects",
   "Summaries": "Summaries",
@@ -12,5 +17,9 @@
   "Timer": "Timer",
   "LoadingPage": "Loading page ...",
   "BackTo": "Back to",
-  "NotLoadingErrorText": "If the page is not loading, please contact "
+  "NotLoadingErrorText": "If the page is not loading, please contact ",
+  "Success": "Success",
+  "Error": "Error",
+  "Confirm": "Confirm",
+  "Cancel": "Cancel"
 }

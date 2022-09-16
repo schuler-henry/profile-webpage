@@ -1,10 +1,15 @@
 {
   "Home": "Start",
+  "SocialMedia": "Soziale Medien",
+  "Contact": "Kontakt",
   "Impressum": "Impressum",
+  "Account": "Konto",
   "Login": "Einloggen",
   "Logout": "Ausloggen",
+  "Activate": "Profil/E-Mail aktivieren",
   "Profile": "Profil",
   "Register": "Registrieren",
+  "ChangePassword": "Passwort ändern",
   "Studies": "Studium",
   "Projects": "Projekte",
   "Summaries": "Zusammenfassungen",
@@ -12,5 +17,9 @@
   "Timer": "Timer",
   "LoadingPage": "Lade Seite ...",
   "BackTo": "Zurück zu",
-  "NotLoadingErrorText": "Wenn die Seite nicht geladen wird, wenden Sie sich bitte an "
+  "NotLoadingErrorText": "Wenn die Seite nicht geladen wird, wenden Sie sich bitte an ",
+  "Success": "Erfolg",
+  "Error": "Fehler",
+  "Confirm": "Bestätigen",
+  "Cancel": "Abbrechen"
 }

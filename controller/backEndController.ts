@@ -3,7 +3,10 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs'
 import path from 'path'
 import * as bcrypt from 'bcrypt';
-import { ITimer, IUser } from '../interfaces';
+import { ITimer, IUser } from '../interfaces/database';
+import { randomStringGenerator } from '../shared/randomStringGenerator';
+import { SMTPClient } from 'emailjs';
+import { isEmailValid } from '../pages/api/users/requirements';
 
 /**
  * Backend Controller of PersonalWebPage
@@ -25,6 +28,14 @@ export class BackEndController {
 
   //#region Token Methods
 
+  createToken(id: number, username: string): string {
+    const token = jwt.sign({
+      id: id,
+      username: username,
+    }, BackEndController.KEY, { expiresIn: '1 day' });
+    return token
+  }
+
   /**
    * This method validates a given token with the current key.
    */
@@ -42,11 +53,27 @@ export class BackEndController {
    */
   async isUserTokenValid(token: string): Promise<boolean> {
     if (this.isTokenValid(token)) {
-      if (await this.handleUserAlreadyExists(this.getUsernameFromToken(token))) {
+      const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({ userID: this.getIdFromToken(token) }))[0];
+      if (user !== undefined) {
         return true;
       }
     }
     return false;
+  }
+
+  /**
+   * This method extracts the username from a token
+   */
+   getIdFromToken(token: string): number {
+    try {
+      const data = jwt.decode(token);
+      if (typeof data === "object" && data !== null && data.id !== undefined) {
+        return data.id
+      }
+    } catch (error) {
+
+    }
+    return -1;
   }
 
   /**
@@ -60,6 +87,18 @@ export class BackEndController {
       }
     } catch (error) {
 
+    }
+    return "";
+  }
+
+  async handleRenewToken(token: string): Promise<string> {
+    if (this.isTokenValid(token)) {
+      const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({ userID: this.getIdFromToken(token) }))[0];
+      if (user === undefined) {
+        return "";
+      }
+
+      return this.createToken(user.id, user.username);
     }
     return "";
   }
@@ -114,7 +153,7 @@ export class BackEndController {
   async handleGetUserFromToken(token: string): Promise<IUser> {
     if (this.isTokenValid(token)) {
       const username = this.getUsernameFromToken(token);
-      return this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, username))[0];
+      return this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: username}))[0];
     }
     return null;
   }
@@ -127,7 +166,7 @@ export class BackEndController {
       return false;
     }
 
-    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, this.getUsernameFromToken(token)))[0];
+    let user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: this.getUsernameFromToken(token)}))[0];
 
     if (user === undefined) {
       return false;
@@ -135,7 +174,8 @@ export class BackEndController {
 
     if (this.isPasswordValid(newPassword) && await this.checkPassword(oldPassword, user.password)) {
       const newHashedPassword = await this.hashPassword(newPassword);
-      return this.databaseModel.evaluateSuccess(await this.databaseModel.changeUserPassword(newHashedPassword, user.id));
+      user.password = newHashedPassword;
+      return this.databaseModel.evaluateSuccess(await this.databaseModel.updateUser(user))
     }
 
     return false;
@@ -151,7 +191,7 @@ export class BackEndController {
 
     const userTokenName = this.getUsernameFromToken(userToken);
 
-    const targetUser = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, userTokenName))[0];
+    const targetUser = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: userTokenName}))[0];
 
     if (targetUser === undefined) {
       return false;
@@ -164,17 +204,18 @@ export class BackEndController {
    * This method logs in a user if the given credentials are valid.
    */
   async handleLoginUser(username: string, password: string): Promise<string> {
-    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable(undefined, username))[0];
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: username}))[0];
 
     if (user === undefined) {
       return "";
     }
 
+    if (!user.active) {
+      return "inactive";
+    }
+
     if (await this.checkPassword(password, user.password)) {
-      const token = jwt.sign({
-        username: username,
-      }, BackEndController.KEY, { expiresIn: '1 day' });
-      return token;
+      return this.createToken(user.id, user.username);
     }
     return "";
   }
@@ -182,24 +223,216 @@ export class BackEndController {
   /**
    * API function to register a user
    */
-  async handleRegisterUser(username: string, password: string): Promise<boolean> {
+  async handleRegisterUser(username: string, password: string, email: string): Promise<boolean> {
+    email = email?.toLowerCase();
     if (!await this.handleUserAlreadyExists(username)) {
       const vUsernameValid = this.isUsernameValid(username);
       const vPasswordValid = this.isPasswordValid(password);
-      if (vUsernameValid && vPasswordValid) {
+      const vEmailValid = isEmailValid(email);
+      if (vUsernameValid && vPasswordValid && vEmailValid) {
         const hashedPassword = await this.hashPassword(password);
+        const activationCode = randomStringGenerator(10);
 
-        return this.databaseModel.evaluateSuccess(await this.databaseModel.addUser(username, hashedPassword));
+        if (this.databaseModel.evaluateSuccess(await this.databaseModel.addUser(username, hashedPassword, email, activationCode))) {
+          // send email with activation code
+          const emailClient = new SMTPClient({
+            user: process.env.MAIL,
+            password: process.env.MAIL_PASSWORD,
+            host: process.env.MAIL_HOST,
+            ssl: true
+          })
+  
+          try {
+            await emailClient.sendAsync(
+              {
+                from: process.env.NOREPLY,
+                to: email,
+                subject: "Signup | Verification",
+                text: `Thanks for signing up!
+
+Your account has been created, you can login with your credentials after you have activated your account by pressing the url below.
+
+---------------------------------------------
+username: ${username}
+---------------------------------------------
+              
+Please click this link to activate your account:
+https://henryschuler.de/activate?username=${username}&activationCode=${activationCode}
+
+
+---------------------------------------------
+
+If the link does not work, visit https://henryschuler.de/activate and enter the following information:
+
+username: ${username}
+code: ${activationCode}
+
+
+Thanks,
+Henry Schuler`,
+// TODO: Display E-Mail as styled HTML
+// attachment: [
+//   { data: '<html>i <i>hope</i> this works!</html>', alternative: true },
+//   { path: 'path/to/file.zip', type: 'application/zip', name: 'renamed.zip' },
+// ],
+              }
+            )
+          } catch (e) {
+            // TODO: Handle failed email sending, i.e. delete user from DB
+            console.log("Email send failed !!!!")
+            console.log(e)
+          }
+          return true
+        }
       }
     }
     return false;
+  }
+
+  async handleActivateUser(username: string, activationCode: string): Promise<boolean> {
+    if (username === "" || activationCode === "" || username === undefined || activationCode === undefined) {
+      return false;
+    }
+    
+    let user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: username, activationCode: activationCode}))[0];
+
+    if (user === undefined || user.unconfirmedEmail === "" || user.unconfirmedEmail === null) {
+      console.log("User is undefined or unconfirmed email is empty")
+      return false;
+    }
+
+    // user with correct activationCode and inactive found -> activate user
+
+    user.activationCode = null;
+    user.active = true;
+    user.email = user.unconfirmedEmail;
+    user.unconfirmedEmail = null;
+    return this.databaseModel.evaluateSuccess(await this.databaseModel.updateUser(user));
+  }
+
+  /**
+   * This method updates a user in the database
+   * username, first and last name
+   */
+  async handleUpdateProfile(userToken: string, newUser: IUser): Promise<boolean> {
+    if (!this.isTokenValid(userToken)) {
+      return false;
+    }
+
+    let user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({userID: this.getIdFromToken(userToken)}))[0];
+
+    if (user === undefined) {
+      return false;
+    }
+
+    // check if all new values are valid
+    if (user.username !== newUser.username) {
+      // check username requirements
+      if (!this.isUsernameValid(newUser.username) || await this.handleUserAlreadyExists(newUser.username)) {
+        return false;
+      }
+      user.username = newUser.username;
+    }
+    if (user.firstName !== newUser.firstName) {
+      user.firstName = newUser.firstName.replace(/ /g, "");
+    }
+    if (user.lastName !== newUser.lastName) {
+      user.lastName = newUser.lastName.replace(/  /g, " ").trim();
+    }
+
+    return this.databaseModel.evaluateSuccess(await this.databaseModel.updateUser(user));
+  }
+
+  /**
+   * This method adds a new email to the user (unconfirmedEmail), generates a activation code and sends an email to the new email address
+   */
+  async handleUpdateEmail(userToken: string, newEmail: string): Promise<boolean> {
+    if (!this.isTokenValid(userToken)) {
+      return false;
+    }
+
+    let user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({userID: this.getIdFromToken(userToken)}))[0];
+
+    if (user === undefined) {
+      return false;
+    }
+
+    if (!isEmailValid(newEmail) || await this.handleEmailAlreadyExists(newEmail)) {
+      console.log("email invalid")
+      return false;
+    }
+
+    // valid email that does not exist already
+    user.unconfirmedEmail = newEmail;
+    user.activationCode = randomStringGenerator(10);
+
+    if (this.databaseModel.evaluateSuccess(await this.databaseModel.updateUser(user))) {
+      // send email with activation code
+      const emailClient = new SMTPClient({
+        user: process.env.MAIL,
+        password: process.env.MAIL_PASSWORD,
+        host: process.env.MAIL_HOST,
+        ssl: true
+      })
+
+      try {
+        await emailClient.sendAsync(
+          {
+            from: process.env.NOREPLY,
+            to: newEmail,
+            subject: "Confirm your new email address",
+            text: `You have requested to change your email address to ${newEmail}.
+
+The request has been processed. By confirming your new email address, the changes will be applied.
+
+---------------------------------------------
+username: ${user.username}
+---------------------------------------------
+          
+Please follow this link to confirm your new email address:
+https://henryschuler.de/activate?username=${user.username}&activationCode=${user.activationCode}
+
+
+---------------------------------------------
+
+If the link does not work, visit https://henryschuler.de/activate and enter the following information:
+
+username: ${user.username}
+code: ${user.activationCode}
+
+
+Thanks,
+Henry Schuler`,
+// TODO: Display E-Mail as styled HTML
+// attachment: [
+//   { data: '<html>i <i>hope</i> this works!</html>', alternative: true },
+//   { path: 'path/to/file.zip', type: 'application/zip', name: 'renamed.zip' },
+// ],
+          }
+        )
+      } catch (e) {
+        // TODO: Handle failed email sending, i.e. delete changes from DB
+        console.log("Email send failed !!!!")
+        console.log(e)
+      }
+      return true
+    }
+    return false
+  }
+
+  /**
+   * This method checks whether a email already exists in the DB.
+   */
+  async handleEmailAlreadyExists(email: string): Promise<boolean> {
+    email = email?.toLowerCase();
+    return this.databaseModel.evaluateSuccess(await this.databaseModel.selectUserTable({email: email})) || this.databaseModel.evaluateSuccess(await this.databaseModel.selectUserTable({unconfirmedEmail: email}));
   }
 
   /**
    * This method checks whether a user already exists in the DB.
    */
   async handleUserAlreadyExists(username: string): Promise<boolean> {
-    return this.databaseModel.evaluateSuccess(await this.databaseModel.selectUserTable(undefined, username));
+    return this.databaseModel.evaluateSuccess(await this.databaseModel.selectUserTable({username: username}));
   }
 
   /**
