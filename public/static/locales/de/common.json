@@ -9,6 +9,7 @@
   "Activate": "Profil aktivieren",
   "Profile": "Profil",
   "Register": "Registrieren",
+  "ChangePassword": "Passwort ändern",
   "Studies": "Studium",
   "Projects": "Projekte",
   "Summaries": "Zusammenfassungen",
@@ -18,5 +19,7 @@
   "BackTo": "Zurück zu",
   "NotLoadingErrorText": "Wenn die Seite nicht geladen wird, wenden Sie sich bitte an ",
   "Success": "Erfolg",
-  "Error": "Fehler"
+  "Error": "Fehler",
+  "Confirm": "Bestätigen",
+  "Cancel": "Abbrechen"
 }

@@ -14,7 +14,9 @@
   padding: 6px 8px;
   text-align: center;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
   font-size: 14px;
   cursor: pointer;
   height: fit-content;
@@ -42,8 +44,11 @@
 
 .arrow {
   padding-top: 1px;
-  align-items: center;
-  align-content: center;
+  display: flex;
+  justify-content: center;
+  height: 14px;
+  width: 14px;
+  font-size: 14px;
 }
 
 .optionList{

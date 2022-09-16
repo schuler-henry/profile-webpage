@@ -202,7 +202,7 @@ class Register extends Component<RegisterProps, RegisterState> {
                   <h1>{this.props.t('common:Register')}</h1>
                   <input 
                     type="email"
-                    placeholder={"E-Mail..."}
+                    placeholder={this.props.t('register:Email') + "..."}
                     id='emailInput'
                     autoFocus
                     onChange={async (e) => {

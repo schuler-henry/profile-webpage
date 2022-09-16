@@ -17,6 +17,7 @@ export interface DropdownProps {
   onChange: (event: FormEvent<HTMLDivElement>, option?: DropdownOption<any>, index?: number) => void;
   onRenderOption: (option: DropdownOption) => JSX.Element;
   onRenderCaretDown: () => JSX.Element;
+  width?: string;
 }
 
 export class Dropdown extends Component<DropdownProps, DropdownState> {
@@ -66,9 +67,11 @@ export class Dropdown extends Component<DropdownProps, DropdownState> {
     }
 
     return (
-      <div className={styles.dropdownContainer} ref={this.DROPDOWN}>
+      <div className={styles.dropdownContainer} style={{width: this.props.width}}>
         <div 
           className={styles.dropdown}
+          style={{width: this.props.width}}
+          ref={this.DROPDOWN}
           onClick={() => {
             this.setState({showDropDown: !this.state.showDropDown})
           }}>

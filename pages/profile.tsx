@@ -10,11 +10,55 @@ import { I18n, withTranslation, WithTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
+import { Dropdown, DropdownOption } from '../components/Dropdown/Dropdown'
+import { Icon } from '@fluentui/react'
+import { Button } from '../components/Button/Button'
+import { ConfirmPopUp } from '../components/ConfirmPopUp/ConfirmPopUp'
+
+const onRenderOption = (option: DropdownOption): JSX.Element => {
+  return(
+    <div style={{ width: "100%", display: "flex"}}>
+      {
+        option.data?.icon &&
+        <span style={{ display: "flex", alignItems: "center" }}>
+          <Icon style={{ display: "flex", marginRight: '8px', fontSize: "15px", height: "15px" }} iconName={option.data.icon} />
+        </span>
+      }
+      <span>
+        {option.text}
+      </span>
+    </div>
+  )
+}
+
+const onRenderCaretDown = (): JSX.Element => {
+  return(
+    <Icon iconName="ChevronDown" style={{ display: "flex" }} />
+  )
+}
 
 export interface ProfileState {
   isLoggedIn: boolean | undefined;
   currentToken: string;
   currentUser: IUser | undefined;
+  changedUser: IUser | undefined;
+  selectedMenu: string;
+  fetchData: boolean;
+  submitProfile: boolean;
+  submitEmail: boolean;
+  submitPassword: boolean;
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+  usernameError: boolean;
+  emailError: boolean;
+  oldPasswordError: boolean;
+  newPasswordError: boolean;
+  newPasswordMatchError: boolean;
+  confirmPasswordError: boolean;
+  success: boolean;
+  displaySuccess: boolean;
+  changedEmail: boolean;
 }
 
 export interface ProfileProps extends WithTranslation, WithRouterProps {
@@ -40,13 +84,39 @@ class Profile extends Component<ProfileProps, ProfileState> {
       isLoggedIn: undefined,
       currentToken: "",
       currentUser: undefined,
+      changedUser: undefined,
+      selectedMenu: "profile",
+      fetchData: false,
+      submitProfile: false,
+      submitEmail: false,
+      submitPassword: false,
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+      usernameError: false,
+      emailError: false,
+      oldPasswordError: false,
+      newPasswordError: false,
+      newPasswordMatchError: false,
+      confirmPasswordError: false,
+      success: false,
+      displaySuccess: false,
+      changedEmail: false,
     }
   }
 
   async componentDidMount() {
     this.updateLoginState();
     window.addEventListener('storage', this.storageTokenListener)
-    this.setState({ currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()) });
+    const user = await FrontEndController.getUserFromToken(FrontEndController.getUserToken());
+    this.setState({ currentUser: user, changedUser: user });
+  }
+
+  componentDidUpdate(prevProps: Readonly<ProfileProps>, prevState: Readonly<ProfileState>, snapshot?: any): void {
+    const { menu } = this.props.router.query;
+    if (menu !== this.state.selectedMenu && this.options.find(element => element.key === menu?.toString())) {
+      this.setState({ selectedMenu: menu.toString() });
+    }
   }
 
   componentWillUnmount() {
@@ -74,6 +144,19 @@ class Profile extends Component<ProfileProps, ProfileState> {
     } else {
       const { router } = this.props
       router.push("/login")
+    }
+  }
+
+  private options: DropdownOption[] = [
+    {key: "profile", text: this.props.t('common:Profile'), data: {icon: "Contact"}},
+    {key: "email", text: this.props.t('profile:Email'), data: {icon: "Mail"}},
+    {key: "password", text: this.props.t('profile:Password'), data: {icon: "Lock"}},
+  ]
+
+  private onChange = (event: React.FormEvent<HTMLDivElement>, item: DropdownOption): void => {
+    if (this.state.selectedMenu !== item.key) {
+      this.props.router.push({ pathname: "/profile", query: {menu: item.key} })
+      this.setState({ selectedMenu: item.key });
     }
   }
 
@@ -123,7 +206,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
 
             <header>
               <Header 
-                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
+                username={this.state.currentUser?.username} 
                 hideLogin={this.state.isLoggedIn} 
                 hideLogout={!this.state.isLoggedIn} 
                 path={router.pathname} 
@@ -135,21 +218,277 @@ class Profile extends Component<ProfileProps, ProfileState> {
               <main>
                 <div className={styles.content}>
                   <h1>{this.props.t('profile:User')}: {FrontEndController.getUsernameFromToken(FrontEndController.getUserToken())}</h1>
-                  <h2>{this.props.t('profile:Information')}</h2>
-                  <table>
-                    <thead>
-                      <tr>
-                        <td>ID:</td>
-                        <td>{this.state.currentUser?.id || "unavailable"}</td>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>{this.props.t('profile:AccessLevel')}:</td>
-                        <td>{getAccessString(this.state.currentUser?.accessLevel)}</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  
+                  <Dropdown 
+                    options={this.options} 
+                    selectedKey={this.state.selectedMenu}
+                    onChange={this.onChange} 
+                    onRenderOption={onRenderOption} 
+                    onRenderCaretDown={onRenderCaretDown}
+                    width={"100%"}
+                    />
+                  
+                  {
+                    this.state.selectedMenu === "profile" &&
+                    <div>
+                      <div className={styles.inputWrapper}>
+                        <h1>{this.props.t('profile:AccessLevel')}</h1>
+                        <input 
+                          type="text"
+                          className={styles.input}
+                          value={getAccessString(this.state.changedUser?.accessLevel) || ""}
+                          readOnly={true}
+                        />
+                      </div>
+                      <div className={styles.inputWrapper}>
+                        <h1>{this.props.t('profile:Username')}</h1>
+                        <input 
+                          type="text"
+                          className={`${styles.input} ${this.state.usernameError && styles.inputError} ${this.state.currentUser?.username !== this.state.changedUser?.username && styles.inputChanged}`}
+                          placeholder={this.state.currentUser?.username}
+                          value={this.state.changedUser?.username || ""}
+                          onChange={async (event) => {
+                            this.setState({ changedUser: { ...this.state.changedUser, username: event.target.value } })
+                            this.setState({ usernameError: (await FrontEndController.doesUserExist(event.target.value) && event.target.value !== this.state.currentUser?.username) || !await FrontEndController.isUsernameValid(event.target.value) })
+                          }}
+                          readOnly={this.state.changedUser === undefined || this.state.submitProfile || this.state.displaySuccess}
+                        />
+                        {
+                          this.state.usernameError &&
+                            <p className={styles.errorText}>
+                              {this.props.t('profile:UsernameTaken')}
+                            </p>
+                        }
+                      </div>
+                      <div className={styles.inputWrapper}>
+                        <h1>{this.props.t('profile:FirstName')}</h1>
+                        <input 
+                          type="text"
+                          className={`${styles.input} ${this.state.currentUser?.firstName !== this.state.changedUser?.firstName && styles.inputChanged}`}
+                          placeholder={this.state.currentUser?.firstName}
+                          value={this.state.changedUser?.firstName || ""}
+                          onChange={(event) => {
+                            this.setState({ changedUser: { ...this.state.changedUser, firstName: event.target.value.replaceAll("  ", " ").trimStart() } })
+                          }}
+                          readOnly={this.state.changedUser === undefined || this.state.submitProfile || this.state.displaySuccess}
+                        />
+                      </div>
+                      <div className={styles.inputWrapper}>
+                        <h1>{this.props.t('profile:LastName')}</h1>
+                        <input 
+                          type="text"
+                          className={`${styles.input} ${this.state.currentUser?.lastName !== this.state.changedUser?.lastName && styles.inputChanged}`}
+                          placeholder={this.state.currentUser?.lastName}
+                          value={this.state.changedUser?.lastName || ""}
+                          onChange={(event) => {
+                            this.setState({ changedUser: { ...this.state.changedUser, lastName: event.target.value.replaceAll(" ", "") } })
+                          }}
+                          readOnly={this.state.changedUser === undefined || this.state.submitProfile || this.state.displaySuccess}
+                        />
+                      </div>
+                      <div className={styles.submitButton}>
+                        <Button
+                          onClick={() => {
+                            this.setState({ submitProfile: true })
+                          }}
+                          disabled={this.state.submitProfile || this.state.displaySuccess || this.state.usernameError || (this.state.currentUser?.username === this.state.changedUser?.username && this.state.currentUser?.firstName === this.state.changedUser?.firstName && this.state.currentUser?.lastName === this.state.changedUser?.lastName)}  
+                        >
+                          {this.props.t('profile:UpdateProfile')}
+                        </Button>
+                      </div>
+                      {
+                        this.state.submitProfile &&
+                          <ConfirmPopUp 
+                            title={this.props.t('profile:SubmitProfileChanges')} 
+                            onConfirm={this.state.fetchData ? undefined : async () => {
+                              this.setState({ fetchData: true })
+                              this.setState({ success: await FrontEndController.updateUserProfile(FrontEndController.getUserToken(), this.state.changedUser), currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()), fetchData: false, displaySuccess: true, submitProfile: false })
+                            }}
+                            onCancel={this.state.fetchData ? undefined : () => {
+                              this.setState({ submitProfile: false })
+                            }}
+                            warning={this.props.t('profile:UndoWarning')}
+                            sync={this.state.fetchData}
+                          >
+                            <div className={styles.confirmWrapper}>
+                              {
+                                this.state.currentUser?.username !== this.state.changedUser?.username &&
+                                <div>
+                                  <h1>{this.props.t('profile:Username')}</h1>
+                                  <p>{this.state.currentUser?.username} -&gt; {this.state.changedUser?.username}</p>
+                                </div>
+                              }
+                              {
+                                (this.state.currentUser?.firstName !== this.state.changedUser?.firstName || this.state.currentUser?.lastName !== this.state.changedUser?.lastName) &&
+                                <div>
+                                  <h1>{this.props.t('profile:Name')}</h1>
+                                  <p>{this.state.currentUser?.firstName} {this.state.currentUser?.lastName} -&gt; {this.state.changedUser?.firstName} {this.state.changedUser?.lastName}</p>
+                                </div>
+                              }
+                            </div>
+                          </ConfirmPopUp>
+                      }
+                    </div>
+                  }
+
+                  {
+                    this.state.selectedMenu === "email" &&
+                    <div>
+                      <div className={styles.inputWrapper}>
+                        <h1>{this.props.t('profile:Email')}</h1>
+                        <input 
+                          type="email"
+                          className={`${styles.input} ${this.state.emailError && styles.inputError} ${this.state.currentUser?.email !== this.state.changedUser?.email && styles.inputChanged}`}
+                          placeholder={this.state.currentUser?.email}
+                          value={this.state.changedUser?.email || ""}
+                          onChange={async (event) => {
+                            this.setState({ changedUser: { ...this.state.changedUser, email: event.target.value } })
+                            this.setState({ emailError: !await FrontEndController.isEmailValid(event.target.value) || (await FrontEndController.doesEmailExist(event.target.value) && event.target.value !== this.state.currentUser?.email) })
+                          }}
+                          readOnly={this.state.changedUser === undefined || this.state.submitEmail || this.state.displaySuccess}
+                        />
+                        {
+                          this.state.emailError &&
+                            <p className={styles.errorText}>
+                              {this.props.t('profile:EmailTaken')}
+                            </p>
+                        }
+                      </div>
+                      <div className={styles.submitButton}>
+                        <Button
+                          onClick={() => {
+                            this.setState({ submitEmail: true })
+                          }}
+                          disabled={this.state.submitEmail || this.state.displaySuccess || this.state.emailError || this.state.currentUser?.email === this.state.changedUser?.email}
+                        >
+                          {this.props.t('profile:UpdateEmail')}
+                        </Button>
+                      </div>
+                      {
+                        this.state.submitEmail &&
+                        <ConfirmPopUp
+                          title={this.props.t('profile:SubmitEmailChanges')}
+                          onConfirm={this.state.fetchData ? undefined : async () => {
+                            this.setState({ fetchData: true })
+                            this.setState({ success: await FrontEndController.updateUserEmail(FrontEndController.getUserToken(), this.state.changedUser?.email), currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()), fetchData: false, changedEmail: true, displaySuccess: true, submitEmail: false })
+                          }}
+                          onCancel={this.state.fetchData ? undefined : () => {
+                            this.setState({ submitEmail: false })
+                          }}
+                          sync={this.state.fetchData}
+                        >
+                          <div className={styles.confirmWrapper}>
+                            <div>
+                              <h1>{this.props.t('profile:Email')}</h1>
+                              <p>{this.state.currentUser?.email} -&gt; {this.state.changedUser?.email}</p>
+                            </div>
+                          </div>
+                        </ConfirmPopUp>
+                      }
+                    </div>
+                  }
+
+                  {
+                    this.state.selectedMenu === "password" &&
+                    <div>
+                      <div className={styles.inputWrapper}>
+                        <h1>{this.props.t('profile:OldPassword')}</h1>
+                        <input 
+                          type="password"
+                          className={`${styles.input} ${this.state.oldPasswordError && styles.inputError}`}
+                          value={this.state.oldPassword}
+                          onChange={async (event) => {
+                            this.setState({ oldPassword: event.target.value, newPasswordMatchError: event.target.value !== "" && event.target.value === this.state.newPassword, oldPasswordError: event.target.value !== "" && !await FrontEndController.isPasswordValid(event.target.value) })
+                          }}
+                          readOnly={this.state.changedUser === undefined || this.state.submitPassword || this.state.displaySuccess}
+                        />
+                        {
+                          this.state.oldPasswordError &&
+                            <p className={styles.errorText}>
+                              {this.props.t('profile:PasswordInvalid')}
+                            </p>
+                        }
+                      </div>
+                      <div className={styles.inputWrapper}>
+                        <h1>{this.props.t('profile:NewPassword')}</h1>
+                        <input 
+                          type="password"
+                          className={`${styles.input} ${(this.state.newPasswordError || this.state.newPasswordMatchError) && styles.inputError}`}
+                          value={this.state.newPassword}
+                          onChange={async (event) => {
+                            this.setState({ newPassword: event.target.value, newPasswordMatchError: event.target.value !== "" && event.target.value === this.state.oldPassword, confirmPasswordError: event.target.value !== "" && event.target.value !== this.state.confirmPassword, newPasswordError: event.target.value !== "" && !await FrontEndController.isPasswordValid(event.target.value) })
+                          }}
+                          readOnly={this.state.changedUser === undefined || this.state.submitPassword || this.state.displaySuccess}
+                        />
+                        {
+                          this.state.newPasswordError &&
+                            <p className={styles.errorText}>
+                              {this.props.t('profile:PasswordInvalid')}
+                            </p>
+                        }
+                        {
+                          this.state.newPasswordMatchError &&
+                            <p className={styles.errorText}>
+                              {this.props.t('profile:PasswordOldNewMatch')}
+                            </p>
+                        }
+                      </div>
+                      <div className={styles.inputWrapper}>
+                        <h1>{this.props.t('profile:ConfirmPassword')}</h1>
+                        <input 
+                          type="password"
+                          className={`${styles.input} ${this.state.confirmPasswordError && styles.inputError}`}
+                          value={this.state.confirmPassword}
+                          onChange={(event) => {
+                            this.setState({ confirmPassword: event.target.value, confirmPasswordError: event.target.value !== "" && event.target.value !== this.state.newPassword })
+                          }}
+                          readOnly={this.state.changedUser === undefined || this.state.submitPassword || this.state.displaySuccess}
+                        />
+                        {
+                          this.state.confirmPasswordError &&
+                            <p className={styles.errorText}>
+                              {this.props.t('profile:PasswordMismatch')}
+                            </p>
+                        }
+                      </div>
+                      <div className={styles.submitButton}>
+                        <Button
+                          onClick={() => {
+                            this.setState({ submitPassword: true })
+                          }}
+                          disabled={this.state.submitPassword || this.state.displaySuccess || this.state.oldPasswordError || this.state.newPasswordError || this.state.confirmPasswordError || this.state.newPasswordMatchError || this.state.oldPassword === "" || this.state.newPassword === "" || this.state.confirmPassword === ""}
+                        >
+                          {this.props.t('profile:UpdatePassword')}
+                        </Button>
+                      </div>
+                      {
+                        this.state.submitPassword &&
+                        <ConfirmPopUp
+                          title={this.props.t('profile:SubmitPasswordChanges')}
+                          onConfirm={this.state.fetchData ? undefined : async () => {
+                            this.setState({ fetchData: true })
+                            this.setState({ success: await FrontEndController.changePassword(FrontEndController.getUserToken(), this.state.oldPassword, this.state.newPassword), currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()), fetchData: false, displaySuccess: true, submitPassword: false })
+                          }}
+                          onCancel={this.state.fetchData ? undefined : () => {
+                            this.setState({ submitPassword: false })
+                          }}
+                          sync={this.state.fetchData}
+                        />
+                      }
+                    </div>
+                  }
+
+                  {
+                    this.state.displaySuccess &&
+                      <ConfirmPopUp
+                        title={this.state.success ? this.props.t('common:Success') : this.props.t('common:Error')}
+                        onConfirm={() => {
+                          this.setState({ displaySuccess: false, changedEmail: false, oldPassword: "", newPassword: "", confirmPassword: "" })
+                        }}
+                        message={this.state.success && this.props.t('profile:UpdateUserSuccessMessage') + (this.state.changedEmail ? "\n\n" + this.props.t('profile:UpdateEmailSuccessMessage') : "")}
+                        warning={!this.state.success && this.props.t('profile:UpdateUserErrorMessage')}
+                      />
+                  }
                 </div>
               </main>
 
