@@ -1,6 +1,8 @@
 .navBar {
   /* background-color: inherit; */
   font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 21px;
   display: grid;
   grid-template-columns: 40pt auto 40pt;
   column-gap: 5vw;
@@ -126,7 +128,7 @@
   display: flex;
   white-space: nowrap;
   padding: 0 60px;
-  font-size: 1.5em;
+  font-size: 21px;
   align-items: center;
   justify-content: space-between;
   /* color: white; */

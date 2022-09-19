@@ -14,6 +14,7 @@ import { Dropdown, DropdownOption } from '../components/Dropdown/Dropdown'
 import { Icon } from '@fluentui/react'
 import { Button } from '../components/Button/Button'
 import { ConfirmPopUp } from '../components/ConfirmPopUp/ConfirmPopUp'
+import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
 
 const onRenderOption = (option: DropdownOption): JSX.Element => {
   return(
@@ -38,9 +39,6 @@ const onRenderCaretDown = (): JSX.Element => {
 }
 
 export interface ProfileState {
-  isLoggedIn: boolean | undefined;
-  currentToken: string;
-  currentUser: IUser | undefined;
   changedUser: IUser | undefined;
   selectedMenu: string;
   fetchData: boolean;
@@ -81,9 +79,6 @@ class Profile extends Component<ProfileProps, ProfileState> {
   constructor(props: ProfileProps) {
     super(props)
     this.state = {
-      isLoggedIn: undefined,
-      currentToken: "",
-      currentUser: undefined,
       changedUser: undefined,
       selectedMenu: "profile",
       fetchData: false,
@@ -105,11 +100,11 @@ class Profile extends Component<ProfileProps, ProfileState> {
     }
   }
 
+  static contextType = PWPAuthContext;
+
   async componentDidMount() {
-    this.updateLoginState();
-    window.addEventListener('storage', this.storageTokenListener)
     const user = await FrontEndController.getUserFromToken(FrontEndController.getUserToken());
-    this.setState({ currentUser: user, changedUser: user });
+    this.setState({ changedUser: user });
   }
 
   componentDidUpdate(prevProps: Readonly<ProfileProps>, prevState: Readonly<ProfileState>, snapshot?: any): void {
@@ -120,31 +115,6 @@ class Profile extends Component<ProfileProps, ProfileState> {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('storage', this.storageTokenListener)
-  }
-
-  /**
-   * This method checks whether the event contains a change in the user-token. If it does, it updates the login state.
-   * @param {any} event Event triggered by an EventListener
-   */
-  storageTokenListener = async (event: any) => {
-    if (event.key === FrontEndController.userTokenName) {
-      this.updateLoginState();
-    }
-  }
-
-  /**
-   * This method updates the isLoggedIn state and currentToken state according to the current token in local storage.
-   * @returns Nothing
-   */
-  async updateLoginState() {
-    let currentToken = FrontEndController.getUserToken();
-    if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({ isLoggedIn: true, currentToken: currentToken })
-    } else {
-      const { router } = this.props
-      router.push("/login")
-    }
   }
 
   private options: DropdownOption[] = [
@@ -166,7 +136,12 @@ class Profile extends Component<ProfileProps, ProfileState> {
    */
   render() {
     const { router } = this.props
-    if (this.state.isLoggedIn === undefined) {
+
+    if (this.context.user === null) {
+      router.push("/login", "/login", { shallow: true })
+    }
+
+    if (this.context.user === undefined) {
       return (
         <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
           <div>
@@ -206,9 +181,9 @@ class Profile extends Component<ProfileProps, ProfileState> {
 
             <header>
               <Header 
-                username={this.state.currentUser?.username} 
-                hideLogin={this.state.isLoggedIn} 
-                hideLogout={!this.state.isLoggedIn} 
+                username={this.context.user?.username} 
+                hideLogin={this.context.user} 
+                hideLogout={!this.context.user} 
                 path={router.pathname} 
                 router={this.props.router}
               />
@@ -244,12 +219,12 @@ class Profile extends Component<ProfileProps, ProfileState> {
                         <h1>{this.props.t('profile:Username')}</h1>
                         <input 
                           type="text"
-                          className={`${styles.input} ${this.state.usernameError && styles.inputError} ${this.state.currentUser?.username !== this.state.changedUser?.username && styles.inputChanged}`}
-                          placeholder={this.state.currentUser?.username}
+                          className={`${styles.input} ${this.state.usernameError && styles.inputError} ${this.context.user?.username !== this.state.changedUser?.username && styles.inputChanged}`}
+                          placeholder={this.context.user?.username}
                           value={this.state.changedUser?.username || ""}
                           onChange={async (event) => {
                             this.setState({ changedUser: { ...this.state.changedUser, username: event.target.value } })
-                            this.setState({ usernameError: (await FrontEndController.doesUserExist(event.target.value) && event.target.value !== this.state.currentUser?.username) || !await FrontEndController.isUsernameValid(event.target.value) })
+                            this.setState({ usernameError: (await FrontEndController.doesUserExist(event.target.value) && event.target.value !== this.context.user?.username) || !await FrontEndController.isUsernameValid(event.target.value) })
                           }}
                           readOnly={this.state.changedUser === undefined || this.state.submitProfile || this.state.displaySuccess}
                         />
@@ -264,8 +239,8 @@ class Profile extends Component<ProfileProps, ProfileState> {
                         <h1>{this.props.t('profile:FirstName')}</h1>
                         <input 
                           type="text"
-                          className={`${styles.input} ${this.state.currentUser?.firstName !== this.state.changedUser?.firstName && styles.inputChanged}`}
-                          placeholder={this.state.currentUser?.firstName}
+                          className={`${styles.input} ${this.context.user?.firstName !== this.state.changedUser?.firstName && styles.inputChanged}`}
+                          placeholder={this.context.user?.firstName}
                           value={this.state.changedUser?.firstName || ""}
                           onChange={(event) => {
                             this.setState({ changedUser: { ...this.state.changedUser, firstName: event.target.value.replaceAll("  ", " ").trimStart() } })
@@ -277,8 +252,8 @@ class Profile extends Component<ProfileProps, ProfileState> {
                         <h1>{this.props.t('profile:LastName')}</h1>
                         <input 
                           type="text"
-                          className={`${styles.input} ${this.state.currentUser?.lastName !== this.state.changedUser?.lastName && styles.inputChanged}`}
-                          placeholder={this.state.currentUser?.lastName}
+                          className={`${styles.input} ${this.context.user?.lastName !== this.state.changedUser?.lastName && styles.inputChanged}`}
+                          placeholder={this.context.user?.lastName}
                           value={this.state.changedUser?.lastName || ""}
                           onChange={(event) => {
                             this.setState({ changedUser: { ...this.state.changedUser, lastName: event.target.value.replaceAll(" ", "") } })
@@ -291,7 +266,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           onClick={() => {
                             this.setState({ submitProfile: true })
                           }}
-                          disabled={this.state.submitProfile || this.state.displaySuccess || this.state.usernameError || (this.state.currentUser?.username === this.state.changedUser?.username && this.state.currentUser?.firstName === this.state.changedUser?.firstName && this.state.currentUser?.lastName === this.state.changedUser?.lastName)}  
+                          disabled={this.state.submitProfile || this.state.displaySuccess || this.state.usernameError || (this.context.user?.username === this.state.changedUser?.username && this.context.user?.firstName === this.state.changedUser?.firstName && this.context.user?.lastName === this.state.changedUser?.lastName)}  
                         >
                           {this.props.t('profile:UpdateProfile')}
                         </Button>
@@ -302,7 +277,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                             title={this.props.t('profile:SubmitProfileChanges')} 
                             onConfirm={this.state.fetchData ? undefined : async () => {
                               this.setState({ fetchData: true })
-                              this.setState({ success: await FrontEndController.updateUserProfile(FrontEndController.getUserToken(), this.state.changedUser), currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()), fetchData: false, displaySuccess: true, submitProfile: false })
+                              this.setState({ success: await FrontEndController.updateUserProfile(FrontEndController.getUserToken(), this.state.changedUser), fetchData: false, displaySuccess: true, submitProfile: false })
                             }}
                             onCancel={this.state.fetchData ? undefined : () => {
                               this.setState({ submitProfile: false })
@@ -312,17 +287,17 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           >
                             <div className={styles.confirmWrapper}>
                               {
-                                this.state.currentUser?.username !== this.state.changedUser?.username &&
+                                this.context.user?.username !== this.state.changedUser?.username &&
                                 <div>
                                   <h1>{this.props.t('profile:Username')}</h1>
-                                  <p>{this.state.currentUser?.username} -&gt; {this.state.changedUser?.username}</p>
+                                  <p>{this.context.user?.username} -&gt; {this.state.changedUser?.username}</p>
                                 </div>
                               }
                               {
-                                (this.state.currentUser?.firstName !== this.state.changedUser?.firstName || this.state.currentUser?.lastName !== this.state.changedUser?.lastName) &&
+                                (this.context.user?.firstName !== this.state.changedUser?.firstName || this.context.user?.lastName !== this.state.changedUser?.lastName) &&
                                 <div>
                                   <h1>{this.props.t('profile:Name')}</h1>
-                                  <p>{this.state.currentUser?.firstName} {this.state.currentUser?.lastName} -&gt; {this.state.changedUser?.firstName} {this.state.changedUser?.lastName}</p>
+                                  <p>{this.context.user?.firstName} {this.context.user?.lastName} -&gt; {this.state.changedUser?.firstName} {this.state.changedUser?.lastName}</p>
                                 </div>
                               }
                             </div>
@@ -338,12 +313,12 @@ class Profile extends Component<ProfileProps, ProfileState> {
                         <h1>{this.props.t('profile:Email')}</h1>
                         <input 
                           type="email"
-                          className={`${styles.input} ${this.state.emailError && styles.inputError} ${this.state.currentUser?.email !== this.state.changedUser?.email && styles.inputChanged}`}
-                          placeholder={this.state.currentUser?.email}
+                          className={`${styles.input} ${this.state.emailError && styles.inputError} ${this.context.user?.email !== this.state.changedUser?.email && styles.inputChanged}`}
+                          placeholder={this.context.user?.email}
                           value={this.state.changedUser?.email || ""}
                           onChange={async (event) => {
                             this.setState({ changedUser: { ...this.state.changedUser, email: event.target.value } })
-                            this.setState({ emailError: !await FrontEndController.isEmailValid(event.target.value) || (await FrontEndController.doesEmailExist(event.target.value) && event.target.value !== this.state.currentUser?.email) })
+                            this.setState({ emailError: !await FrontEndController.isEmailValid(event.target.value) || (await FrontEndController.doesEmailExist(event.target.value) && event.target.value !== this.context.user?.email) })
                           }}
                           readOnly={this.state.changedUser === undefined || this.state.submitEmail || this.state.displaySuccess}
                         />
@@ -359,7 +334,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           onClick={() => {
                             this.setState({ submitEmail: true })
                           }}
-                          disabled={this.state.submitEmail || this.state.displaySuccess || this.state.emailError || this.state.currentUser?.email === this.state.changedUser?.email}
+                          disabled={this.state.submitEmail || this.state.displaySuccess || this.state.emailError || this.context.user?.email === this.state.changedUser?.email}
                         >
                           {this.props.t('profile:UpdateEmail')}
                         </Button>
@@ -370,7 +345,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           title={this.props.t('profile:SubmitEmailChanges')}
                           onConfirm={this.state.fetchData ? undefined : async () => {
                             this.setState({ fetchData: true })
-                            this.setState({ success: await FrontEndController.updateUserEmail(FrontEndController.getUserToken(), this.state.changedUser?.email), currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()), fetchData: false, changedEmail: true, displaySuccess: true, submitEmail: false })
+                            this.setState({ success: await FrontEndController.updateUserEmail(FrontEndController.getUserToken(), this.state.changedUser?.email), fetchData: false, changedEmail: true, displaySuccess: true, submitEmail: false })
                           }}
                           onCancel={this.state.fetchData ? undefined : () => {
                             this.setState({ submitEmail: false })
@@ -380,7 +355,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           <div className={styles.confirmWrapper}>
                             <div>
                               <h1>{this.props.t('profile:Email')}</h1>
-                              <p>{this.state.currentUser?.email} -&gt; {this.state.changedUser?.email}</p>
+                              <p>{this.context.user?.email} -&gt; {this.state.changedUser?.email}</p>
                             </div>
                           </div>
                         </ConfirmPopUp>
@@ -467,7 +442,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           title={this.props.t('profile:SubmitPasswordChanges')}
                           onConfirm={this.state.fetchData ? undefined : async () => {
                             this.setState({ fetchData: true })
-                            this.setState({ success: await FrontEndController.changePassword(FrontEndController.getUserToken(), this.state.oldPassword, this.state.newPassword), currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()), fetchData: false, displaySuccess: true, submitPassword: false })
+                            this.setState({ success: await FrontEndController.changePassword(FrontEndController.getUserToken(), this.state.oldPassword, this.state.newPassword), fetchData: false, displaySuccess: true, submitPassword: false })
                           }}
                           onCancel={this.state.fetchData ? undefined : () => {
                             this.setState({ submitPassword: false })
@@ -493,7 +468,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
               </main>
 
               <footer>
-                <Footer isLoggedIn={this.state.isLoggedIn} />
+                <Footer isLoggedIn={this.context.user} />
               </footer>
             </div>
           </div>

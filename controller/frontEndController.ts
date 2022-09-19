@@ -13,6 +13,12 @@ export class FrontEndController {
 
   //#region User Methods
 
+  static updateLoginStatus(): void {
+    var loginEvent = document.createEvent('StorageEvent');
+    loginEvent.initStorageEvent('storage', false, false, FrontEndController.userTokenName, null, null, null, localStorage);
+    dispatchEvent(loginEvent);
+  }
+
   /**
    * This method checks whether a given email exists in the database
    */
@@ -283,6 +289,7 @@ export class FrontEndController {
 
     localStorage.removeItem(this.userTokenName);
     localStorage.setItem(this.userTokenName, data.userToken);
+    this.updateLoginStatus();
   }
 
   /**
@@ -290,6 +297,7 @@ export class FrontEndController {
    */
   static logoutUser(): boolean {
     localStorage.removeItem(this.userTokenName);
+    this.updateLoginStatus();
     return true;
   }
 

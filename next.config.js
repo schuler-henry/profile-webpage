@@ -15,6 +15,7 @@ const nextConfig = {
   images: {
     domains: ['web-notes.me', 'dev-chat.me', 'henry-schuler.vercel.app', 'henryschuler.de', 'avatars.githubusercontent.com'],
   },
+  optimizeFonts: false,
 }
 
 module.exports = nextConfig

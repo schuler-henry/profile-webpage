@@ -142,7 +142,6 @@ export class Header extends Component<HeaderProps, HeaderState> {
           <Button
             onClick={() => {
               FrontEndController.logoutUser();
-              location.reload();
             }
             }>
             {LanguageContext.t('common:Logout')}

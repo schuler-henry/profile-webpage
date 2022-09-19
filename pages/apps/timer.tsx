@@ -12,10 +12,9 @@ import { PageLoadingScreen } from '../../components/PageLoadingScreen/PageLoadin
 import { PWPLanguageProvider } from '../../components/PWPLanguageProvider/PWPLanguageProvider'
 import { Timer as TimerComponent } from '../../components/Timer/Timer'
 import { Icon } from '@fluentui/react'
+import { PWPAuthContext } from '../../components/PWPAuthProvider/PWPAuthProvider'
 
 export interface TimerState {
-  isLoggedIn: boolean | undefined;
-  currentToken: string;
   timers: ITimer[];
   sync: boolean;
 }
@@ -40,45 +39,18 @@ class Timer extends Component<TimerProps, TimerState> {
   constructor(props: TimerProps) {
     super(props)
     this.state = {
-      isLoggedIn: undefined,
-      currentToken: "",
       timers: [],
       sync: false,
     }
   }
 
+  static contextType = PWPAuthContext;
+
   async componentDidMount() {
-    this.updateLoginState();
-    window.addEventListener('storage', this.storageTokenListener)
     this.setState({ timers: await FrontEndController.getTimers(FrontEndController.getUserToken()) });
   }
 
   componentWillUnmount() {
-    window.removeEventListener('storage', this.storageTokenListener)
-  }
-
-  /**
-   * This method checks whether the event contains a change in the user-token. If it does, it updates the login state.
-   * @param {any} event Event triggered by an EventListener
-   */
-  storageTokenListener = async (event: any) => {
-    if (event.key === FrontEndController.userTokenName) {
-      this.updateLoginState();
-    }
-  }
-
-  /**
-   * This method updates the isLoggedIn state and currentToken state according to the current token in local storage.
-   * @returns Nothing
-   */
-  async updateLoginState() {
-    let currentToken = FrontEndController.getUserToken();
-    if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({ isLoggedIn: true, currentToken: currentToken })
-    } else {
-      const { router } = this.props
-      router.push("/login")
-    }
   }
 
   async addTimer() {
@@ -102,7 +74,12 @@ class Timer extends Component<TimerProps, TimerState> {
    */
   render() {
     const { router } = this.props
-    if (this.state.isLoggedIn === undefined) {
+
+    if (this.context.user === null) {
+      router.push("/login", "/login", { shallow: true });
+    }
+
+    if (this.context.user === undefined) {
       return (
         <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
           <div>
@@ -130,9 +107,9 @@ class Timer extends Component<TimerProps, TimerState> {
 
             <header>
               <Header 
-                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-                hideLogin={this.state.isLoggedIn} 
-                hideLogout={!this.state.isLoggedIn} 
+                username={this.context.user?.username} 
+                hideLogin={this.context.user} 
+                hideLogout={!this.context.user} 
                 path={router.pathname} 
                 router={this.props.router}
               />
@@ -200,7 +177,7 @@ class Timer extends Component<TimerProps, TimerState> {
               </main>
 
               <footer>
-                <Footer isLoggedIn={this.state.isLoggedIn} />
+                <Footer isLoggedIn={this.context.user} />
               </footer>
             </div>
           </div>

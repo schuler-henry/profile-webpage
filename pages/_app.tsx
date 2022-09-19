@@ -10,9 +10,11 @@ import { FrontEndController } from '../controller/frontEndController';
 import { ColorTheme } from '../enums/colorTheme';
 import { useEffect, useState } from 'react';
 import { PWPThemeProvider } from '../components/PWPThemeProvider/PWPThemeProvider';
+import { PWPAuthProvider } from '../components/PWPAuthProvider/PWPAuthProvider';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [theme, setTheme] = useState(0);
+  const [user, setUser] = useState(undefined);
   const [executed, setExecuted] = useState(false);
   
   if (!executed) {
@@ -57,10 +59,37 @@ function MyApp({ Component, pageProps }: AppProps) {
     document.body.dataset.theme = theme === ColorTheme.lightTheme ? "light" : "dark";
   })
 
+  useEffect(() => {
+    const getUser = async () => {
+      setUser(await FrontEndController.getUserFromToken(FrontEndController.getUserToken()));
+      // console.log("SetUser", user)
+    }
+
+    /**
+     * This method checks whether the event contains a change in the user-token. If it does, it updates the login state.
+     */
+    const storageTokenListener = async (event: any) => {
+      // console.log("EVENT", event)
+      if (event.key === FrontEndController.userTokenName) {
+        setUser(await FrontEndController.getUserFromToken(FrontEndController.getUserToken()))
+      }
+    }
+
+    window.addEventListener('storage', storageTokenListener)
+
+    getUser();
+
+    return () => {
+      window.removeEventListener('storage', storageTokenListener)
+    }
+  }, [])
+
   return (
     <PWPThemeProvider theme={theme === ColorTheme.lightTheme ? "light" : "dark"}>
       <ThemeProvider theme={theme === ColorTheme.darkTheme ? darkTheme : lightTheme}>
-        <Component {...pageProps} />
+        <PWPAuthProvider user={user}>
+          <Component {...pageProps} />
+        </PWPAuthProvider>
       </ThemeProvider>
     </PWPThemeProvider>
   )
