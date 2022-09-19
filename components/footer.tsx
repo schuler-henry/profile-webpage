@@ -196,7 +196,6 @@ export class Footer extends Component<FooterProps, FooterState> {
                   <div hidden={!this.props.isLoggedIn}>
                     <p className="link" onClick={() => {
                       FrontEndController.logoutUser()
-                      location.reload()
                     }}>
                       {LanguageContext.t('common:Logout')}
                     </p>

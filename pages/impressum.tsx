@@ -9,10 +9,9 @@ import { I18n, withTranslation, WithTranslation } from 'next-i18next'
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
+import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
 
 export interface ImpressumState {
-  isLoggedIn: boolean | undefined;
-  currentToken: string;
 }
 
 export interface ImpressumProps extends WithTranslation, WithRouterProps {
@@ -35,41 +34,15 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
   constructor(props: ImpressumProps) {
     super(props)
     this.state = {
-      isLoggedIn: undefined,
-      currentToken: "",
     }
   }
 
+  static contextType = PWPAuthContext;
+
   componentDidMount() {
-    this.updateLoginState();
-    window.addEventListener('storage', this.storageTokenListener)
   }
 
   componentWillUnmount() {
-    window.removeEventListener('storage', this.storageTokenListener)
-  }
-
-  /**
-   * This method checks whether the event contains a change in the user-token. If it does, it updates the login state.
-   * @param {any} event Event triggered by an EventListener
-   */
-  storageTokenListener = async (event: any) => {
-    if (event.key === FrontEndController.userTokenName) {
-      this.updateLoginState();
-    }
-  }
-
-  /**
-   * This method updates the isLoggedIn state and currentToken state according to the current token in local storage.
-   * @returns Nothing
-   */
-  async updateLoginState() {
-    const currentToken = FrontEndController.getUserToken();
-    if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({ isLoggedIn: true, currentToken: currentToken })
-    } else {
-      this.setState({ isLoggedIn: false })
-    }
   }
 
   /**
@@ -78,7 +51,8 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
    */
   render() {
     const { router } = this.props
-    if (this.state.isLoggedIn === undefined) {
+    if (this.context.user === undefined) {
+      // console.log("UNDEFINED")
       return (
         <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
           <div>
@@ -87,17 +61,6 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
               <meta name="description" content="Impressum page." />
               <link rel="icon" href="/favicon.ico" />
             </Head>
-
-            <header>
-              <Header 
-                username={""} 
-                hideLogin={true} 
-                hideLogout={true} 
-                path={router.pathname} 
-                router={this.props.router}
-              />
-            </header>
-
             <main>
               <PageLoadingScreen />
             </main>
@@ -116,9 +79,9 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
 
             <header>
               <Header 
-                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-                hideLogin={this.state.isLoggedIn} 
-                hideLogout={!this.state.isLoggedIn} 
+                username={this.context.user?.username} 
+                hideLogin={this.context.user} 
+                hideLogout={!this.context.user} 
                 path={router.pathname} 
                 router={this.props.router}
               />
@@ -143,7 +106,7 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
               </main>
 
               <footer>
-                <Footer isLoggedIn={this.state.isLoggedIn} />
+                <Footer isLoggedIn={this.context.user} />
               </footer>
             </div>
           </div>

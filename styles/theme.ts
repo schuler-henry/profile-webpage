@@ -24,6 +24,9 @@ export const darkTheme = createTheme({
     neutralDark: '#f4f4f4',
     black: '#f8f8f8',
     white: '#151515',
+  },
+  defaultFontStyle: {
+    fontFamily: 'Montserrat, sans-serif',
   }
 });
 
@@ -51,5 +54,8 @@ export const lightTheme = createTheme({
     "neutralDark": "#151515",
     "black": "#0b0b0b",
     "white": "#ffffff"
+  },
+  defaultFontStyle: {
+    fontFamily: 'Montserrat, sans-serif',
   }
 });
