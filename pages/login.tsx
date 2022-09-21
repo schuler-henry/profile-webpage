@@ -128,7 +128,7 @@ class Login extends Component<LoginProps, LoginState> {
                     placeholder={this.props.t('login:Username') + "..."}
                     id='userInput'
                     autoFocus
-                    onChange={(e) => this.setState({ username: e.target.value })}
+                    onChange={(e) => this.setState({ username: e.target.value.replaceAll(" ", "") })}
                     value={this.state.username}
                     onKeyDown={loginEnter}
                     readOnly={this.state.readOnlyInput} />
