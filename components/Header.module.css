@@ -114,7 +114,7 @@
 .relative {
   position: relative;
   height: 100%;
-  width: inherit;
+  width: 100%;
 }
 
 .showHeader {
@@ -127,7 +127,7 @@
   width: inherit;
   display: flex;
   white-space: nowrap;
-  padding: 0 60px;
+  padding: 0 20px 0 50px;
   font-size: 21px;
   align-items: center;
   justify-content: space-between;
@@ -165,7 +165,7 @@
 .activeMobile .navSubContentItem {
   display: block;
   animation: slideOptions 0.3s;
-  padding-left: 5px;
+  padding-left: 15px;
 }
 
 @keyframes slideOptions {
@@ -173,7 +173,7 @@
     padding-left: 0px;
   }
   to {
-    padding-left: 5px;
+    padding-left: 15px;
   }
 }
 
@@ -246,8 +246,8 @@
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
   .menu {
-    width: 60vw;
-    left: -61vw;
+    width: 440px;
+    left: -443px;
   }
 }
 
@@ -323,6 +323,7 @@
 
   .activeMobile .navSubContentItem {
     display: none;
+    padding-left: 0;
   }
 
   .active .navSubContentItem {
