@@ -34,12 +34,16 @@ export class GitHubRepository extends Component<GitHubRepositoryProps, GitHubRep
   async componentDidMount() {
     this.setState({repoData: await FrontEndController.getRepoInformation(this.props.username, this.props.reponame)})
     this.setState({contributors: await FrontEndController.getRepoSubItem(this.props.username, this.props.reponame, "contributors")})
-    window.addEventListener('resize', () => {
-      this.setState({windowWidth: window.innerWidth})
-    })
+    window.addEventListener('resize', this.windowResize)
   }
 
-  
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.windowResize)
+  }
+
+  windowResize = () => {
+    this.setState({windowWidth: window.innerWidth})
+  }
 
   render() {
     let contributorsLength: number = this.state.contributors.length > 1 ? this.state.contributors.reduce((a: GitHubUser, b: GitHubUser) => (a.login.length > b.login.length ? a : b)).login.length : this.state.contributors[0]?.login.length
@@ -72,9 +76,9 @@ export class GitHubRepository extends Component<GitHubRepositoryProps, GitHubRep
                           </a>
                         </p>
                         <p className={styles.repositoryHeaderInfo}>
-                          <div className={this.state.windowWidth || this.state.repoData ? document.getElementById(uid(this.props.reponame))?.scrollWidth > document.getElementById(uid(this.props.reponame))?.clientWidth ? styles.scrollText : null : null} id={uid(this.props.reponame)}>
+                          <p className={this.state.windowWidth || this.state.repoData ? document.getElementById(uid(this.props.reponame))?.scrollWidth > document.getElementById(uid(this.props.reponame))?.clientWidth ? styles.scrollText : null : null} id={uid(this.props.reponame)}>
                             {this.state.repoData ? `${LanguageContext.t('gitHub:Language')}: ${this.state.repoData.language} - ${LanguageContext.t('gitHub:CreatedOn')}: ${new Date(this.state.repoData.created_at).toLocaleDateString("de-DE")}${this.state.repoData.license ? ` - ${LanguageContext.t('gitHub:License')}: ${this.state.repoData.license.name}` : ""}` : "Test"}
-                          </div>
+                          </p>
                         </p>
                       </div>
                       <Button 
