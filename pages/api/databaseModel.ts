@@ -52,7 +52,6 @@ export class DatabaseModel {
       for (const membership of user.sportClubMembership) {
         allUsers[allUsers.length - 1].sportClubMembership.push({ id: membership.id, user: membership.user, sportClub: membership.sportClub, membershipSport: [] })
         for (const sport of membership?.membershipSport) {
-          console.log(sport)
           allUsers[allUsers.length - 1].sportClubMembership[allUsers[allUsers.length - 1].sportClubMembership.length - 1].membershipSport.push({ sport: {id: sport.sport.id, name: sport.sport.name}, memberStatus: sport.memberStatus, approved: sport.approved })
         }
       }
