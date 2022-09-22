@@ -51,9 +51,13 @@ export interface ISportClubMembership {
   id: number;
   user: number | IUser;
   sportClub: number | ISportClub;
+  membershipSport: ISportClubMembershipSport[];
+}
+
+export interface ISportClubMembershipSport {
   memberStatus: number;
   approved: boolean;
-  sport: ISport[];
+  sport: ISport;
 }
 
 export interface ISportEvent {

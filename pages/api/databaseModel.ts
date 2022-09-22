@@ -45,14 +45,15 @@ export class DatabaseModel {
       return [];
     }
 
-    const allUsers = [];
+    const allUsers: IUser[] = [];
 
     for (const user of dbResponse.data) {
       allUsers.push({ id: user.id, username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email, unconfirmedEmail: user.unconfirmedEmail, activationCode: user.activationCode, active: user.active, sportClubMembership: [] })
       for (const membership of user.sportClubMembership) {
-        allUsers[allUsers.length - 1].sportClubMembership.push({ id: membership.id, user: membership.user, sportClub: membership.sportClub, memberStatus: membership.memberStatus, approved: membership.approved, sport: [] })
-        for (const sport of membership.sport) {
-          allUsers[allUsers.length - 1].sportClubMembership[allUsers[allUsers.length - 1].sportClubMembership.length - 1].sport.push({ id: sport.id, name: sport.name })
+        allUsers[allUsers.length - 1].sportClubMembership.push({ id: membership.id, user: membership.user, sportClub: membership.sportClub, membershipSport: [] })
+        for (const sport of membership?.membershipSport) {
+          console.log(sport)
+          allUsers[allUsers.length - 1].sportClubMembership[allUsers[allUsers.length - 1].sportClubMembership.length - 1].membershipSport.push({ sport: {id: sport.sport.id, name: sport.sport.name}, memberStatus: sport.memberStatus, approved: sport.approved })
         }
       }
     }
@@ -101,21 +102,17 @@ export class DatabaseModel {
         sportClubMembership:SportClubMembership(
           id,
           user,
-          sportClub:SportClub(
+          sportClub(
             id,
             name,
             address,
-            sport:Sport(
-              *
-            ),
-            sportLocation:SportLocation(
-              *
-            )
+            sport:Sport(*),
+            sportLocation:SportLocation(*)
           ),
-          memberStatus,
-          approved,
-          sport:Sport(
-            *
+          membershipSport:SportClubMembership_Sport_Relation(
+            memberStatus,
+            approved,
+            sport:Sport(*)
           )
         )
       `)
