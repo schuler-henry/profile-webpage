@@ -18,6 +18,7 @@ export interface IUser {
   unconfirmedEmail: string;
   activationCode: string;
   active: boolean;
+  sportClubMembership: ISportClubMembership[];
 }
 
 // Timer:
@@ -28,4 +29,76 @@ export interface ITimer {
   name: string;
   elapsedSeconds: number;
   startTime: Date;
+}
+
+// Sport:
+
+export interface ISport {
+  id: number;
+  name: string;
+}
+
+export interface ISportClub {
+  id: number;
+  name: string;
+  address: string;
+  sport: ISport[];
+  sportLocation: ISportLocation[];
+  sportClubMembership: ISportClubMembership[];
+}
+
+export interface ISportClubMembership {
+  id: number;
+  user: number | IUser;
+  sportClub: number | ISportClub;
+  memberStatus: number;
+  approved: boolean;
+  sport: ISport[];
+}
+
+export interface ISportEvent {
+  id: number;
+  startTime: Date;
+  endTime: Date;
+  description: string;
+  visibility: number;
+  sport: ISport;
+  sportLocation: ISportLocation;
+  sportEventType: ISportEventType;
+  sportClub: ISportClub[];
+  sportMatch: ISportMatch[];
+}
+
+export interface ISportEventType {
+  id: number;
+  name: string;
+}
+
+export interface ISportLocation {
+  id: number;
+  name: string;
+  address: string;
+}
+
+export interface ISportMatch {
+  id: number;
+  description: string;
+  sportTeam: ISportTeam[];
+  sportMatchSet: ISportMatchSet[];
+}
+
+export interface ISportTeam {
+  user: IUser[];
+  teamNumber: number;
+}
+
+export interface ISportMatchSet {
+  id: number;
+  setNumber: number;
+  sportScore: ISportScore[];
+}
+
+export interface ISportScore {
+  teamNumber: number;
+  score: number;
 }

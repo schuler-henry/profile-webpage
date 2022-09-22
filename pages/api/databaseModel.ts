@@ -48,7 +48,13 @@ export class DatabaseModel {
     const allUsers = [];
 
     for (const user of dbResponse.data) {
-      allUsers.push({ id: user.id, username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email, unconfirmedEmail: user.unconfirmedEmail, activationCode: user.activationCode, active: user.active })
+      allUsers.push({ id: user.id, username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email, unconfirmedEmail: user.unconfirmedEmail, activationCode: user.activationCode, active: user.active, sportClubMembership: [] })
+      for (const membership of user.sportClubMembership) {
+        allUsers[allUsers.length - 1].sportClubMembership.push({ id: membership.id, user: membership.user, sportClub: membership.sportClub, memberStatus: membership.memberStatus, approved: membership.approved, sport: [] })
+        for (const sport of membership.sport) {
+          allUsers[allUsers.length - 1].sportClubMembership[allUsers[allUsers.length - 1].sportClubMembership.length - 1].sport.push({ id: sport.id, name: sport.name })
+        }
+      }
     }
     return allUsers;
   }
@@ -81,7 +87,38 @@ export class DatabaseModel {
 
     const userResponse = await DatabaseModel.CLIENT
       .from('User')
-      .select()
+      .select(`
+        id,
+        username,
+        password,
+        accessLevel,
+        firstName,
+        lastName,
+        email,
+        unconfirmedEmail,
+        activationCode,
+        active,
+        sportClubMembership:SportClubMembership(
+          id,
+          user,
+          sportClub:SportClub(
+            id,
+            name,
+            address,
+            sport:Sport(
+              *
+            ),
+            sportLocation:SportLocation(
+              *
+            )
+          ),
+          memberStatus,
+          approved,
+          sport:Sport(
+            *
+          )
+        )
+      `)
       .eq(idColumnName, user.userID)
       .eq(usernameColumnName, user.username)
       .eq(passwordColumnName, user.password)
@@ -123,7 +160,7 @@ export class DatabaseModel {
   }
 
   /**
-   * This method removes a target user from the database
+   * This method removes a target user from the database (currently not available due to constraints with sportEvents)
    */
   async deleteUser(targetUserID: number): Promise<PostgrestResponse<IUser>> {
     const deletedUser = await DatabaseModel.CLIENT
