@@ -62,6 +62,7 @@ export interface ISportEvent {
   endTime: Date;
   description: string;
   visibility: number;
+  creator: IUser;
   sport: ISport;
   sportLocation: ISportLocation;
   sportEventType: ISportEventType;
