@@ -1,7 +1,7 @@
 // @ts-check
 import { createClient, PostgrestResponse, SupabaseClient } from '@supabase/supabase-js'
 import { AccessLevel } from '../../enums/accessLevel';
-import { ITimer, IUser } from '../../interfaces/database'
+import { ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, ISportLocation, ITimer, IUser } from '../../interfaces/database'
 
 /**
  * DataBase Model to Connect BackendController with Supabase DB
@@ -28,6 +28,7 @@ export class DatabaseModel {
    */
   evaluateSuccess(dbResponse: PostgrestResponse<any>): boolean {
     if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      console.log(dbResponse.error)
       return false;
     }
     return true;
@@ -220,6 +221,149 @@ export class DatabaseModel {
       .eq('id', timer.id);
 
     return updatedTimer;
+  }
+
+  //#endregion
+
+  //#region Sport Methods
+
+  getSportClubsFromResponse(dbResponse: PostgrestResponse<ISportClub>): ISportClub[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      console.log(dbResponse.error)
+      return [];
+    }
+
+    const allSportClubs: ISportClub[] = [];
+
+    for (const sportClub of dbResponse.data) {
+      allSportClubs.push({ id: sportClub.id, name: sportClub.name, address: sportClub.address, sport: sportClub.sport, sportLocation: sportClub.sportLocation, sportClubMembership: sportClub.sportClubMembership })
+    }
+    return allSportClubs;
+  }
+
+  getSportClubMembershipFromResponse(dbResponse: PostgrestResponse<ISportClubMembership>): ISportClubMembership[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      console.log(dbResponse.error)
+      return [];
+    }
+
+    const allSportClubMemberships: ISportClubMembership[] = [];
+
+    for (const sportClubMembership of dbResponse.data) {
+      allSportClubMemberships.push({ id: sportClubMembership.id, user: sportClubMembership.user, sportClub: sportClubMembership.sportClub, membershipSport: sportClubMembership.membershipSport })
+    }
+    return allSportClubMemberships;
+  }
+
+  async selectSportClubTable(sportClub: {id?: number, name?: string, address?: string, sport?: ISport[], sportLocation?: ISportLocation[]}): Promise<PostgrestResponse<ISportClub>> {
+    let idColumnName = "";
+    let nameColumnName = "";
+    let addressColumnName = "";
+    let sportColumnName = "";
+    let sportLocationColumnName = "";
+    
+    if (!(sportClub.id === undefined)) idColumnName = "id";
+    if (!(sportClub.name === undefined)) nameColumnName = "name";
+    if (!(sportClub.address === undefined)) addressColumnName = "address";
+    if (!(sportClub.sport === undefined)) sportColumnName = "sport";
+    if (!(sportClub.sportLocation === undefined)) sportLocationColumnName = "sportLocation";
+
+    const sportClubResponse = await DatabaseModel.CLIENT
+      .from('SportClub')
+      .select(`
+        id,
+        name,
+        address,
+        sport:Sport(*),
+        sportLocation:SportLocation(*)
+      `)
+      .eq(idColumnName, sportClub.id)
+      .eq(nameColumnName, sportClub.name)
+      .eq(addressColumnName, sportClub.address)
+      .eq(sportColumnName, sportClub.sport)
+      .eq(sportLocationColumnName, sportClub.sportLocation);
+
+    return sportClubResponse;
+  }
+
+  async selectSportClubMembershipTable(sportClubMembership: {id?: number, user?: number, sportClub?: number}): Promise<PostgrestResponse<ISportClubMembership>> {
+    let idColumnName = "";
+    let userColumnName = "";
+    let sportClubColumnName = "";
+    
+    if (!(sportClubMembership.id === undefined)) idColumnName = "id";
+    if (!(sportClubMembership.user === undefined)) userColumnName = "user";
+    if (!(sportClubMembership.sportClub === undefined)) sportClubColumnName = "sportClub";
+
+    const sportClubMembershipResponse = await DatabaseModel.CLIENT
+      .from('SportClubMembership')
+      .select()
+      .eq(idColumnName, sportClubMembership.id)
+      .eq(userColumnName, sportClubMembership.user)
+      .eq(sportClubColumnName, sportClubMembership.sportClub);
+
+    return sportClubMembershipResponse;
+  }
+
+  async addSportClubMembership(sportClubMembership: {user: number, sportClub: number}): Promise<PostgrestResponse<ISportClubMembership>> {
+    const addedSportClubMembership = await DatabaseModel.CLIENT
+      .from('SportClubMembership')
+      .insert([
+        { user: sportClubMembership.user, sportClub: sportClubMembership.sportClub },
+      ]);
+
+    return addedSportClubMembership;
+  }
+
+  async deleteSportClubMembership(sportClubMembership: {id?: number, user?: number, sportClub?: number}): Promise<PostgrestResponse<ISportClubMembership>> {
+    let idColumnName = "";
+    let userColumnName = "";
+    let sportClubColumnName = "";
+
+    if (!(sportClubMembership.id === undefined)) idColumnName = "id";
+    if (!(sportClubMembership.user === undefined)) userColumnName = "user";
+    if (!(sportClubMembership.sportClub === undefined)) sportClubColumnName = "sportClub";
+
+    const deletedSportClubMembership = await DatabaseModel.CLIENT
+      .from('SportClubMembership')
+      .delete()
+      .eq(idColumnName, sportClubMembership.id)
+      .eq(userColumnName, sportClubMembership.user)
+      .eq(sportClubColumnName, sportClubMembership.sportClub);
+      
+    return deletedSportClubMembership;
+  }
+
+  async addSportClubMembershipSport(sportClubMembershipSport: {sportClubMembership?: number, sport?: number}): Promise<PostgrestResponse<ISportClubMembershipSport>> {
+    const addedSportClubMembershipSport = await DatabaseModel.CLIENT
+      .from('SportClubMembership_Sport_Relation')
+      .insert([
+        { sportClubMembership: sportClubMembershipSport.sportClubMembership, memberStatus: 0, approved: false, sport: sportClubMembershipSport.sport },
+      ]);
+
+    return addedSportClubMembershipSport;
+  }
+
+  async deleteSportClubMembershipSport(sportClubMembershipSport: {sportClubMembership?: number, sport?: number, memberStatus?: number, approved?: boolean}): Promise<PostgrestResponse<ISportClubMembershipSport>> {
+    let sportClubMembershipColumnName = "";
+    let sportColumnName = "";
+    let memberStatusColumnName = "";
+    let approvedColumnName = "";
+
+    if (!(sportClubMembershipSport.sportClubMembership === undefined)) sportClubMembershipColumnName = "sportClubMembership";
+    if (!(sportClubMembershipSport.sport === undefined)) sportColumnName = "sport";
+    if (!(sportClubMembershipSport.memberStatus === undefined)) memberStatusColumnName = "memberStatus";
+    if (!(sportClubMembershipSport.approved === undefined)) approvedColumnName = "approved";
+    
+    const deletedSportClubMembershipSport = await DatabaseModel.CLIENT
+      .from('SportClubMembership_Sport_Relation')
+      .delete()
+      .eq(sportClubMembershipColumnName, sportClubMembershipSport.sportClubMembership)
+      .eq(sportColumnName, sportClubMembershipSport.sport)
+      .eq(memberStatusColumnName, sportClubMembershipSport.memberStatus)
+      .eq(approvedColumnName, sportClubMembershipSport.approved);
+
+    return deletedSportClubMembershipSport;
   }
 
   //#endregion

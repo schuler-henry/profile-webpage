@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { ColorTheme } from '../enums/colorTheme';
-import { ITimer, IUser } from '../interfaces/database';
+import { ISportClub, ISportClubMembership, ITimer, IUser } from '../interfaces/database';
 import { GitHubUser, Repository } from '../interfaces/Github';
 
 /**
@@ -253,6 +253,50 @@ export class FrontEndController {
   }
 
   /**
+   * This method adds a new sport club membership to the user (needs to be approved by sport club manager afterwards)
+   */
+  static async addSportClubMembership(userToken: string, sportClubMembership: ISportClubMembership): Promise<boolean> {
+    const response = await fetch('/api/users/add_sportclub_membership', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        sportClubMembership: sportClubMembership
+      })
+    });
+
+    const data = await response.json();
+
+    this.updateLoginStatus();
+
+    return data.wasSuccessful;
+  }
+
+  /**
+   * This method removes a sport club membership from the user
+   */
+  static async deleteSportClubMembership(userToken: string, sportClubMembership: ISportClubMembership): Promise<boolean> {
+    const response = await fetch('/api/users/delete_sportclub_membership', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        sportClubMembership: sportClubMembership
+      })
+    });
+
+    const data = await response.json();
+
+    this.updateLoginStatus();
+
+    return data.wasSuccessful;
+  }
+
+  /**
    * This method checks whether the given token has a valid signature and user
    */
   static async verifyUserByToken(token: string): Promise<boolean> {
@@ -455,6 +499,28 @@ export class FrontEndController {
 
     const data = await response.json();
     return data.wasSuccessful;
+  }
+
+  //#endregion
+
+  //#region Sport Functions
+
+  /**
+   * This method returns all existing sport clubs
+   */
+  static async getSportClubs(token: string): Promise<ISportClub[]> {
+    const response = await fetch('/api/sport/get_clubs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+      })
+    });
+
+    const data = await response.json();
+    return data.clubs;
   }
 
   //#endregion
