@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs'
 import path from 'path'
 import * as bcrypt from 'bcrypt';
-import { ITimer, IUser } from '../interfaces/database';
+import { ISportClub, ISportClubMembership, ISportClubMembershipSport, ITimer, IUser } from '../interfaces/database';
 import { randomStringGenerator } from '../shared/randomStringGenerator';
 import { SMTPClient } from 'emailjs';
 import { isEmailValid } from '../pages/api/users/requirements';
@@ -421,6 +421,112 @@ Henry Schuler`,
   }
 
   /**
+   * This method adds the given sport club memberships to the user
+   */
+  async handleAddUserSportClubMembership(userToken: string, sportClubMembership: ISportClubMembership): Promise<boolean> {
+    if (!this.isTokenValid(userToken)) {
+      return false;
+    }
+
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({userID: this.getIdFromToken(userToken)}))[0];
+
+    if (user === undefined) {
+      return false;
+    }
+
+    // check if sport club membership has sportClub and sport defined
+    if ((typeof sportClubMembership.sportClub === "object" ? sportClubMembership.sportClub.id : sportClubMembership.sportClub) === undefined || sportClubMembership.membershipSport.length <= 0) {
+      return false;
+    }
+
+    // check if membership already exists
+    let existingMembership = user.sportClubMembership.find((membership) => (typeof membership.sportClub === "object" ? membership.sportClub.id : membership.sportClub) === (typeof sportClubMembership.sportClub === "object" ? sportClubMembership.sportClub.id : sportClubMembership.sportClub))
+    if (!existingMembership) {
+      // create membership
+      if (!this.databaseModel.evaluateSuccess(await this.databaseModel.addSportClubMembership({user: user.id, sportClub: (typeof sportClubMembership.sportClub === "object" ? sportClubMembership.sportClub.id : sportClubMembership.sportClub)}))) {
+        // could not create membership
+        return false;
+      }
+    } else {
+      // membership already exists
+      // check for already existing sports
+      for (const membershipSport of sportClubMembership.membershipSport) {
+        let existingMembershipSport = existingMembership.membershipSport.find((existingMembershipSport) => existingMembershipSport.sport.id === membershipSport.sport.id)
+        if (existingMembershipSport) {
+          // sport already exists
+          sportClubMembership.membershipSport.splice(sportClubMembership.membershipSport.findIndex(item => item.sport.id === existingMembershipSport.sport.id), 1)
+        }
+      }
+      if (sportClubMembership.membershipSport.length <= 0) {
+        // all sports already exist
+        return false;
+      }
+    }
+    // membership exists
+
+    if (existingMembership === undefined) {
+      existingMembership = this.databaseModel.getSportClubMembershipFromResponse(await this.databaseModel.selectSportClubMembershipTable({user: user.id, sportClub: (typeof sportClubMembership.sportClub === "object" ? sportClubMembership.sportClub.id : sportClubMembership.sportClub)}))[0];
+    }
+
+    for (const membershipSport of sportClubMembership.membershipSport) {
+      // add all sports
+      if (!this.databaseModel.evaluateSuccess(await this.databaseModel.addSportClubMembershipSport({sportClubMembership: existingMembership.id, sport: membershipSport.sport.id}))) {
+        // could not add sport
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * This method removes the given sport club memberships from the user
+   */
+  async handleDeleteUserSportClubMembership(userToken: string, sportClubMembership: ISportClubMembership): Promise<boolean> {
+    if (!this.isTokenValid(userToken)) {
+      return false;
+    }
+
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({userID: this.getIdFromToken(userToken)}))[0];
+
+    if (user === undefined) {
+      return false;
+    }
+    
+    // check if user has membership
+    let existingMembership = user.sportClubMembership.find((membership) => (typeof membership.sportClub === "object" ? membership.sportClub.id : membership.sportClub) === (typeof sportClubMembership.sportClub === "object" ? sportClubMembership.sportClub.id : sportClubMembership.sportClub))
+    if (!existingMembership) {
+      return false
+    }
+
+    for (const membershipSport of sportClubMembership.membershipSport) {
+      // check if user has sport
+      let existingMembershipSport = existingMembership.membershipSport.find((existingMembershipSport) => existingMembershipSport.sport.id === membershipSport.sport.id)
+      if (existingMembershipSport) {
+        // sport exists
+        // remove sportClubMembershipSport from db
+        if (!this.databaseModel.evaluateSuccess(await this.databaseModel.deleteSportClubMembershipSport({sportClubMembership: existingMembership.id, sport: existingMembershipSport.sport.id}))) {
+          // could not delete sport
+          return false;
+        } else {
+          // remove sport from membership
+          existingMembership.membershipSport.splice(existingMembership.membershipSport.findIndex(item => item.sport.id === existingMembershipSport.sport.id), 1)
+        }
+      }
+    }
+
+    if(existingMembership.membershipSport.length <= 0) {
+      // remove membership from db
+      if (!this.databaseModel.evaluateSuccess(await this.databaseModel.deleteSportClubMembership({id: existingMembership.id}))) {
+        // could not delete membership
+        return false;
+      }
+    }
+
+    return true
+  }
+
+  /**
    * This method checks whether a email already exists in the DB.
    */
   async handleEmailAlreadyExists(email: string): Promise<boolean> {
@@ -509,6 +615,20 @@ Henry Schuler`,
       return this.databaseModel.evaluateSuccess(await this.databaseModel.updateTimer(user.id, timer));
     }
     return false;
+  }
+
+  //#endregion
+
+  //#region Sport Methods
+
+  /**
+   * This method returns all sport clubs from the database
+   */
+  async handleGetSportClubs(token: string): Promise<ISportClub[]> {
+    if (this.isTokenValid(token)) {
+      return this.databaseModel.getSportClubsFromResponse(await this.databaseModel.selectSportClubTable({}));
+    }
+    return [];
   }
 
   //#endregion

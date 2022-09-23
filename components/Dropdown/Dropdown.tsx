@@ -14,6 +14,7 @@ export interface DropdownState {
 export interface DropdownProps {
   options: DropdownOption[];
   selectedKey?: string;
+  placeholder?: DropdownOption;
   onChange: (event: FormEvent<HTMLDivElement>, option?: DropdownOption<any>, index?: number) => void;
   onRenderOption: (option: DropdownOption) => JSX.Element;
   onRenderCaretDown: () => JSX.Element;
@@ -63,7 +64,7 @@ export class Dropdown extends Component<DropdownProps, DropdownState> {
 
     let selectedOption: DropdownOption = this.props.options.find(option => option.key === this.props.selectedKey);
     if (selectedOption === undefined) {
-      selectedOption = this.props.options[0];
+      selectedOption = this.props.placeholder || this.props.options[0];
     }
 
     return (

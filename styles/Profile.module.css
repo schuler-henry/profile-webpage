@@ -72,3 +72,23 @@
   text-align: start !important;
   color: var(--color-text-off);
 }
+
+.sportClubMembershipTableWrapper {
+  overflow: auto;
+}
+
+.sportClubMembershipTableWrapper table {
+  border-spacing: 10px;
+  white-space: nowrap;
+}
+
+.sportClubMembershipTableWrapper table tbody {
+  text-align: center;
+}
+
+.inlineHeading {
+  display: flex;
+  /* justify-content: space-between; */
+  align-items: center;
+  gap: 10px;
+}
