@@ -130,10 +130,11 @@ class Profile extends Component<ProfileProps, ProfileState> {
   }
 
   private async updateAvailableSportClubs() {
+    const user = await FrontEndController.getUserFromToken(FrontEndController.getUserToken());
     let sportClubs = await FrontEndController.getSportClubs(FrontEndController.getUserToken());
     // remove memberships from dropdown options
     for (let sportClub of sportClubs) {
-      for (let membershipSport of (this.context.user as IUser).sportClubMembership.find((sportClubMembership: ISportClubMembership) => ((typeof sportClubMembership.sportClub === "object") ? sportClubMembership.sportClub.id : sportClubMembership.sportClub) === sportClub.id)?.membershipSport || []) {
+      for (let membershipSport of user.sportClubMembership.find((sportClubMembership: ISportClubMembership) => ((typeof sportClubMembership.sportClub === "object") ? sportClubMembership.sportClub.id : sportClubMembership.sportClub) === sportClub.id)?.membershipSport || []) {
         console.log("membershipSport", membershipSport);
         const index = sportClub.sport.findIndex(i => i.id === membershipSport.sport.id);
         sportClub.sport.splice(index, 1)
