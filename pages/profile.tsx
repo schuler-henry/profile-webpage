@@ -151,7 +151,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
     {key: "profile", text: this.props.t('common:Profile'), data: {icon: "Contact"}},
     {key: "email", text: this.props.t('profile:Email'), data: {icon: "Mail"}},
     {key: "password", text: this.props.t('profile:Password'), data: {icon: "Lock"}},
-    {key: "sportClub", text: this.props.t('profile:SportClub'), data: {icon: "MoreSports"}}
+    {key: "sportClub", text: this.props.t('profile:SportClubMemberships'), data: {icon: "MoreSports"}}
   ]
 
   private onChange = (event: React.FormEvent<HTMLDivElement>, item: DropdownOption): void => {
@@ -513,7 +513,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                             </thead>
                             <tbody>
                               {
-                                this.context.user.sportClubMembership?.map((membership: ISportClubMembership, index) => {
+                                this.context.user?.sportClubMembership?.map((membership: ISportClubMembership, index) => {
                                   return(
                                     <React.Fragment key={index}>
                                       {
