@@ -135,7 +135,6 @@ class Profile extends Component<ProfileProps, ProfileState> {
     // remove memberships from dropdown options
     for (let sportClub of sportClubs) {
       for (let membershipSport of user.sportClubMembership.find((sportClubMembership: ISportClubMembership) => ((typeof sportClubMembership.sportClub === "object") ? sportClubMembership.sportClub.id : sportClubMembership.sportClub) === sportClub.id)?.membershipSport || []) {
-        console.log("membershipSport", membershipSport);
         const index = sportClub.sport.findIndex(i => i.id === membershipSport.sport.id);
         sportClub.sport.splice(index, 1)
       }
@@ -151,7 +150,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
     {key: "profile", text: this.props.t('common:Profile'), data: {icon: "Contact"}},
     {key: "email", text: this.props.t('profile:Email'), data: {icon: "Mail"}},
     {key: "password", text: this.props.t('profile:Password'), data: {icon: "Lock"}},
-    {key: "sportClub", text: this.props.t('profile:SportClub'), data: {icon: "MoreSports"}}
+    {key: "sportClubMemberships", text: this.props.t('profile:SportClubMemberships'), data: {icon: "MoreSports"}}
   ]
 
   private onChange = (event: React.FormEvent<HTMLDivElement>, item: DropdownOption): void => {
@@ -485,7 +484,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                   }
 
                   {
-                    this.state.selectedMenu === "sportClub" &&
+                    this.state.selectedMenu === "sportClubMemberships" &&
                     <div>
                       <span className={styles.inlineHeading}>
                         <h2>{this.props.t('profile:MySportClubMemberships')}</h2>
@@ -513,7 +512,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                             </thead>
                             <tbody>
                               {
-                                this.context.user.sportClubMembership?.map((membership: ISportClubMembership, index) => {
+                                this.context.user?.sportClubMembership?.map((membership: ISportClubMembership, index) => {
                                   return(
                                     <React.Fragment key={index}>
                                       {
