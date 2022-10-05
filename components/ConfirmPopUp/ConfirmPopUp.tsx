@@ -59,7 +59,7 @@ export class ConfirmPopUp extends Component<ConfirmPopUpProps, ConfirmPopUpState
                     </div>
                     :
                     this.props.children && 
-                    <div className={styles.wrapperItem}>
+                    <div className={styles.wrapperItem} id={styles.children}>
                       {this.props.children}
                     </div>
                 }

@@ -16,6 +16,8 @@ import { Button } from '../components/Button/Button'
 import { ConfirmPopUp } from '../components/ConfirmPopUp/ConfirmPopUp'
 import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
 import { ClickableIcon } from '../components/ClickableIcon/ClickableIcon'
+import { AdminSportClubSportUserList } from '../components/AdminSportClubSportUserList/AdminSportClubSportUserList'
+import { getSportClubPositionText } from '../shared/getSportClubPositionText'
 
 const onRenderOption = (option: DropdownOption): JSX.Element => {
   return(
@@ -61,6 +63,7 @@ export interface ProfileState {
   changedEmail: boolean;
   deleteMembershipItem: ISportClubMembership;
   availableSportClubs: ISportClub[];
+  adminClubs: ISportClub[];
   selectedSportClub: ISportClub;
   selectedSport: ISport;
 }
@@ -78,7 +81,7 @@ export async function getStaticProps({ locale }) {
 }
 
 /**
- * @class Home Component Class
+ * @class Profile Component Class
  * @component
  */
 class Profile extends Component<ProfileProps, ProfileState> {
@@ -106,6 +109,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
       changedEmail: false,
       deleteMembershipItem: undefined,
       availableSportClubs: [],
+      adminClubs: [],
       selectedSportClub: undefined,
       selectedSport: undefined,
     }
@@ -121,7 +125,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
 
   componentDidUpdate(prevProps: Readonly<ProfileProps>, prevState: Readonly<ProfileState>, snapshot?: any): void {
     const { menu } = this.props.router.query;
-    if (menu !== this.state.selectedMenu && this.options.find(element => element.key === menu?.toString())) {
+    if (menu !== this.state.selectedMenu && this.subPageOptions.find(element => element.key === menu?.toString())) {
       this.setState({ selectedMenu: menu.toString() });
     }
   }
@@ -129,24 +133,38 @@ class Profile extends Component<ProfileProps, ProfileState> {
   componentWillUnmount() {
   }
 
+  /**
+   * This function updates the users sport club lists to display sport clubs (membership/admin)
+   */
   private async updateAvailableSportClubs() {
     const user = await FrontEndController.getUserFromToken(FrontEndController.getUserToken());
     let sportClubs = await FrontEndController.getSportClubs(FrontEndController.getUserToken());
+    let adminClubs = await FrontEndController.getAdminSportClubs(FrontEndController.getUserToken());
+    if (adminClubs.length !== 0) {
+      if (this.subPageOptions.filter((option) => option.key === "sportClubAdmin").length === 0) {
+        this.subPageOptions.push({key: "sportClubAdmin", text: this.props.t('profile:SportClubAdmin'), data: {icon: "MoreSports"}})
+      }
+    } else {
+      this.subPageOptions = this.subPageOptions.filter((option) => option.key !== "sportClubAdmin");
+    }
     // remove memberships from dropdown options
-    for (let sportClub of sportClubs) {
+    for (let i = 0; i < sportClubs.length; i++) {
+      let sportClub = sportClubs[i];
       for (let membershipSport of user.sportClubMembership.find((sportClubMembership: ISportClubMembership) => ((typeof sportClubMembership.sportClub === "object") ? sportClubMembership.sportClub.id : sportClubMembership.sportClub) === sportClub.id)?.membershipSport || []) {
         const index = sportClub.sport.findIndex(i => i.id === membershipSport.sport.id);
         sportClub.sport.splice(index, 1)
       }
       if (sportClub.sport.length === 0) {
         sportClubs.splice(sportClubs.indexOf(sportClub), 1);
+        // decrement counter because element was removed
+        i--;
       }
     }
 
-    this.setState({ availableSportClubs: sportClubs });
+    this.setState({ availableSportClubs: sportClubs, adminClubs: adminClubs });
   }
 
-  private options: DropdownOption[] = [
+  private subPageOptions: DropdownOption[] = [
     {key: "profile", text: this.props.t('common:Profile'), data: {icon: "Contact"}},
     {key: "email", text: this.props.t('profile:Email'), data: {icon: "Mail"}},
     {key: "password", text: this.props.t('profile:Password'), data: {icon: "Lock"}},
@@ -225,7 +243,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                   <h1>{this.props.t('profile:User')}: {FrontEndController.getUsernameFromToken(FrontEndController.getUserToken())}</h1>
                   
                   <Dropdown 
-                    options={this.options} 
+                    options={this.subPageOptions} 
                     selectedKey={this.state.selectedMenu}
                     onChange={this.onChange} 
                     onRenderOption={onRenderOption} 
@@ -492,7 +510,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           iconName="Sync"
                           onClick={async () => {
                             this.setState({ fetchData: true })
-                            FrontEndController.updateLoginStatus();
+                            await FrontEndController.updateLoginStatus();
                             await this.updateAvailableSportClubs();
                             this.setState({ fetchData: false })
                           }}
@@ -506,6 +524,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                               <tr>
                                 <th>{this.props.t('profile:SportClub')}</th>
                                 <th>{this.props.t('profile:Sport')}</th>
+                                <th>{this.props.t('profile:Position')}</th>
                                 <th>{this.props.t('profile:Approved')}</th>
                                 <th></th>
                               </tr>
@@ -521,6 +540,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                                             <tr key={"sport" + sportIndex}>
                                               <td>{typeof membership.sportClub === "object" && membership.sportClub.name}</td>
                                               <td>{membershipSport.sport.name}</td>
+                                              <td style={{ color: "var(--color-text-secondary)" }}>{this.props.t('profile:' + getSportClubPositionText(membershipSport?.memberStatus))}</td>
                                               <td style={{ color: membershipSport.approved ? "var(--color-text-approved)" : "var(--color-text-warning)" }}>{membershipSport.approved.toString()}</td>
                                               <td>
                                                 <ClickableIcon 
@@ -673,11 +693,54 @@ class Profile extends Component<ProfileProps, ProfileState> {
                   }
 
                   {
+                    this.state.selectedMenu === "sportClubAdmin" &&
+                    <div className={styles.sportClubAdminWrapper}>
+                      {
+                        this.state.adminClubs.map((club, clubIndex) => {
+                          return (
+                            <div key={"club" + clubIndex} className={styles.adminClubItem}>
+                              <span className={styles.inlineHeading}>
+                                <h2>{club.name}</h2>
+                                <ClickableIcon 
+                                  iconName="Sync"
+                                  onClick={async () => {
+                                    this.setState({ fetchData: true })
+                                    await this.updateAvailableSportClubs();
+                                    this.setState({ fetchData: false })
+                                  }}
+                                  spin={this.state.fetchData}
+                                />
+                              </span>
+                              <div className={styles.sportClubAdminSportWrapper}>
+                                {
+                                  club.sport.map((sport, sportIndex) => {
+                                    return (
+                                      <div key={"sportAdmin" + sportIndex}>
+                                        <AdminSportClubSportUserList 
+                                          sport={sport}
+                                          club={club}
+                                          t={this.props.t}
+                                          i18n={this.props.i18n}
+                                          tReady={this.props.tReady}
+                                        />
+                                      </div>
+                                    )
+                                  })
+                                }
+                              </div>
+                            </div>
+                          )
+                        })
+                      }
+                    </div>
+                  }
+
+                  {
                     this.state.displaySuccess &&
                       <ConfirmPopUp
                         title={this.state.success ? this.props.t('common:Success') : this.props.t('common:Error')}
                         onConfirm={() => {
-                          if (this.state.selectedMenu === "sportClub") {
+                          if (this.state.selectedMenu === "sportClubMemberships" || this.state.selectedMenu === "sportClubAdmin") {
                             this.updateAvailableSportClubs();
                           }
                           this.setState({ displaySuccess: false, changedEmail: false, oldPassword: "", newPassword: "", confirmPassword: "" })

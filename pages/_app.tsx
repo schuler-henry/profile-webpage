@@ -73,6 +73,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       // console.log("EVENT", event)
       if (event.key === FrontEndController.userTokenName) {
         setUser(await FrontEndController.getUserFromToken(FrontEndController.getUserToken()))
+        dispatchEvent(new CustomEvent("userContextChanged"))
       }
     }
 
