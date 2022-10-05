@@ -622,6 +622,35 @@ Henry Schuler`,
   //#region Sport Methods
 
   /**
+   * This method checks whether the given user has Trainer permission (or higher) for the given sport club sport
+   */
+  async isValidTrainer(userToken: string, sportClubID: number, sportID: number) {
+    if (!this.isTokenValid(userToken)) {
+      return false;
+    }
+
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({userID: this.getIdFromToken(userToken)}))[0];
+
+    if (user === undefined) {
+      return false;
+    }
+
+    const userSportClubMembership = user.sportClubMembership.find(item => (typeof item.sportClub === "object" ? item.sportClub.id : item.sportClub) === sportClubID);
+
+    if (userSportClubMembership === undefined) {
+      return false;
+    }
+
+    const userMembershipSport = userSportClubMembership.membershipSport.find(item => item.sport.id === sportID);
+
+    if (userMembershipSport === undefined || !userMembershipSport.approved || userMembershipSport.memberStatus <= 0) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
    * This method returns all sport clubs from the database
    */
   async handleGetSportClubs(token: string): Promise<ISportClub[]> {
@@ -629,6 +658,141 @@ Henry Schuler`,
       return this.databaseModel.getSportClubsFromResponse(await this.databaseModel.selectSportClubTable({}));
     }
     return [];
+  }
+
+  /**
+   * This method returns all sport clubs
+   */
+  async handleGetAdminSportClubs(token: string): Promise<ISportClub[]> {
+    if (this.isTokenValid(token)) {
+      let adminClubs: ISportClub[] = [];
+      const user = await this.handleGetUserFromToken(token);
+      for (const membership of user.sportClubMembership) {
+        const sportClubID = typeof membership.sportClub === "object" ? membership.sportClub.id : membership.sportClub
+        let sportIDArray = [];
+
+        for (const membershipSport of membership.membershipSport) {
+          if (membershipSport.memberStatus > 0 && membershipSport.approved) {
+            sportIDArray.push(membershipSport.sport.id)
+          }
+        }
+
+        if (sportIDArray.length > 0) {
+          // add sportClub with selected sports
+          adminClubs.push(this.databaseModel.getSportClubsFromResponse(await this.databaseModel.selectSportClubMembershipTableAdmin(sportClubID, sportIDArray))[0])
+        }
+      }
+      return adminClubs;
+    }
+    return [];
+  }
+
+  /**
+   * This method sets the accepted status of a sport club membership sport for a user
+   */
+  async handleAcceptSportClubMembership(userToken: string, sportClubMembership: ISportClubMembership): Promise<boolean> {
+    if (!this.isTokenValid(userToken)) {
+      return false;
+    }
+      
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({userID: this.getIdFromToken(userToken)}))[0];
+
+    if (user === undefined) {
+      return false;
+    }
+
+    const userSportClubMembership = user.sportClubMembership.find(item => (typeof item.sportClub === "object" ? item.sportClub.id : item.sportClub) === (typeof sportClubMembership.sportClub === "object" ? sportClubMembership.sportClub.id : sportClubMembership.sportClub));
+    
+    // console.log(userSportClubMembership, sportClubMembership);
+
+    for (const membershipSport of sportClubMembership.membershipSport) {
+      const userMembershipSport = userSportClubMembership.membershipSport.find(item => item.sport.id === membershipSport.sport.id)
+      if (userMembershipSport && userMembershipSport.approved && userMembershipSport.memberStatus > 0) {
+        // console.log(userMembershipSport, membershipSport);
+        // approve membership
+        // console.log(sportClubMembership.id, membershipSport.sport.id, membershipSport.memberStatus, membershipSport.approved);
+        return this.databaseModel.evaluateSuccess(await this.databaseModel.updateSportClubMembershipSportRelation(sportClubMembership.id, membershipSport.sport.id, membershipSport.memberStatus, true));
+      }
+    }
+    
+    return false;
+  }
+
+  /**
+   * This method deletes a sport club membership of a user
+   */
+  async handleDeleteAdminSportClubMembership(userToken: string, sportClubMembership: ISportClubMembership): Promise<boolean> {
+    if (!this.isTokenValid(userToken)) {
+      return false;
+    }
+
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({userID: this.getIdFromToken(userToken)}))[0];
+
+    if (user === undefined) {
+      return false;
+    }
+
+    const userSportClubMembership = user.sportClubMembership.find(item => (typeof item.sportClub === "object" ? item.sportClub.id : item.sportClub) === (typeof sportClubMembership.sportClub === "object" ? sportClubMembership.sportClub.id : sportClubMembership.sportClub));
+
+    for (const membershipSport of sportClubMembership.membershipSport) {
+      const userMembershipSport = userSportClubMembership.membershipSport.find(item => item.sport.id === membershipSport.sport.id)
+      if (userMembershipSport && userMembershipSport.approved && userMembershipSport.memberStatus > 0) {
+        // delete membership
+        if(!this.databaseModel.evaluateSuccess(await this.databaseModel.deleteSportClubMembershipSport({sportClubMembership: sportClubMembership.id, sport: membershipSport.sport.id}))) {
+          return false;
+        }
+      }
+    }
+
+    if (this.databaseModel.getSportClubMembershipSportFromResponse(await this.databaseModel.selectSportClubMembershipSportRelationTable({sportClubMembership: sportClubMembership.id})).length === 0) {
+      // delete membership
+      return this.databaseModel.evaluateSuccess(await this.databaseModel.deleteSportClubMembership({id: sportClubMembership.id}));
+    }
+    return true;
+  }
+
+  /**
+   * This method returns all users that are not members of the given sport club sport
+   */
+  async handleGetUsersWithoutSportClubMembershipSport(userToken: string, sportClubID: number, sportID: number): Promise<IUser[]> {
+    if (!await this.isValidTrainer(userToken, sportClubID, sportID)) {
+      return [];
+    }
+
+    return this.databaseModel.getUserFromResponse(await this.databaseModel.getUsersWithoutMembershipSport(sportClubID, sportID));
+  }
+
+  /**
+   * This method adds a sport club membership sport for multiple users
+   */
+  async handleAddAdminUserSportClubMembership(userToken: string, sportClubID: number, sportID: number, users: IUser[]): Promise<boolean> {
+    if (!await this.isValidTrainer(userToken, sportClubID, sportID)) {
+      return false;
+    }
+
+    for (const user of users) {
+      // check if sportMembership for sportClubID already exists
+      let sportClubMembership = this.databaseModel.getSportClubMembershipFromResponse(await this.databaseModel.selectSportClubMembershipTable({user: user.id, sportClub: sportClubID}))[0];
+      if (sportClubMembership === undefined) {
+        // create new sportClubMembership
+        sportClubMembership = this.databaseModel.getSportClubMembershipFromResponse(await this.databaseModel.addSportClubMembership({user: user.id, sportClub: sportClubID}))[0];
+        if (sportClubMembership === undefined) {
+          return false;
+        }
+      }
+      // sportClubMembership is defined
+      // check if sport for sportClubMembership already exists
+      let sportClubMembershipSport = this.databaseModel.getSportClubMembershipSportFromResponse(await this.databaseModel.selectSportClubMembershipSportRelationTable({sportClubMembership: sportClubMembership.id, sport: sportID}))[0];
+      if (sportClubMembershipSport === undefined) {
+        // create new sportClubMembershipSport
+        sportClubMembershipSport = this.databaseModel.getSportClubMembershipSportFromResponse(await this.databaseModel.addSportClubMembershipSport({sportClubMembership: sportClubMembership.id, sport: sportID, approved: true}))[0];
+        if (sportClubMembershipSport === undefined) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
   }
 
   //#endregion

@@ -50,10 +50,12 @@ export class DatabaseModel {
 
     for (const user of dbResponse.data) {
       allUsers.push({ id: user.id, username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email, unconfirmedEmail: user.unconfirmedEmail, activationCode: user.activationCode, active: user.active, sportClubMembership: [] })
-      for (const membership of user.sportClubMembership) {
-        allUsers[allUsers.length - 1].sportClubMembership.push({ id: membership.id, user: membership.user, sportClub: membership.sportClub, membershipSport: [] })
-        for (const sport of membership?.membershipSport) {
-          allUsers[allUsers.length - 1].sportClubMembership[allUsers[allUsers.length - 1].sportClubMembership.length - 1].membershipSport.push({ sport: {id: sport.sport.id, name: sport.sport.name}, memberStatus: sport.memberStatus, approved: sport.approved })
+      if (user.sportClubMembership) {
+        for (const membership of user.sportClubMembership) {
+          allUsers[allUsers.length - 1].sportClubMembership.push({ id: membership.id, user: membership.user, sportClub: membership.sportClub, membershipSport: [] })
+          for (const sport of membership?.membershipSport) {
+            allUsers[allUsers.length - 1].sportClubMembership[allUsers[allUsers.length - 1].sportClubMembership.length - 1].membershipSport.push({ sport: {id: sport.sport.id, name: sport.sport.name}, memberStatus: sport.memberStatus, approved: sport.approved })
+          }
         }
       }
     }
@@ -236,7 +238,7 @@ export class DatabaseModel {
     const allSportClubs: ISportClub[] = [];
 
     for (const sportClub of dbResponse.data) {
-      allSportClubs.push({ id: sportClub.id, name: sportClub.name, address: sportClub.address, sport: sportClub.sport, sportLocation: sportClub.sportLocation, sportClubMembership: sportClub.sportClubMembership })
+      allSportClubs.push({ id: sportClub.id, name: sportClub.name, address: sportClub.address, sport: sportClub.sport || [], sportLocation: sportClub.sportLocation || [], sportClubMembership: sportClub.sportClubMembership || [] })
     }
     return allSportClubs;
   }
@@ -253,6 +255,20 @@ export class DatabaseModel {
       allSportClubMemberships.push({ id: sportClubMembership.id, user: sportClubMembership.user, sportClub: sportClubMembership.sportClub, membershipSport: sportClubMembership.membershipSport })
     }
     return allSportClubMemberships;
+  }
+
+  getSportClubMembershipSportFromResponse(dbResponse: PostgrestResponse<ISportClubMembershipSport>): ISportClubMembershipSport[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      // console.log(dbResponse.error)
+      return [];
+    }
+
+    const allSportClubMembershipSports: ISportClubMembershipSport[] = [];
+
+    for (const sportClubMembershipSport of dbResponse.data) {
+      allSportClubMembershipSports.push({ sport: sportClubMembershipSport.sport, memberStatus: sportClubMembershipSport.memberStatus, approved: sportClubMembershipSport.approved })
+    }
+    return allSportClubMembershipSports;
   }
 
   async selectSportClubTable(sportClub: {id?: number, name?: string, address?: string, sport?: ISport[], sportLocation?: ISportLocation[]}): Promise<PostgrestResponse<ISportClub>> {
@@ -305,6 +321,69 @@ export class DatabaseModel {
     return sportClubMembershipResponse;
   }
 
+  async selectSportClubMembershipTableComplete(sportClubMembership: {id?: number, userID?: number, sportClubID?: number, sportID?: number[]}): Promise<PostgrestResponse<ISportClubMembership>> {
+    let idColumnName = "";
+    let userColumnName = "";
+    let sportClubColumnName = "";
+    let sportColumnName = "";
+    
+    if (!(sportClubMembership.id === undefined)) idColumnName = "id";
+    if (!(sportClubMembership.userID === undefined)) userColumnName = "user.id";
+    if (!(sportClubMembership.sportClubID === undefined)) sportClubColumnName = "sportClub";
+    if (!(sportClubMembership.sportID === undefined)) sportColumnName = "membershipSport.sport.id";
+
+    const sportClubMembershipResponse = await DatabaseModel.CLIENT
+      .from('SportClubMembership')
+      .select(`
+        id,
+        user:User(
+          id,
+          username,
+          firstName,
+          lastName,
+          email
+        ),
+        sportClub,
+        membershipSport:SportClubMembership_Sport_Relation(
+          memberStatus,
+          approved,
+          sport:Sport(*)
+        )
+      `)
+      .eq(idColumnName, sportClubMembership.id)
+      .eq(userColumnName, sportClubMembership.userID)
+      .eq(sportClubColumnName, sportClubMembership.sportClubID)
+      .in(sportColumnName, sportClubMembership.sportID);
+
+    return sportClubMembershipResponse;
+  }
+
+  async selectSportClubMembershipSportRelationTable(sportClubMembershipSport: {sportClubMembership?: number, sport?: number, memberStatus?: number, approved?: boolean}): Promise<PostgrestResponse<ISportClubMembershipSport>> {
+    let sportClubMembershipColumnName = "";
+    let sportColumnName = "";
+    let memberStatusColumnName = "";
+    let approvedColumnName = "";
+    
+    if (!(sportClubMembershipSport.sportClubMembership === undefined)) sportClubMembershipColumnName = "sportClubMembership";
+    if (!(sportClubMembershipSport.sport === undefined)) sportColumnName = "sport";
+    if (!(sportClubMembershipSport.memberStatus === undefined)) memberStatusColumnName = "memberStatus";
+    if (!(sportClubMembershipSport.approved === undefined)) approvedColumnName = "approved";
+
+    const sportClubMembershipSportResponse = await DatabaseModel.CLIENT
+      .from('SportClubMembership_Sport_Relation')
+      .select(`
+        sport:Sport(*),
+        memberStatus,
+        approved
+      `)
+      .eq(sportClubMembershipColumnName, sportClubMembershipSport.sportClubMembership)
+      .eq(sportColumnName, sportClubMembershipSport.sport)
+      .eq(memberStatusColumnName, sportClubMembershipSport.memberStatus)
+      .eq(approvedColumnName, sportClubMembershipSport.approved);
+
+    return sportClubMembershipSportResponse;
+  }
+
   async addSportClubMembership(sportClubMembership: {user: number, sportClub: number}): Promise<PostgrestResponse<ISportClubMembership>> {
     const addedSportClubMembership = await DatabaseModel.CLIENT
       .from('SportClubMembership')
@@ -334,11 +413,11 @@ export class DatabaseModel {
     return deletedSportClubMembership;
   }
 
-  async addSportClubMembershipSport(sportClubMembershipSport: {sportClubMembership?: number, sport?: number}): Promise<PostgrestResponse<ISportClubMembershipSport>> {
+  async addSportClubMembershipSport(sportClubMembershipSport: {sportClubMembership?: number, sport?: number, approved?: boolean}): Promise<PostgrestResponse<ISportClubMembershipSport>> {
     const addedSportClubMembershipSport = await DatabaseModel.CLIENT
       .from('SportClubMembership_Sport_Relation')
       .insert([
-        { sportClubMembership: sportClubMembershipSport.sportClubMembership, memberStatus: 0, approved: false, sport: sportClubMembershipSport.sport },
+        { sportClubMembership: sportClubMembershipSport.sportClubMembership, memberStatus: 0, approved: sportClubMembershipSport.approved || false, sport: sportClubMembershipSport.sport },
       ]);
 
     return addedSportClubMembershipSport;
@@ -364,6 +443,30 @@ export class DatabaseModel {
       .eq(approvedColumnName, sportClubMembershipSport.approved);
 
     return deletedSportClubMembershipSport;
+  }
+
+  async selectSportClubMembershipTableAdmin(sportClubID: number, sportID: number[]) {
+    const matches = await DatabaseModel.CLIENT
+      .rpc('get_admin_memberships', { sportClubID: sportClubID, sportID: sportID });
+
+    return matches;
+  }
+
+  async updateSportClubMembershipSportRelation(sportClubMembership: number, sport: number, newMemberStatus: number, newApproved: boolean): Promise<PostgrestResponse<ISportClubMembershipSport>> {
+    const updatedSportClubMembershipSport = await DatabaseModel.CLIENT
+      .from('SportClubMembership_Sport_Relation')
+      .update({ memberStatus: newMemberStatus, approved: newApproved })
+      .eq("sportClubMembership", sportClubMembership)
+      .eq("sport", sport)
+    
+    return updatedSportClubMembershipSport;
+  }
+
+  async getUsersWithoutMembershipSport(sportClubID: number, sportID: number) {
+    const matches = await DatabaseModel.CLIENT
+      .rpc('get_users_without_membership_sport', { sportClubID: sportClubID, sportID: sportID });
+
+    return matches;
   }
 
   //#endregion
