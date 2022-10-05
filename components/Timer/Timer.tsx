@@ -59,6 +59,7 @@ export class Timer extends Component<TimerProps, TimerState> {
 
   componentDidUpdate(prevProps: Readonly<TimerProps>, prevState: Readonly<TimerState>, snapshot?: any): void {
     if (prevProps.timer !== this.props.timer) {
+      this.setState({ timer: this.props.timer })
       this.syncTimer();
     }
   }
