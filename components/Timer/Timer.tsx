@@ -3,9 +3,10 @@ import styles from './Timer.module.css'
 import { ITimer } from "../../interfaces/database";
 import { secondsToFormattedTimeString } from "../../shared/secondsToFormattedTimeString";
 import { FrontEndController } from "../../controller/frontEndController";
-import { Icon } from "@fluentui/react";
+import { getTheme, Icon } from "@fluentui/react";
 import { ConfirmPopUp } from "../ConfirmPopUp/ConfirmPopUp";
 import { PWPLanguageContext } from "../PWPLanguageProvider/PWPLanguageProvider";
+import { ClickableIcon } from "../ClickableIcon/ClickableIcon";
 
 export interface TimerState {
   timer: ITimer | undefined;
@@ -14,6 +15,10 @@ export interface TimerState {
   update: boolean;
   showDeleteConfirmation: boolean;
   showDiscardCurrentTimerConfirmation: boolean;
+  addTime: boolean;
+  addHours: number;
+  addMinutes: number;
+  addSeconds: number;
 }
 
 export interface TimerProps {
@@ -30,6 +35,10 @@ export class Timer extends Component<TimerProps, TimerState> {
       update: false,
       showDeleteConfirmation: false,
       showDiscardCurrentTimerConfirmation: false,
+      addTime: false,
+      addHours: 0,
+      addMinutes: 0,
+      addSeconds: 0,
     }
   }
 
@@ -97,6 +106,16 @@ export class Timer extends Component<TimerProps, TimerState> {
     this.setState({ update: false })
   }
 
+  private async manualAddTime() {
+    await this.syncTimer();
+    if (this.state.timer !== undefined) {
+      const timer = structuredClone(this.state.timer)
+      timer.elapsedSeconds += this.state.addHours * 3600 + this.state.addMinutes * 60 + this.state.addSeconds;
+      await FrontEndController.updateTimer(FrontEndController.getUserToken(), timer);
+      await this.syncTimer();
+    }
+  }
+
   private async discardCurrentTimer() {
     this.setState({ update: true })
     await this.syncTimer();
@@ -159,6 +178,14 @@ export class Timer extends Component<TimerProps, TimerState> {
                     {secondsToFormattedTimeString(this.state.timer.elapsedSeconds)}
                   </span>
                 </p>
+                <div className={styles.addButton}>
+                  <ClickableIcon 
+                    iconName="Add"
+                    onClick={() => {
+                      this.setState({ addTime: true })
+                    }}
+                  />
+                </div>
               </div>
               <div className={styles.currentWorkTime}>
                 <p>
@@ -214,6 +241,58 @@ export class Timer extends Component<TimerProps, TimerState> {
                   </div>
                 </div>
               </div>
+              {
+                this.state.addTime &&
+                  <ConfirmPopUp
+                    title={"Add Time"}
+                    onConfirm={async () => {
+                      this.setState({ update: true })
+                      await this.manualAddTime();
+                      this.setState({ addTime: false, addHours: 0, addMinutes: 0, addSeconds: 0, update: false })
+                    }}
+                    onCancel={() => {
+                      this.setState({ addTime: false, addHours: 0, addMinutes: 0, addSeconds: 0 })
+                    }}
+                    sync={this.state.update}
+                  >
+                    <div>
+                      <div className={styles.addTime}>
+                        <div className={styles.inputWrapper}>
+                          <h1>{LanguageContext.t('common:Hours')}</h1>
+                          <input 
+                            type="number"
+                            min={0}
+                            value={this.state.addHours}
+                            onChange={(e) => { this.setState({ addHours: Number(e.target.value) }) }}
+                          />
+                        </div>
+                        <div className={styles.inputWrapper}>
+                          <h1>{LanguageContext.t('common:Minutes')}</h1>
+                          <input 
+                            type="number"
+                            min={0}
+                            max={60}
+                            value={this.state.addMinutes}
+                            onChange={(e) => { this.setState({ addMinutes: Number(e.target.value) > 60 ? 60 : Number(e.target.value) }) }}
+                          />
+                        </div>
+                        <div className={styles.inputWrapper}>
+                          <h1>{LanguageContext.t('common:Seconds')}</h1>
+                          <input 
+                            type="number"
+                            min={0}
+                            max={60}
+                            value={this.state.addSeconds}
+                            onChange={(e) => { this.setState({ addSeconds: Number(e.target.value) > 60 ? 60 : Number(e.target.value) }) }}
+                          />
+                        </div>
+                      </div>
+                      <p className={styles.addTimeChanges}>
+                        {secondsToFormattedTimeString(this.state.timer.elapsedSeconds)} &rarr; {secondsToFormattedTimeString(this.state.timer.elapsedSeconds + this.state.addHours * 3600 + this.state.addMinutes * 60 + this.state.addSeconds)}
+                      </p>
+                    </div>
+                  </ConfirmPopUp>
+              }
             </div>
           )}
         </PWPLanguageContext.Consumer>

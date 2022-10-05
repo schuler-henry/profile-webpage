@@ -145,3 +145,62 @@
   display: flex;
   color: var(--color-text-primary)
 }
+
+.addTime {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.inputWrapper.inputWrapper {
+  width: 100px;
+  margin: 0 auto;
+}
+
+.inputWrapper.inputWrapper h1 {
+  margin-bottom: 5px;
+  font-size: 14px;
+  text-decoration: none;
+  text-align: left !important;
+}
+
+.inputWrapper.inputWrapper input {
+  background-color: var(--color-bg-hover);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-bg-selected);
+  border-radius: 5px;
+  font-size: 14px;
+  padding: 5px 10px;
+  outline: none;
+}
+
+.inputWrapper.inputWrapper input:read-write:hover, .inputWrapper input:read-write:focus {
+  border-color: var(--color-bg-secondary);
+}
+
+.addTimeChanges.addTimeChanges {
+  margin: 10px 0 0 0 !important;
+  color: var(--color-text-primary);
+}
+
+@media only screen and (min-width: 400px) {}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+  .addTime {
+    flex-direction: row;
+    gap: 10px;
+    margin: 0 auto;
+  }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {}
