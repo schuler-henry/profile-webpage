@@ -1,7 +1,7 @@
 {
   "functions": {
     "pages/api/**/**/*": {
-      "excludeFiles": "public/documents/studies"
+      "excludeFiles": "public/documents/studies/**/*"
     }
   }
 }
