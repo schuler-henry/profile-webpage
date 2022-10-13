@@ -189,5 +189,16 @@ export class DatabaseModel {
     return updatedTimer;
   }
 
+  async getFileFromBucket(bucketID: string, filePath: string): Promise<Blob> {
+    const result = await DatabaseModel.CLIENT
+      .storage
+      .from(bucketID)
+      .download(filePath);
+
+    console.log(result.data);
+    let file = result.data;
+    return file;
+  }
+
   //#endregion
 }

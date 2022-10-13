@@ -474,6 +474,11 @@ Henry Schuler`,
     return content;
   }
 
+  async getFileFromBucket(bucketID: string, filePath: string): Promise<Blob> {
+    console.log(bucketID, filePath)
+    return this.databaseModel.getFileFromBucket(bucketID, filePath);
+  }
+
   //#endregion
 
   //#region Timer Methods
