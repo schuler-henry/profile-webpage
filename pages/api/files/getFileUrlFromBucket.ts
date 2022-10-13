@@ -14,8 +14,6 @@ const BACK_END_CONTROLLER = new BackEndController();
 async function getFileFromBucketHandler(req: NextApiRequest, res: NextApiResponse<Data>) {
   const bucketID: string = req.body.bucketID;
   const filePath: string = req.body.filePath;
-
-  console.log(bucketID, filePath);
     
   const url: string = await BACK_END_CONTROLLER.getFileURLFromBucket(bucketID, filePath);
 

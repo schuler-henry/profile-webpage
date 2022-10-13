@@ -9,14 +9,13 @@ import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLangua
 import PDFObject from 'pdfobject';
 import { Button } from '../components/Button/Button';
 
-export interface SummaryState {
+export interface FileState {
   isLoggedIn: boolean;
   currentToken: string;
-  summary: Blob;
   fileURL: string;
 }
 
-export interface SummaryProps extends WithTranslation, WithRouterProps {
+export interface FileProps extends WithTranslation, WithRouterProps {
   i18n: I18n;
 }
 
@@ -24,18 +23,17 @@ export const getServerSideProps = async (context) => {
 
   return {
     props: {
-      ...(await serverSideTranslations(context.locale, ['common', 'summary'])),
+      ...(await serverSideTranslations(context.locale, ['common', 'file'])),
     }
   }
 }
 
-class Summary extends Component<SummaryProps, SummaryState> {
-  constructor(props: SummaryProps) {
+class File extends Component<FileProps, FileState> {
+  constructor(props: FileProps) {
     super(props)
     this.state = {
       isLoggedIn: undefined,
       currentToken: "",
-      summary: undefined,
       fileURL: undefined,
     }
   }
@@ -47,13 +45,6 @@ class Summary extends Component<SummaryProps, SummaryState> {
   async getFile() {
     this.setState({ fileURL: undefined })
     const { bucketId, filePath } = this.props.router.query;
-    // const summaryBlob = await FrontEndController.getFileFromDatabase(bucketId + "", filePath + ".pdf")
-    // if (summaryBlob !== undefined && summaryBlob !== null && summaryBlob.type === "application/pdf") {
-    //   let fileURL = window.URL.createObjectURL(summaryBlob);
-    //   this.setState({ fileURL: fileURL.toString() });
-    // } else {
-    //   this.setState({ fileURL: null });
-    // }
     this.setState({ fileURL: await FrontEndController.getFileURLFromDatabase(bucketId + "", filePath + ".pdf") });
   }
 
@@ -61,12 +52,17 @@ class Summary extends Component<SummaryProps, SummaryState> {
   }
 
   render() {
+    const { filePath } = this.props.router.query
     if (this.state.fileURL) {
-      console.log("URLLLL", this.state.fileURL)
       const url = structuredClone(this.state.fileURL);
       PDFObject.embed(url)
       return (
         <div>
+          <Head>
+            <title>{filePath}</title>
+            <meta name="description" content="File" />
+            <link rel="icon" href="/favicon.ico" />
+          </Head>
         </div>
       )
     } else if (this.state.fileURL === null) {
@@ -89,7 +85,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
           <div>
             <Head>
               <title>{"Loading"}</title>
-              <meta name="description" content="Summary" />
+              <meta name="description" content="File" />
               <link rel="icon" href="/favicon.ico" />
             </Head>
             <main>
@@ -102,4 +98,4 @@ class Summary extends Component<SummaryProps, SummaryState> {
   }
 }
 
-export default withRouter(withTranslation()(Summary))
+export default withRouter(withTranslation()(File))
