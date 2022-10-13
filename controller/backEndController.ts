@@ -474,6 +474,10 @@ Henry Schuler`,
     return content;
   }
 
+  async getFileURLFromBucket(bucketID: string, filePath: string): Promise<string> {
+    return this.databaseModel.getFileURLFromBucket(bucketID, filePath);
+  }
+
   //#endregion
 
   //#region Timer Methods
