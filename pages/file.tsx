@@ -47,13 +47,14 @@ class Summary extends Component<SummaryProps, SummaryState> {
   async getFile() {
     this.setState({ fileURL: undefined })
     const { bucketId, filePath } = this.props.router.query;
-    const summaryBlob = await FrontEndController.getFileFromDatabase(bucketId + "", filePath + ".pdf")
-    if (summaryBlob !== undefined && summaryBlob !== null && summaryBlob.type === "application/pdf") {
-      let fileURL = window.URL.createObjectURL(summaryBlob);
-      this.setState({ fileURL: fileURL.toString() });
-    } else {
-      this.setState({ fileURL: null });
-    }
+    // const summaryBlob = await FrontEndController.getFileFromDatabase(bucketId + "", filePath + ".pdf")
+    // if (summaryBlob !== undefined && summaryBlob !== null && summaryBlob.type === "application/pdf") {
+    //   let fileURL = window.URL.createObjectURL(summaryBlob);
+    //   this.setState({ fileURL: fileURL.toString() });
+    // } else {
+    //   this.setState({ fileURL: null });
+    // }
+    this.setState({ fileURL: await FrontEndController.getFileURLFromDatabase(bucketId + "", filePath + ".pdf") });
   }
 
   componentWillUnmount() {
@@ -61,6 +62,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
 
   render() {
     if (this.state.fileURL) {
+      console.log("URLLLL", this.state.fileURL)
       const url = structuredClone(this.state.fileURL);
       PDFObject.embed(url)
       return (

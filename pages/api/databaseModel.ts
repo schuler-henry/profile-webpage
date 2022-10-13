@@ -200,5 +200,16 @@ export class DatabaseModel {
     return file;
   }
 
+  async getFileURLFromBucket(bucketID: string, filePath: string): Promise<string> {
+    const result = await DatabaseModel.CLIENT
+      .storage
+      .from(bucketID)
+      .getPublicUrl(filePath);
+
+    console.log(result.data);
+    let url = result.data.publicURL;
+    return url;
+  }
+
   //#endregion
 }

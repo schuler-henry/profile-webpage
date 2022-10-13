@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { BackEndController } from "../../../controller/backEndController";
-import fs from 'fs';
 
 type Data = {
   content: string,
