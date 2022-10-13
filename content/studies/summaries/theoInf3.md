@@ -6,9 +6,8 @@ img: https://henryschuler.de/favicon.ico
 date: 09 October 2022
 ---
 # Zusammenfassung Theoretisch Informatik 3
-<div style="height:70vh">
-  <object data="https://henryschuler.de/documents/studies/theoInf/TheoInf3.pdf" height="100%" width="100%">
-      <p>Oops! Your browser doesn't support PDFs!</p>
-      <p><a href="https://henryschuler.de/documents/studies/theoInf/TheoInf3.pdf">Download Instead</a></p>
+<div style="max-height:70vh;height:fit-content">
+  <object data="https://henryschuler.de/file?bucketId=studies.summaries&filePath=theoInf/TheoInf3" height="100%" width="100%" style="height:70vh">
+      <p>Die URL kann nicht gefunden werden!</p>
   </object>
 </div>

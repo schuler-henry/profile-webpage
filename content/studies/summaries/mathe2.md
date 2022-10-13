@@ -6,10 +6,9 @@ img: https://henryschuler.de/favicon.ico
 date: 09 October 2022
 ---
 # Zusammenfassung Mathematik 2
-<div style="max-height:70vh">
-  <object data="https://henryschuler.de/documents/studies/mathe2/Klausurzettel2.pdf" height="100%" width="100%" style="height:70vh">
-      <p>Oops! Your browser doesn't support PDFs!</p>
-      <p><a href="https://henryschuler.de/documents/studies/mathe2/Klausurzettel2.pdf">Download Instead</a></p>
+<div style="max-height:70vh;height:fit-content">
+  <object data="https://henryschuler.de/file?bucketId=studies.summaries&filePath=mathe2/Klausurzettel2" height="100%" width="100%" style="height:70vh">
+      <p>Die URL kann nicht gefunden werden!</p>
   </object>
 </div>
 
@@ -20,9 +19,8 @@ date: 09 October 2022
 > 
 > **Info:** Die Aufgabennummern können sich von Semester zu Semester unterscheiden. 
 > Die Aufgaben sind in der Regel aber identisch.
-<div style="max-height:70vh">
-  <object data="https://henryschuler.de/documents/studies/mathe2/Mathe3LoesungAufgaben.pdf" height="100%" width="100%" style="height:70vh">
-      <p>Oops! Your browser doesn't support PDFs!</p>
-      <p><a href="https://henryschuler.de/documents/studies/mathe2/Mathe3LoesungAufgaben.pdf">Download Instead</a></p>
+<div style="max-height:70vh;height:fit-content">
+  <object data="https://henryschuler.de/file?bucketId=studies.summaries&filePath=mathe2/Mathe3LoesungAufgaben" height="100%" width="100%" class="pdfViewer">
+      <p>Die URL kann nicht gefunden werden!</p>
   </object>
 </div>
