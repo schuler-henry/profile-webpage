@@ -1,0 +1,21 @@
+.content {
+  padding: 0 20px;
+}
+
+.content p {
+  color: #AAAAAA;
+}
+
+.sportEventHeader {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
+}
+
+.gridView {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-gap: 20px;
+  margin: 0 0 20px 0;
+}

@@ -1,7 +1,7 @@
 // @ts-check
 import { createClient, PostgrestResponse, SupabaseClient } from '@supabase/supabase-js'
 import { AccessLevel } from '../../enums/accessLevel';
-import { ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, ISportLocation, ITimer, IUser } from '../../interfaces/database'
+import { ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, ISportEvent, ISportLocation, ITimer, IUser } from '../../interfaces/database'
 
 /**
  * DataBase Model to Connect BackendController with Supabase DB
@@ -271,6 +271,23 @@ export class DatabaseModel {
     return allSportClubMembershipSports;
   }
 
+  // TODO: update function
+  getSportEventsFromResponse(dbResponse: PostgrestResponse<ISportEvent>): ISportEvent[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      console.log(dbResponse.error)
+      return [];
+    }
+
+    const allSportEvents: ISportEvent[] = [];
+
+    console.log(dbResponse.data)
+    for (const sportEvent of dbResponse.data) {
+      console.log(sportEvent)
+      allSportEvents.push(sportEvent)
+    }
+    return allSportEvents;
+  }
+
   async selectSportClubTable(sportClub: {id?: number, name?: string, address?: string, sport?: ISport[], sportLocation?: ISportLocation[]}): Promise<PostgrestResponse<ISportClub>> {
     let idColumnName = "";
     let nameColumnName = "";
@@ -467,6 +484,46 @@ export class DatabaseModel {
       .rpc('get_users_without_membership_sport', { sportClubID: sportClubID, sportID: sportID });
 
     return matches;
+  }
+
+  // TODO: Update function
+  async selectSportEventTable(): Promise<PostgrestResponse<ISportEvent>> {
+    const sportEventResponse = await DatabaseModel.CLIENT
+      .from('SportEvent')
+      .select(`
+        id,
+        startTime,
+        endTime,
+        description,
+        visibility,
+        creator:User(*),
+        sport:Sport(*),
+        sportLocation:SportLocation(*),
+        sportEventType:SportEventType(*),
+        sportClubs:SportEvent_SportClub_Relation(
+          sportClub:SportClub(*),
+          host
+        ),
+        sportMatch:SportMatch(
+          id,
+          description,
+          sportTeam:SportMatch_User_Relation(
+            user:User(*),
+            teamNumber
+          ),
+          sportMatchSet:SportMatchSet(
+            id,
+            setNumber,
+            sportScore:SportSetScore(
+              teamNumber,
+              score
+            )
+          )
+        )
+      `);
+
+    // console.log(JSON.stringify(sportEventResponse))
+    return sportEventResponse;
   }
 
   //#endregion

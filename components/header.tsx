@@ -308,6 +308,15 @@ export class Header extends Component<HeaderProps, HeaderState> {
                                   </div>
                                 </Link>
                               </div>
+                              <div className={styles.navSubContentItem}>
+                                <Link href={'/apps/sportEvent'} passHref>
+                                  <div className={styles.nav} onClick={(event) => { this.closeNav(event); }}>
+                                    <span className={styles.navContent} onClick={(event) => { this.closeNav(event); }}>
+                                      {LanguageContext.t('common:SportEvent')}
+                                    </span>
+                                  </div>
+                                </Link>
+                              </div>
                             </div>
                           </div>
                         }

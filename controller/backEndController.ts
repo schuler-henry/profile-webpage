@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs'
 import path from 'path'
 import * as bcrypt from 'bcrypt';
-import { ISportClub, ISportClubMembership, ISportClubMembershipSport, ITimer, IUser } from '../interfaces/database';
+import { ISportClub, ISportClubMembership, ISportEvent, ITimer, IUser } from '../interfaces/database';
 import { randomStringGenerator } from '../shared/randomStringGenerator';
 import { SMTPClient } from 'emailjs';
 import { isEmailValid } from '../pages/api/users/requirements';
@@ -656,6 +656,14 @@ Henry Schuler`,
   async handleGetSportClubs(token: string): Promise<ISportClub[]> {
     if (this.isTokenValid(token)) {
       return this.databaseModel.getSportClubsFromResponse(await this.databaseModel.selectSportClubTable({}));
+    }
+    return [];
+  }
+
+  // TODO: update function
+  async handleGetSportEvents(token: string): Promise<ISportEvent[]> {
+    if (this.isTokenValid(token)) {
+      return this.databaseModel.getSportEventsFromResponse(await this.databaseModel.selectSportEventTable());
     }
     return [];
   }

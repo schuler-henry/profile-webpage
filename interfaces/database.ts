@@ -70,7 +70,7 @@ export interface ISportEvent {
   sport: ISport;
   sportLocation: ISportLocation;
   sportEventType: ISportEventType;
-  sportClub: ISportClub[];
+  sportClubs: {sportClub: ISportClub, host: boolean}[];
   sportMatch: ISportMatch[];
 }
 
