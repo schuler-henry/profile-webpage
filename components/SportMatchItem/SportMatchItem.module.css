@@ -1,0 +1,19 @@
+.elementWrapper {
+  background-color: var(--color-bg-selected);
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.elementWrapper table tr td:first-of-type {
+  width: 100%;
+}
+
+.elementWrapper td:not(:first-of-type) {
+  text-align: center;
+}
+
+.info {
+  border-top: solid 2px var(--color-text-off);
+  margin-top: 5px;
+  padding: 5px 2px 0 2px;
+}

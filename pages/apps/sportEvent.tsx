@@ -39,14 +39,14 @@ class SportEvent extends Component<SportEventProps, SportEventState> {
     super(props)
     this.state = {
       sync: false,
-      sportEvents: [{ id : 0, description : "Erster Spieltag in der Runde 2022, Heimspieltag", startTime : new Date(), endTime : new Date(), visibility : 1, creator : undefined, sport : {id: 1, name: "Volleyball"}, sportLocation : undefined, sportEventType : {id: 1, name: "Spieltag"}, sportClubs : undefined, sportMatch : undefined }],
+      sportEvents: [],
     }
   }
 
   static contextType = PWPAuthContext;
 
   async componentDidMount() {
-    this.setState({ sportEvents: this.state.sportEvents.concat(await FrontEndController.getSportEvents(FrontEndController.getUserToken())) });
+    this.setState({ sportEvents: await FrontEndController.getSportEvents(FrontEndController.getUserToken()) });
   }
 
   componentWillUnmount() {
@@ -108,6 +108,8 @@ class SportEvent extends Component<SportEventProps, SportEventState> {
                     </h1>
                   </span>
                   <div className={styles.gridView}>
+                    {/* Item for adding new sport events */}
+                    <SportEventItem />
                     {
                       this.state.sportEvents.map((sportEvent, index) => {
                         return(

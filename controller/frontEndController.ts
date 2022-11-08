@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { ColorTheme } from '../enums/colorTheme';
-import { ISportClub, ISportClubMembership, ISportEvent, ITimer, IUser } from '../interfaces/database';
+import { ISport, ISportClub, ISportClubMembership, ISportEvent, ISportEventType, ITimer, IUser } from '../interfaces/database';
 import { GitHubUser, Repository } from '../interfaces/Github';
 
 /**
@@ -634,6 +634,9 @@ export class FrontEndController {
     return data.wasSuccessful;
   }
 
+  /**
+   * This method returns all sportEvents
+   */
   static async getSportEvents(userToken: string): Promise<ISportEvent[]> {
     const response = await fetch('/api/sport/get_sport_event', {
       method: 'POST',
@@ -648,6 +651,44 @@ export class FrontEndController {
     const data = await response.json();
     // console.log(data)
     return data.sportEvent;
+  }
+
+  /**
+   * This method returns all sports
+   */
+  static async getAllSports(userToken: string): Promise<ISport[]> {
+    const response = await fetch('/api/sport/get_all_sports', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: userToken,
+      })
+    });
+
+    const data = await response.json();
+
+    return data.sports;
+  }
+
+  /**
+   * This method returns all sport event types from the database
+   */
+  static async getAllSportEventTypes(userToken: string): Promise<ISportEventType[]> {
+    const response = await fetch('/api/sport/get_all_sport_event_types', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: userToken,
+      })
+    });
+
+    const data = await response.json();
+
+    return data.sportEventTypes;
   }
 
   //#endregion

@@ -2,6 +2,7 @@ export function dateStringToFormattedDateString(date: Date): string;
 export function dateStringToFormattedDateString(dateString: string): string;
 export function dateStringToFormattedDateString(dateString: string | Date): string {
   let date: Date = undefined;
+  if (dateString === undefined) return "";
   if (typeof dateString === "string") {
     try {
       date = new Date(dateString);

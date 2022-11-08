@@ -3,10 +3,11 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs'
 import path from 'path'
 import * as bcrypt from 'bcrypt';
-import { ISportClub, ISportClubMembership, ISportEvent, ITimer, IUser } from '../interfaces/database';
+import { ISport, ISportClub, ISportClubMembership, ISportEvent, ISportEventType, ITimer, IUser } from '../interfaces/database';
 import { randomStringGenerator } from '../shared/randomStringGenerator';
 import { SMTPClient } from 'emailjs';
 import { isEmailValid } from '../pages/api/users/requirements';
+import { SportEventVisibility } from '../enums/sportEventVisibility';
 
 /**
  * Backend Controller of PersonalWebPage
@@ -62,7 +63,7 @@ export class BackEndController {
   }
 
   /**
-   * This method extracts the username from a token
+   * This method extracts the userId from a token
    */
    getIdFromToken(token: string): number {
     try {
@@ -660,10 +661,113 @@ Henry Schuler`,
     return [];
   }
 
-  // TODO: update function
+  // helper functions
+  /**
+   * This method checks whether the given user is creator of the given sport event
+   */
+  isCreator(sportEvent: ISportEvent, userId: number): boolean {
+    return sportEvent.creator.id === userId;
+  }
+
+  /**
+   * This method checks whether the given user is participant of the given sport event
+   */
+  isSportEventMember(sportEvent: ISportEvent, userId: number): boolean {
+    for (const sportMatch of sportEvent.sportMatch) {
+      for (const sportTeam of sportMatch.sportTeam) {
+        for (const user of sportTeam.user) {
+          if (user.id === userId) {
+            return true
+          }
+        }
+      }
+    }
+    return false
+  }
+
+  /**
+   * This method checks whether the given user is member of the selected sport clubs
+   */
+  async isSportClubMember(sportEvent: ISportEvent, userId: number): Promise<boolean> {
+    sportEvent.sportClubs.forEach(async sportClub => {
+      if(this.databaseModel.evaluateSuccess(await this.databaseModel.selectSportClubMembershipTable({sportClub: sportClub.sportClub.id, user: userId}))) {
+        return true
+      }
+    })
+    return false
+  }
+
+  /**
+   * This method checks whether the given user is member of the selected sport clubs sports
+   */
+  async isSportClubSportMember(sportEvent: ISportEvent, userId: number): Promise<boolean> {
+    sportEvent.sportClubs.forEach(async sportClub => {
+      const membership = this.databaseModel.getSportClubMembershipFromResponse(await this.databaseModel.selectSportClubMembershipTable({sportClub: sportClub.sportClub.id, user: userId}))[0]
+      if (membership.membershipSport.find(item => item.sport.id === sportEvent.sport.id)) {
+        return true
+      }
+    })
+    return false
+  }
+
+  /**
+   * This method returns all sport events from the database that are visible to the given user
+   */
   async handleGetSportEvents(token: string): Promise<ISportEvent[]> {
     if (this.isTokenValid(token)) {
-      return this.databaseModel.getSportEventsFromResponse(await this.databaseModel.selectSportEventTable());
+      const userId = this.getIdFromToken(token);
+      const allSportEvents = await this.databaseModel.getSportEventsFromResponse(await this.databaseModel.selectSportEventTable());
+      let sportEvents: ISportEvent[] = [];
+
+      for (const sportEvent of allSportEvents) {
+        let addEvent = false
+        switch (sportEvent.visibility) {
+          case SportEventVisibility.creatorOnly:
+            if (this.isCreator(sportEvent, userId)) {
+              addEvent = true
+            }
+            break;
+          case SportEventVisibility.creatorMembers:
+            if (this.isCreator(sportEvent, userId) || this.isSportEventMember(sportEvent, userId)) {
+              addEvent = true
+            }
+            break;
+          case SportEventVisibility.creatorMemberClubSportMember: 
+            if (this.isCreator(sportEvent, userId) || this.isSportEventMember(sportEvent, userId) || await this.isSportClubSportMember(sportEvent, userId)) {
+              addEvent = true
+            }
+            break;
+          case SportEventVisibility.creatorMemberClubMember:
+            if (this.isCreator(sportEvent, userId) || this.isSportEventMember(sportEvent, userId) || await this.isSportClubMember(sportEvent, userId)) {
+              addEvent = true
+            }
+            break;
+          case SportEventVisibility.public:
+            addEvent = true
+            break;
+          default:
+            break;
+        }
+
+        if (addEvent) {
+          sportEvents.push(sportEvent);
+        }
+      }
+      return sportEvents
+    }
+    return [];
+  }
+
+  async handleGetAllSports(token: string): Promise<ISport[]> {
+    if (this.isTokenValid(token)) {
+      return this.databaseModel.getSportsFromResponse(await this.databaseModel.selectSportTable({}));
+    }
+    return [];
+  }
+
+  async handleGetAllSportEventTypes(token: string): Promise<ISportEventType[]> {
+    if (this.isTokenValid(token)) {
+      return this.databaseModel.getSportEventTypesFromResponse(await this.databaseModel.selectSportEventTypeTable({}));
     }
     return [];
   }

@@ -72,6 +72,10 @@ body[data-theme="light"] {
   background-color: rgba(0, 0, 0, 0);
 }
 
+body[data-theme="dark"] input {
+  color-scheme: dark;
+}
+
 main {
   min-height: calc(100vh - 40pt);
 }
