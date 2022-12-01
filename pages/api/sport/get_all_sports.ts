@@ -16,7 +16,6 @@ async function getAllSportsHandler(req: NextApiRequest, res: NextApiResponse<Dat
   const token: string = req.body.token;
   
   const sports: ISport[] = await BACK_END_CONTROLLER.handleGetAllSports(token);
-  console.log(sports)
 
   res.status(200).json({ sports: sports })
 }

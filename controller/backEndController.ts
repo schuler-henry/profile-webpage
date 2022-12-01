@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs'
 import path from 'path'
 import * as bcrypt from 'bcrypt';
-import { ISport, ISportClub, ISportClubMembership, ISportEvent, ISportEventType, ITimer, IUser } from '../interfaces/database';
+import { ISport, ISportClub, ISportClubMembership, ISportEvent, ISportEventType, ISportLocation, ITimer, IUser } from '../interfaces/database';
 import { randomStringGenerator } from '../shared/randomStringGenerator';
 import { SMTPClient } from 'emailjs';
 import { isEmailValid } from '../pages/api/users/requirements';
@@ -563,6 +563,19 @@ Henry Schuler`,
     return false;
   }
 
+  async handleGetAllUsers(userToken: string): Promise<IUser[]> {
+    if (this.isTokenValid(userToken)) {
+      const users =  this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({}));
+      // remove password, accessLevel, unconfirmedEmail, activationCode
+      return users.map((user) => {
+        return (
+          { ...user, password: "", accessLevel: 0, unconfirmedEmail: "", activationCode: "" }
+        )
+      })
+    }
+    return [];
+  }
+
   //#endregion
 
   //#region File Methods
@@ -758,6 +771,374 @@ Henry Schuler`,
     return [];
   }
 
+  async handleAddSportEvent(token: string, sportEvent: ISportEvent): Promise<number> {
+    if (!this.isTokenValid(token)) {
+      return undefined;
+    }
+
+    if (
+      !sportEvent.startTime ||
+      !sportEvent.endTime ||
+      !sportEvent.description ||
+      !sportEvent.visibility ||
+      !sportEvent.sport ||
+      !sportEvent.sportLocation ||
+      !sportEvent.sportEventType
+    ) {
+      return undefined;
+    }
+
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({userID: this.getIdFromToken(token)}))[0];
+
+    if (user === undefined) {
+      return undefined;
+    }
+
+    sportEvent.creator = user;
+
+    const addSportEvent = await this.databaseModel.addSportEventTable(sportEvent)
+
+    return (await this.databaseModel.getSportEventsFromResponse(addSportEvent))[0].id;
+  }
+
+  async handleDeleteSportEvent(token: string, sportEventId: number): Promise<boolean> {
+    if (!this.isTokenValid(token)) {
+      return false;
+    }
+
+    const sportEvent = (await this.databaseModel.getSportEventsFromResponse(await this.databaseModel.selectSportEventTable())).find(item => item.id === sportEventId);
+
+    if (sportEvent === undefined) {
+      return true;
+    }
+
+    if (sportEvent.creator.id !== this.getIdFromToken(token)) {
+      return false;
+    }
+
+    if (!await this.handleUpdateSportEvent(token, { ...sportEvent, sportClubs: [], sportMatch: [] })) {
+      return false;
+    }
+
+    return this.databaseModel.evaluateSuccess(await this.databaseModel.deleteSportEventTable({id: sportEventId}));
+  }
+
+  async handleUpdateSportEvent(token: string, sportEvent: ISportEvent): Promise<boolean> {
+    if (!this.isTokenValid(token)) {
+      return false;
+    }
+
+    if (sportEvent.id === undefined) {
+      sportEvent.id = await this.handleAddSportEvent(token, sportEvent);
+    }
+
+    // updated existing sport event
+    const sportEventFromDB = (await this.databaseModel.getSportEventsFromResponse(await this.databaseModel.selectSportEventTable())).find(item => item.id === sportEvent.id);
+    
+    if (sportEventFromDB === undefined || !this.isCreator(sportEventFromDB, this.getIdFromToken(token))) {
+      return false;
+    }
+
+    // sport event is valid and user has the rights to update it
+
+    // update sport event
+    const sportEventUpdate = await this.databaseModel.updateSportEventTable(sportEventFromDB.id, {
+      startTime: sportEvent.startTime,
+      endTime: sportEvent.endTime,
+      description: sportEvent.description,
+      visibility: sportEvent.visibility,
+      creator: sportEvent.creator.id,
+      sport: sportEvent.sport.id,
+      sportLocation: sportEvent.sportLocation.id,
+      sportEventType: sportEvent.sportEventType.id,
+    });
+
+    if (!this.databaseModel.evaluateSuccess(sportEventUpdate)) {
+      return false;
+    }
+
+    // update sport clubs
+
+    let newSportClubRelations = structuredClone(sportEvent.sportClubs);
+    for (const sportClubRelation of sportEventFromDB?.sportClubs || []) {
+      const index = newSportClubRelations.findIndex(item => item.sportClub.id === sportClubRelation.sportClub.id);
+      if (index >= 0) {
+        // item still exists -> update
+        if (sportClubRelation.host !== newSportClubRelations[index].host) {
+          const sportClubRelationUpdate = await this.databaseModel.updateSportEventSportClubRelationTable({ sportEvent: sportEventFromDB.id, sportClub: sportClubRelation.sportClub.id }, { host: newSportClubRelations[index].host })
+          if (!this.databaseModel.evaluateSuccess(sportClubRelationUpdate)) {
+            return false;
+          }
+        }
+        newSportClubRelations.splice(index, 1);
+      } else {
+        // item was removed -> delete
+        const deleteSportClubRelation = await this.databaseModel.deleteSportEventSportClubRelationTable({sportEvent: sportEventFromDB.id, sportClub: sportClubRelation.sportClub.id});
+        if (!this.databaseModel.evaluateSuccess(deleteSportClubRelation)) {
+          return false;
+        }
+      }
+    }
+
+    // add new sport club relations
+
+    for (const sportClubRelation of newSportClubRelations) {
+      const addSportClubRelation = await this.databaseModel.addSportEventSportClubRelationTable({
+        sportEvent: sportEventFromDB.id,
+        sportClub: sportClubRelation.sportClub.id,
+        host: sportClubRelation.host
+      });
+      if (!this.databaseModel.evaluateSuccess(addSportClubRelation)) {
+        return false;
+      }
+    }
+
+    // update sport matches
+
+    let newSportMatchRelations = structuredClone(sportEvent.sportMatch);
+    for (const dbSportMatch of sportEventFromDB?.sportMatch || []) {
+      const index = newSportMatchRelations.findIndex(item => item.id === dbSportMatch.id);
+      if (index >= 0) {
+        // item still exists -> update
+        const newSportMatch = newSportMatchRelations[index];
+        
+        // update sport match
+        if (dbSportMatch.description !== newSportMatch.description) {
+          const updateSportMatch = await this.databaseModel.updateSportMatchTable({id: dbSportMatch.id}, { description: newSportMatch.description });
+          if (!this.databaseModel.evaluateSuccess(updateSportMatch)) {
+            return false;
+          }
+        }
+
+        // update sport match user relations
+        const newSportTeams = structuredClone(newSportMatch.sportTeam);
+        for (const dbSportTeam of dbSportMatch.sportTeam) {
+          const index = newSportTeams.findIndex(item => item.teamNumber === dbSportTeam.teamNumber);
+          if (index >= 0) {
+            // teamNumber still exists -> update users
+            const newSportTeam = newSportTeams[index];
+            const newUsers = structuredClone(newSportTeam.user);
+            for (const dbUser of dbSportTeam.user) {
+              const index = newUsers.findIndex(item => item.id === dbUser.id);
+              if (index >= 0) {
+                // user still exists -> do nothing (user is already in the sport match)
+                newUsers.splice(index, 1);
+              } else {
+                // user was removed -> delete
+                const deleteSportMatchUserRelation = await this.databaseModel.deleteSportMatchUserRelationTable({ sportMatch: dbSportMatch.id, user: dbUser.id });
+                if (!this.databaseModel.evaluateSuccess(deleteSportMatchUserRelation)) {
+                  return false;
+                }
+              }
+            }
+
+            // add new user
+            for (const newUser of newUsers) {
+              const addSportMatchUserRelation = await this.databaseModel.addSportMatchUserRelationTable({ 
+                sportMatch: dbSportMatch.id, 
+                user: newUser.id ,
+                teamNumber: newSportTeam.teamNumber,
+              });
+              if (!this.databaseModel.evaluateSuccess(addSportMatchUserRelation)) {
+                return false;
+              }
+            }
+            newSportTeams.splice(index, 1);
+          } else {
+            // team was removed -> delete
+            const deleteSportMatchUserRelation = await this.databaseModel.deleteSportMatchUserRelationTable({sportMatch: dbSportMatch.id, teamNumber: dbSportTeam.teamNumber});
+            if (!this.databaseModel.evaluateSuccess(deleteSportMatchUserRelation)) {
+              return false;
+            }
+          }
+        }
+
+        // update sport match sets
+        const newSportMatchSets = structuredClone(newSportMatch.sportMatchSet);
+        for (const dbSportMatchSet of dbSportMatch.sportMatchSet) {
+          const index = newSportMatchSets.findIndex(item => item.id === dbSportMatchSet.id);
+          if (index >= 0) {
+            // set still exists -> update
+            const newSportMatchSet = newSportMatchSets[index];
+            if (dbSportMatchSet.setNumber !== newSportMatchSet.setNumber) {
+              const updateSportMatchSet = await this.databaseModel.updateSportMatchSetTable({id: dbSportMatchSet.id}, { setNumber: newSportMatchSet.setNumber });
+              if (!this.databaseModel.evaluateSuccess(updateSportMatchSet)) {
+                return false;
+              }
+            }
+
+            // update sport match set scores
+            const newSportMatchSetScores = structuredClone(newSportMatchSet.sportScore);
+            for (const dbSportMatchSetScore of dbSportMatchSet.sportScore) {
+              const index = newSportMatchSetScores.findIndex(item => item.teamNumber === dbSportMatchSetScore.teamNumber);
+              if (index >= 0) {
+                // score still exists -> update
+                if (dbSportMatchSetScore.score !== newSportMatchSetScores[index].score) {
+                  const updateSportMatchSetScore = await this.databaseModel.updateSportSetScoreTable(
+                    { sportMatchSet: dbSportMatchSet.id, teamNumber: dbSportMatchSetScore.teamNumber}, 
+                    { score: newSportMatchSetScores[index].score });
+                  if (!this.databaseModel.evaluateSuccess(updateSportMatchSetScore)) {
+                    return false;
+                  }
+                }
+                newSportMatchSetScores.splice(index, 1);
+              } else {
+                // score was removed -> delete
+                const deleteSportMatchSetScore = await this.databaseModel.deleteSportSetScoreTable({sportMatchSet: dbSportMatchSet.id, teamNumber: dbSportMatchSetScore.teamNumber});
+                if (!this.databaseModel.evaluateSuccess(deleteSportMatchSetScore)) {
+                  return false;
+                }
+              }
+            }
+
+            // add new sport match set scores
+            for (const newSportMatchSetScore of newSportMatchSetScores) {
+              const addSportMatchSetScore = await this.databaseModel.addSportSetScoreTable({ 
+                sportMatchSet: dbSportMatchSet.id, 
+                teamNumber: newSportMatchSetScore.teamNumber,
+                score: newSportMatchSetScore.score,
+              });
+              if (!this.databaseModel.evaluateSuccess(addSportMatchSetScore)) {
+                return false;
+              }
+            }
+
+            newSportMatchSets.splice(index, 1);
+          } else {
+            // set was removed -> delete
+            // delete sport match set scores
+            const deleteSportMatchSetScore = await this.databaseModel.deleteSportSetScoreTable({sportMatchSet: dbSportMatchSet.id});
+            if (!this.databaseModel.evaluateSuccess(deleteSportMatchSetScore)) {
+              return false;
+            }
+            // delete sport match set
+            const deleteSportMatchSet = await this.databaseModel.deleteSportMatchSetTable({id: dbSportMatchSet.id});
+            if (!this.databaseModel.evaluateSuccess(deleteSportMatchSet)) {
+              return false;
+            }
+          }
+        }
+        
+        // add new sport match sets
+        for (const newSportMatchSet of newSportMatchSets) {
+          const addSportMatchSet = await this.databaseModel.addSportMatchSetTable({ 
+            sportMatch: dbSportMatch.id, 
+            setNumber: newSportMatchSet.setNumber,
+          });
+          if (!this.databaseModel.evaluateSuccess(addSportMatchSet)) {
+            return false;
+          }
+
+          const sportMatchSetId = this.databaseModel.getSportMatchSetFromResponse(addSportMatchSet)[0].id;
+
+          // add sport match set scores
+          for (const newSportMatchSetScore of newSportMatchSet.sportScore) {
+            const addSportMatchSetScore = await this.databaseModel.addSportSetScoreTable({ 
+              sportMatchSet: sportMatchSetId, 
+              teamNumber: newSportMatchSetScore.teamNumber,
+              score: newSportMatchSetScore.score,
+            });
+            if (!this.databaseModel.evaluateSuccess(addSportMatchSetScore)) {
+              return false;
+            }
+          }
+        }
+
+        newSportMatchRelations.splice(index, 1);
+      } else {
+        // item was removed -> delete
+
+        // delete sport match user relations
+        const deleteSportMatchUserRelations = await this.databaseModel.deleteSportMatchUserRelationTable({sportMatch: dbSportMatch.id});
+
+        if (!this.databaseModel.evaluateSuccess(deleteSportMatchUserRelations)) {
+          return false;
+        }
+        
+        // delete sport match sets
+        for (const sportMatchSet of dbSportMatch.sportMatchSet) {
+          // delete sport match set score
+          const deleteSportMatchSetScores = await this.databaseModel.deleteSportSetScoreTable({sportMatchSet: sportMatchSet.id});
+
+          if (!this.databaseModel.evaluateSuccess(deleteSportMatchSetScores)) {
+            return false;
+          }
+        }
+        const deleteSportMatchSets = await this.databaseModel.deleteSportMatchSetTable({sportMatch: dbSportMatch.id});
+
+        if (!this.databaseModel.evaluateSuccess(deleteSportMatchSets)) {
+          return false;
+        }
+
+        const deleteSportMatch = await this.databaseModel.deleteSportMatchTable({id: dbSportMatch.id});
+
+        if (!this.databaseModel.evaluateSuccess(deleteSportMatch)) {
+          return false;
+        }
+      }
+    }
+
+    // add new sport match relations
+
+    for (const sportMatchRelation of newSportMatchRelations) {
+      // add sport match
+      const addSportMatch = await this.databaseModel.addSportMatchTable({
+        description: sportMatchRelation.description,
+        sportEvent: sportEventFromDB.id,
+      })
+
+      if (!this.databaseModel.evaluateSuccess(addSportMatch)) {
+        return false;
+      }
+
+      const sportMatchId = this.databaseModel.getSportMatchFromResponse(addSportMatch)[0].id;
+
+      // add sport match user relations
+      for (const sportTeam of sportMatchRelation.sportTeam) {
+        for (const user of sportTeam.user) {
+          const addSportMatchUserRelation = await this.databaseModel.addSportMatchUserRelationTable({
+            sportMatch: sportMatchId,
+            user: user.id,
+            teamNumber: sportTeam.teamNumber,
+          })
+
+          if (!this.databaseModel.evaluateSuccess(addSportMatchUserRelation)) {
+            return false;
+          }
+        }
+      }
+
+      // add sport match sets
+      for (const sportMatchSet of sportMatchRelation.sportMatchSet) {
+        const addSportMatchSet = await this.databaseModel.addSportMatchSetTable({
+          sportMatch: sportMatchId,
+          setNumber: sportMatchSet.setNumber,
+        })
+
+        if (!this.databaseModel.evaluateSuccess(addSportMatchSet)) {
+          return false;
+        }
+
+        const sportMatchSetId = this.databaseModel.getSportMatchSetFromResponse(addSportMatchSet)[0].id;
+
+        // add sport match set score
+        for (const sportSetScore of sportMatchSet.sportScore) {
+          const addSportMatchSetScore = await this.databaseModel.addSportSetScoreTable({
+            sportMatchSet: sportMatchSetId,
+            teamNumber: sportSetScore.teamNumber,
+            score: sportSetScore.score,
+          })
+
+          if (!this.databaseModel.evaluateSuccess(addSportMatchSetScore)) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
+  }
+
   async handleGetAllSports(token: string): Promise<ISport[]> {
     if (this.isTokenValid(token)) {
       return this.databaseModel.getSportsFromResponse(await this.databaseModel.selectSportTable({}));
@@ -768,6 +1149,13 @@ Henry Schuler`,
   async handleGetAllSportEventTypes(token: string): Promise<ISportEventType[]> {
     if (this.isTokenValid(token)) {
       return this.databaseModel.getSportEventTypesFromResponse(await this.databaseModel.selectSportEventTypeTable({}));
+    }
+    return [];
+  }
+
+  async handleGetAllSportLocations(token: string): Promise<ISportLocation[]> {
+    if (this.isTokenValid(token)) {
+      return this.databaseModel.getSportLocationsFromResponse(await this.databaseModel.selectSportLocationTable({}));
     }
     return [];
   }

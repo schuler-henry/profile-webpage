@@ -16,7 +16,6 @@ async function getAllSportEventTypesHandler(req: NextApiRequest, res: NextApiRes
   const token: string = req.body.token;
   
   const sportEventTypes: ISportEventType[] = await BACK_END_CONTROLLER.handleGetAllSportEventTypes(token);
-  console.log(sportEventTypes)
 
   res.status(200).json({ sportEventTypes: sportEventTypes })
 }

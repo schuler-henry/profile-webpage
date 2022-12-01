@@ -1,3 +1,13 @@
+.submitButtonContainer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: row;
+  background-color: rgba(0,0,0,0.6);
+  border-radius: 4px;
+}
+
 .content {
   height: 100%;
   overflow: hidden;
@@ -51,15 +61,7 @@
 }
 
 .description {
-  border: 1px solid var(--color-border-primary);
-  background-color: var(--color-bg-hover);
-  color: var(--color-text-primary);
-  padding: 10px;
+  min-width: 50%;
+  max-width: 100%;
   width: 100%;
-  font-size: 14px;
-  min-height: 76px;
-}
-
-.description:focus {
-  outline: none;
 }

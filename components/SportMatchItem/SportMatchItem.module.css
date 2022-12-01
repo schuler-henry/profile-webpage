@@ -16,4 +16,18 @@
   border-top: solid 2px var(--color-text-off);
   margin-top: 5px;
   padding: 5px 2px 0 2px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info p {
+  margin: 0;
+}
+
+.info .buttonGroup {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
 }

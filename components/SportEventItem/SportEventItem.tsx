@@ -6,16 +6,24 @@ import { dateStringToFormattedTimeString } from "../../shared/dateStringToFormat
 import { Icon } from "@fluentui/react";
 import { SportMatchItem } from "../SportMatchItem/SportMatchItem";
 import { SportEventItemEdit } from "../SportEventItemEdit/SportEventItemEdit";
+import { ClickableIcon } from "../ClickableIcon/ClickableIcon";
+import { FrontEndController } from "../../controller/frontEndController";
+import { ConfirmPopUp } from "../ConfirmPopUp/ConfirmPopUp";
 
 
 export interface SportEventItemState {
   expand: boolean;
-  decrees: boolean;
+  decrease: boolean;
   positionValues: DOMRect;
+  edit: boolean;
+  confirmDelete: boolean;
+  updating: boolean;
 }
 
 export interface SportEventItemProps {
-  sportEvent?: ISportEvent;
+  sportEvent: ISportEvent;
+  onChange?: () => void;
+  isCreator?: boolean;
 }
 
 export class SportEventItem extends Component<SportEventItemProps, SportEventItemState> {
@@ -23,10 +31,33 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
     super(props);
     this.state = {
       expand: false,
-      decrees: false,
+      decrease: false,
       positionValues: undefined,
+      edit: false,
+      confirmDelete: false,
+      updating: false,
     }
   }
+
+  componentDidMount(): void {
+      this.setState({ edit: this.props.sportEvent.id === undefined })
+  }
+
+  componentDidUpdate(prevProps: Readonly<SportEventItemProps>, prevState: Readonly<SportEventItemState>, snapshot?: any): void {
+    if (!this.state.edit && this.props.sportEvent.id === undefined) {
+      this.setState({ edit: true });
+    }
+  }
+
+  private minimize() {
+    if (this.state.expand) {
+      setTimeout(() => {
+        this.setState({ decrease: false, positionValues: undefined })
+      }, 800)
+      this.setState({ expand: false, decrease: true })
+    }
+  }
+
   render() {
     return (
       <div
@@ -37,37 +68,80 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
           style={{ height: "100%" }}
           onClick={(e) => {
             if (this.state.expand && e.target === e.currentTarget) {
-              setTimeout(() => {
-                this.setState({ decrees: false, positionValues: undefined })
-              }, 800)
-              this.setState({ expand: false, decrees: true })
+              this.minimize();
             }
           }}
         >
           <div 
-            className={`${styles.elementWrapper} ${this.state.expand && styles.expand} ${this.state.decrees && styles.decrees}`}
-            style={ this.state.positionValues ? { position: "absolute", height: this.state.positionValues.height, width: this.state.positionValues.width, left: this.state.positionValues.x, top: this.state.positionValues.y } : { height: "100%" }}
+            className={`${styles.elementWrapper} ${this.state.expand && styles.expand} ${this.state.decrease && styles.decrease}`}
+            style={ this.state.positionValues ? { position: "absolute", height: this.state.positionValues.height, width: this.state.positionValues.width, left: this.state.positionValues.x, top: this.state.positionValues.y } : {  height: "100%" }}
             onClick={(e) => {
               if (!this.state.expand) {
-                this.setState({ expand: true, decrees: false, positionValues: e.currentTarget.getBoundingClientRect() })
+                this.setState({ expand: true, decrease: false, positionValues: e.currentTarget.getBoundingClientRect() })
               }
             }}
           > 
             {
-              this.props.sportEvent === undefined ? 
-              <div style={{ height: "100%" }}>
-                <div className={this.state.positionValues ? "" : styles.addPreview} hidden={Boolean(this.state.positionValues)}>
+              this.state.edit ?
+              <div style={{ height: "100%", position: "relative" }}>
+                <div className={this.state.positionValues ? "" : styles.addPreview} hidden={this.state.positionValues !== undefined}>
                   <Icon 
-                    iconName="add"
-                    style={{ fontSize: "30px" }}  
+                    iconName={"Edit"}
+                    style={{ fontSize: "30px" }}
                   />
                 </div>
-                <div style={{ height: "100%" }} hidden={!this.state.positionValues}>
-                  <SportEventItemEdit />
+                <div style={{ height: "100%" }} >
+                  <SportEventItemEdit 
+                    sportEvent={this.props.sportEvent}
+                    preview={!this.state.positionValues}
+                    onSave={(sportEvent) => {
+                      this.props.onChange && this.props.onChange();
+                      this.setState({ edit: false })
+                      this.minimize()
+                    }}
+                    onCancel={() => {
+                      this.setState({ edit: false })
+                    }}
+                  />
                 </div>
               </div>
               :
               <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                {
+                  this.state.positionValues && this.props.isCreator &&
+                  <div className={styles.controlButtons}>
+                    <ClickableIcon 
+                      iconName="Edit"
+                      onClick={() => {
+                        this.setState({ edit: true })
+                      }}
+                    />
+                    <ClickableIcon
+                      iconName="Delete"
+                      onClick={async () => {
+                        this.setState({ confirmDelete: true })
+                      }}
+                    />
+                    {
+                      this.state.confirmDelete &&
+                        <ConfirmPopUp 
+                          title="Delete Sport Event"
+                          message="Are you sure you want to delete this sport event?"
+                          onConfirm={this.state.updating ? () => {} : async () => {
+                            this.setState({ updating: true })
+                            await FrontEndController.deleteSportEvent(FrontEndController.getUserToken(), this.props.sportEvent.id);
+                            this.props.onChange && this.props.onChange();
+                            this.setState({ confirmDelete: false, updating: false })
+                            this.minimize();
+                          }}
+                          onCancel={this.state.updating ? () => {} : () => {
+                            this.setState({ confirmDelete: false }) 
+                          }}
+                          sync={this.state.updating}
+                        />
+                    }
+                  </div>
+                }
                 <div className={styles.preview}>
                   <div className={styles.left}>
                     <div className={styles.sportHeading}>

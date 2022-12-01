@@ -1,12 +1,18 @@
 .container {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   flex-grow: 1;
-  position: relative;
-  /* overflow: hidden; */
-  gap: 5px;
   border: 1px solid var(--color-border-primary);
   padding: 5px;
+  background-color: var(--color-bg-primary);
+}
+
+.elementWrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  flex-wrap: wrap;
 }
 
 .selectedElement {  
@@ -27,15 +33,15 @@
 }
 
 .inputWrapper {
-  position: relative;
-  width: 100%;
+  flex-grow: 1;
+  width: 100px;
 }
 
 .input {
   height: 24px;
   font-size: 14px;
   border: none;
-  padding: 0;
+  padding: 0 5px;
 }
 
 .input:focus {
@@ -48,10 +54,12 @@
   left: 0px;
   cursor: pointer;
   box-shadow: 0px 8px 16px 0px rgb(0, 0, 0, 0.3);
+  z-index: 100000;
 }
 
 .previewItem {
   padding: 5px 15px;
+  background-color: var(--color-bg-primary);
 }
 
 .previewItem:hover {

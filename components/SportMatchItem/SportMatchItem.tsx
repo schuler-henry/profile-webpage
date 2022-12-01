@@ -2,13 +2,21 @@ import React, { Component } from "react";
 import styles from "./SportMatchItem.module.css";
 import { ISportMatch } from '../../interfaces/database'
 import { PWPAuthContext } from "../PWPAuthProvider/PWPAuthProvider";
+import { SportMatchItemEdit } from "../SportMatchItemEdit/SportMatchItemEdit";
+import { ClickableIcon } from "../ClickableIcon/ClickableIcon";
+import { ConfirmPopUp } from "../ConfirmPopUp/ConfirmPopUp";
+import { getWinnerTeamNumber } from "../../shared/getWinnerTeamNumber";
 
 export interface SportMatchItemState {
   winnerTeamNumber: number[]; // index = teamNumber; value = number of sets won
+  edit: boolean;
+  confirmDelete: boolean;
 }
 
 export interface SportMatchItemProps {
   sportMatch: ISportMatch;
+  onChange?: (sportMatch: ISportMatch) => void;
+  onDelete?: () => void;
 }
 
 export class SportMatchItem extends Component<SportMatchItemProps, SportMatchItemState> {
@@ -16,26 +24,36 @@ export class SportMatchItem extends Component<SportMatchItemProps, SportMatchIte
     super(props);
     this.state = {
       winnerTeamNumber: undefined,
+      edit: false,
+      confirmDelete: false,
     }
   }
 
   static contextType = PWPAuthContext
 
   componentDidMount(): void {
-    const sportMatchSets = this.props.sportMatch.sportMatchSet;
-    let winnerList = [];
-    for (const sportMatchSet of sportMatchSets.sort((a, b) => a.setNumber > b.setNumber ? 1 : -1)) {
-      const setWinner = sportMatchSet.sportScore.reduce((a, b) => a.score > b.score ? a : b).teamNumber;
-      while (winnerList.length <= setWinner) {
-        winnerList.push(0);
-      }
-      winnerList[setWinner] += 1;
+    this.setState({ winnerTeamNumber: getWinnerTeamNumber(this.props.sportMatch.sportMatchSet) })
+  }
+
+  componentDidUpdate(prevProps: Readonly<SportMatchItemProps>, prevState: Readonly<SportMatchItemState>, snapshot?: any): void {
+    if (prevProps.sportMatch !== this.props.sportMatch) {
+      this.setState({ winnerTeamNumber: getWinnerTeamNumber(this.props.sportMatch.sportMatchSet) })
     }
-    this.setState({ winnerTeamNumber: winnerList})
   }
 
   render() {
     if (this.props.sportMatch !== undefined) {
+      if (this.state.edit) {
+        return (
+          <SportMatchItemEdit 
+            sportMatch={this.props.sportMatch}
+            onSave={(sportMatch: ISportMatch) => {
+              this.props.onChange && this.props.onChange(sportMatch);
+              this.setState({ edit: false });
+            }}
+          />
+        )
+      }
       return (
         <div className={styles.elementWrapper}>
           <table>
@@ -99,7 +117,43 @@ export class SportMatchItem extends Component<SportMatchItemProps, SportMatchIte
             </tbody>
           </table>
           <div className={styles.info}>
-            {this.props.sportMatch.description}
+            <p>
+              {this.props.sportMatch.description}
+            </p>
+            <div className={styles.buttonGroup}>
+              {
+                this.props.onChange &&
+                <ClickableIcon 
+                  iconName="Edit"
+                  onClick={() => {
+                    this.setState({ edit: true })
+                  }}
+                />
+              }
+              {
+                this.props.onDelete && 
+                <ClickableIcon
+                  iconName="Delete"
+                  onClick={() => {
+                    this.setState({ confirmDelete: true })
+                  }}
+                />
+              }
+              {
+                this.state.confirmDelete &&
+                <ConfirmPopUp 
+                  title="Delete sport match"
+                  message="Are you sure you want to delete this sport match?"
+                  onConfirm={() => {
+                    this.props.onDelete();
+                    this.setState({ confirmDelete: false });
+                  }}
+                  onCancel={() => {
+                    this.setState({ confirmDelete: false });
+                  }}
+                />
+              }
+            </div>
           </div>
         </div>
       );

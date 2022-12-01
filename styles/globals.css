@@ -142,6 +142,20 @@ input {
   border-radius: 2pt;
 }
 
+textarea {
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  padding: 10px;
+  width: 100%;
+  font-size: 14px;
+  min-height: 76px;
+}
+
+textarea:focus {
+  outline: none;
+}
+
 :not(ul.contains-task-list) ul.contains-task-list {
   list-style-type: none;
   transform: translateX(-2em);

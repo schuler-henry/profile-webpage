@@ -12,10 +12,14 @@ import { PWPLanguageProvider } from '../../components/PWPLanguageProvider/PWPLan
 import { PWPAuthContext } from '../../components/PWPAuthProvider/PWPAuthProvider'
 import { ISportEvent } from '../../interfaces/database'
 import { SportEventItem } from '../../components/SportEventItem/SportEventItem'
+import { SportEventVisibility } from '../../enums/sportEventVisibility'
+import { Icon } from '@fluentui/react'
 
 export interface SportEventState {
   sync: boolean;
   sportEvents: ISportEvent[];
+  newSportEvents: ISportEvent[];
+  updating: boolean;
 }
 
 export interface SportEventProps extends WithTranslation, WithRouterProps {
@@ -40,13 +44,16 @@ class SportEvent extends Component<SportEventProps, SportEventState> {
     this.state = {
       sync: false,
       sportEvents: [],
+      newSportEvents: [],
+      updating: false,
     }
   }
 
   static contextType = PWPAuthContext;
 
   async componentDidMount() {
-    this.setState({ sportEvents: await FrontEndController.getSportEvents(FrontEndController.getUserToken()) });
+    this.setState({ updating: true })
+    this.setState({ sportEvents: await FrontEndController.getSportEvents(FrontEndController.getUserToken()), updating: false });
   }
 
   componentWillUnmount() {
@@ -109,11 +116,68 @@ class SportEvent extends Component<SportEventProps, SportEventState> {
                   </span>
                   <div className={styles.gridView}>
                     {/* Item for adding new sport events */}
-                    <SportEventItem />
+                    <div 
+                      className={styles.addSportEvent}
+                      onClick={() => {
+                        this.setState({ newSportEvents: [...this.state.newSportEvents, {
+                          id: undefined,
+                          startTime: undefined,
+                          endTime: undefined,
+                          description: "",
+                          visibility: SportEventVisibility.public,
+                          creator: this.context.user,
+                          sport: undefined,
+                          sportLocation: undefined,
+                          sportEventType: undefined,
+                          sportClubs: [],
+                          sportMatch: [],
+                        }] });
+                      }}
+                    >
+                      <Icon 
+                        iconName="Add"
+                        style={{ fontSize: "30px" }}
+                        className={styles.addSportEventIcon}
+                      />
+                    </div>
                     {
-                      this.state.sportEvents.map((sportEvent, index) => {
+                      this.state.newSportEvents.map((sportEvent, index) => {
+                        return (
+                          <SportEventItem 
+                            key={index}
+                            sportEvent={sportEvent}
+                            isCreator={true}
+                            onChange={async () => {
+                              this.setState({ updating: true });
+                              this.setState({ 
+                                newSportEvents: [ ...this.state.newSportEvents.slice(0, index), ...this.state.newSportEvents.slice(index + 1) ],
+                                sportEvents: await FrontEndController.getSportEvents(FrontEndController.getUserToken()),
+                                updating: false,
+                              });
+                            }}
+                          />
+                        )
+                      })
+                    }
+                    {
+                      this.state.updating &&
+                        <div style={{ position: "absolute", top: "0", left: "0", bottom: "0", right: "0", zIndex: "10", backgroundColor: "rgba(0,0,0,0.6)" }}>
+                          <PageLoadingScreen />
+                        </div>
+                    }
+                    {
+                      // compare two date objects a and b : 
+                      this.state.sportEvents.sort((a, b) => a.startTime < b.startTime ? 1 : -1).map((sportEvent, index) => {
                         return(
-                          <SportEventItem key={index} sportEvent={sportEvent} />
+                          <SportEventItem 
+                            key={index} 
+                            sportEvent={sportEvent} 
+                            isCreator={sportEvent.creator.id === this.context.user.id}
+                            onChange={async () => {
+                              this.setState({ updating: true });
+                              this.setState({ sportEvents: await FrontEndController.getSportEvents(FrontEndController.getUserToken()), updating: false });
+                            }}
+                          />
                         )
                       })
                     }
