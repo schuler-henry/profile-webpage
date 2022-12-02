@@ -1,6 +1,5 @@
 import Head from 'next/head'
 import { Component } from 'react'
-import { FrontEndController } from '../controller/frontEndController'
 import styles from '../styles/Home.module.css'
 import { Header } from '../components/header'
 import { Footer } from '../components/footer'
@@ -9,10 +8,9 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
+import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
 
 export interface HomeState {
-  isLoggedIn: boolean | undefined;
-  currentToken: string;
   cursorClass: any;
   headerText: string;
 }
@@ -37,44 +35,18 @@ class Home extends Component<HomeProps, HomeState> {
   constructor(props: HomeProps) {
     super(props)
     this.state = {
-      isLoggedIn: undefined,
-      currentToken: "",
       cursorClass: null,
       headerText: "",
     }
   }
+
+  static contextType = PWPAuthContext;
   
   componentDidMount() {
-    this.updateLoginState();
-    window.addEventListener('storage', this.storageTokenListener)
+    this.typeWriter(this.props.t('home:slogan'));
   }
 
   componentWillUnmount() {
-    window.removeEventListener('storage', this.storageTokenListener)
-  }
-
-  /**
-   * This method checks whether the event contains a change in the user-token. If it does, it updates the login state.
-   * @param {any} event Event triggered by an EventListener
-   */
-  storageTokenListener = async (event: any) => {
-    if (event.key === FrontEndController.userTokenName) {
-      this.updateLoginState();
-    }
-  }
-
-  /**
-   * This method updates the isLoggedIn state and currentToken state according to the current token in local storage.
-   * @returns Nothing
-   */
-  async updateLoginState() {
-    let currentToken = FrontEndController.getUserToken();
-    if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({ isLoggedIn: true, currentToken: currentToken });
-    } else {
-      this.setState({ isLoggedIn: false })
-    }
-    this.typeWriter(this.props.t('home:slogan'));
   }
 
   /**
@@ -110,7 +82,8 @@ class Home extends Component<HomeProps, HomeState> {
    */
   render() {
     const { router } = this.props
-    if (this.state.isLoggedIn === undefined) {
+    // console.log(this.context.user)
+    if (this.context.user === undefined) {
       return (
         <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
           <div>
@@ -119,17 +92,6 @@ class Home extends Component<HomeProps, HomeState> {
               <meta name="description" content="Welcome page." />
               <link rel="icon" href="/favicon.ico" />
             </Head>
-
-            <header>
-              <Header 
-                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-                hideLogin={this.state.isLoggedIn} 
-                hideLogout={!this.state.isLoggedIn} 
-                path={router.pathname} 
-                router={this.props.router}
-              />
-            </header>
-  
             <main>
               <PageLoadingScreen />
             </main>
@@ -148,9 +110,9 @@ class Home extends Component<HomeProps, HomeState> {
 
             <header>
               <Header 
-                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-                hideLogin={this.state.isLoggedIn} 
-                hideLogout={!this.state.isLoggedIn} 
+                username={this.context.user?.username} 
+                hideLogin={this.context.user} 
+                hideLogout={!this.context.user} 
                 path={router.pathname} 
                 router={this.props.router}
               />
@@ -165,7 +127,7 @@ class Home extends Component<HomeProps, HomeState> {
               </main>
 
               <footer>
-                <Footer isLoggedIn={this.state.isLoggedIn} />
+                <Footer isLoggedIn={this.context.user} />
               </footer>
             </div>
           </div>

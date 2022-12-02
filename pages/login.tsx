@@ -10,9 +10,9 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
 import { Button } from '../components/Button/Button'
+import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
 
 export interface LoginState {
-  isNotLoggedIn: boolean;
   username: string;
   password: string;
   credentialsInfo: boolean;
@@ -23,10 +23,10 @@ export interface LoginProps extends WithTranslation, WithRouterProps {
   i18n: I18n;
 }
 
-export async function getStaticProps({ locale }) {
+export async function getStaticProps(context) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common', 'login'])),
+      ...(await serverSideTranslations(context.locale, ['common', 'login'])),
     }
   }
 }
@@ -39,7 +39,6 @@ class Login extends Component<LoginProps, LoginState> {
   constructor(props: LoginProps) {
     super(props)
     this.state = {
-      isNotLoggedIn: false,
       username: "",
       password: "",
       credentialsInfo: false,
@@ -47,36 +46,12 @@ class Login extends Component<LoginProps, LoginState> {
     }
   }
 
+  static contextType = PWPAuthContext;
+
   componentDidMount() {
-    this.checkLoginState();
-    window.addEventListener('storage', this.storageTokenListener)
   }
 
   componentWillUnmount() {
-    window.removeEventListener('storage', this.storageTokenListener)
-  }
-
-  /**
-   * This method checks whether the event contains a change in the user-token. If it does, it verifys the token and routes to root on success.
-   * @param {any} event Event triggered by an EventListener
-   */
-  storageTokenListener = async (event: any) => {
-    if (event.key === FrontEndController.userTokenName) {
-      this.checkLoginState();
-    }
-  }
-
-  /**
-   * This method checks and verifys the current user-token. If valid, it routes to root, if not, the isNotLoggedIn state is set to true.
-   */
-  async checkLoginState() {
-    let currentToken = FrontEndController.getUserToken();
-    if (await FrontEndController.verifyUserByToken(currentToken)) {
-      const { router } = this.props
-      router.push("/")
-    } else {
-      this.setState({ isNotLoggedIn: true })
-    }
   }
 
   /**
@@ -88,6 +63,10 @@ class Login extends Component<LoginProps, LoginState> {
      * Initialize Router to navigate to other pages
      */
     const { router } = this.props
+
+    if (this.context.user) {
+      router.push('/', '/', { shallow: true })
+    }
 
     /**
      * This method checks for enter key press in event and calls the loginVerification method.
@@ -112,14 +91,15 @@ class Login extends Component<LoginProps, LoginState> {
         this.setState({ readOnlyInput: false });
       } else if (login === "inactive") {
         // TODO: PopUp / Message that account is inactive and needs to be activated
-        router.push("/activate")
+        router.push("/activate", "/activate", { shallow: true })
       } else {
         localStorage.setItem(FrontEndController.userTokenName, login)
-        router.push("/");
+        FrontEndController.updateLoginStatus();
+        router.push("/", "/", { shallow: true });
       }
     }
 
-    if (this.state.isNotLoggedIn) {
+    if (this.context.user === null) {
       return (
         <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
           <div>
@@ -148,7 +128,7 @@ class Login extends Component<LoginProps, LoginState> {
                     placeholder={this.props.t('login:Username') + "..."}
                     id='userInput'
                     autoFocus
-                    onChange={(e) => this.setState({ username: e.target.value })}
+                    onChange={(e) => this.setState({ username: e.target.value.replaceAll(" ", "") })}
                     value={this.state.username}
                     onKeyDown={loginEnter}
                     readOnly={this.state.readOnlyInput} />
@@ -185,7 +165,7 @@ class Login extends Component<LoginProps, LoginState> {
               </main>
 
               <footer>
-                <Footer isLoggedIn={!this.state.isNotLoggedIn} />
+                <Footer isLoggedIn={this.context.user} />
               </footer>
             </div>
           </div>

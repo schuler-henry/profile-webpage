@@ -11,9 +11,9 @@ import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingSc
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
 import { Button } from '../components/Button/Button'
 import { ConfirmPopUp } from '../components/ConfirmPopUp/ConfirmPopUp'
+import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
 
 export interface RegisterState {
-  isNotLoggedIn: boolean;
   email: string;
   username: string;
   password: string;
@@ -49,7 +49,6 @@ class Register extends Component<RegisterProps, RegisterState> {
   constructor(props: RegisterProps) {
     super(props)
     this.state = {
-      isNotLoggedIn: false,
       email: "",
       username: "",
       password: "",
@@ -66,36 +65,12 @@ class Register extends Component<RegisterProps, RegisterState> {
     }
   }
 
+  static contextType = PWPAuthContext;
+
   componentDidMount() {
-    this.checkLoginState();
-    window.addEventListener('storage', this.storageTokenListener)
   }
 
   componentWillUnmount() {
-    window.removeEventListener('storage', this.storageTokenListener)
-  }
-
-  /**
-   * This method checks whether the event contains a change in the user-token. If it does, it verifys the token and routes to root on success.
-   * @param {any} event Event triggered by an EventListener
-   */
-  storageTokenListener = async (event: any) => {
-    if (event.key === FrontEndController.userTokenName) {
-      this.checkLoginState();
-    }
-  }
-
-  /**
-   * This method checks and verifys the current user-token. If valid, it routes to root, if not, the isNotLoggedIn state is set to true.
-   */
-  async checkLoginState() {
-    const currentToken = FrontEndController.getUserToken();
-    if (await FrontEndController.verifyUserByToken(currentToken)) {
-      const { router } = this.props
-      router.push("/")
-    } else {
-      this.setState({ isNotLoggedIn: true })
-    }
   }
 
   /**
@@ -107,6 +82,10 @@ class Register extends Component<RegisterProps, RegisterState> {
      * Initialize Router to navigate to other pages
      */
     const { router } = this.props
+
+    if (this.context.user) {
+      router.push('/', '/', { shallow: true })
+    }
 
     /**
      * This method checks for enter key press in event and calls the registerVerification method.
@@ -177,7 +156,7 @@ class Register extends Component<RegisterProps, RegisterState> {
       }
     }
 
-    if (this.state.isNotLoggedIn) {
+    if (this.context.user === null) {
       return (
         <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
           <div>
@@ -309,7 +288,7 @@ class Register extends Component<RegisterProps, RegisterState> {
               </main>
 
               <footer>
-                <Footer isLoggedIn={!this.state.isNotLoggedIn} />
+                <Footer isLoggedIn={this.context.user} />
               </footer>
             </div>
           </div>
