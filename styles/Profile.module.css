@@ -72,3 +72,48 @@
   text-align: start !important;
   color: var(--color-text-off);
 }
+
+.sportClubMembershipTableWrapper {
+  overflow: auto;
+}
+
+.sportClubMembershipTableWrapper table {
+  border-spacing: 10px;
+  white-space: nowrap;
+}
+
+.sportClubMembershipTableWrapper table tbody {
+  text-align: center;
+}
+
+.inlineHeading {
+  display: flex;
+  /* justify-content: space-between; */
+  align-items: center;
+  gap: 10px;
+}
+
+.sportClubAdminWrapper {
+  display: grid;
+  grid-template-columns: 100%;
+  row-gap: 17.43px;
+}
+
+.sportClubAdminWrapper > .adminClubItem:not(:first-child) {
+  border-top: 4px solid;
+  border-color: var(--color-border-primary);
+}
+
+.sportClubAdminSportWrapper {
+  display: grid;
+  grid-template-columns: 100%;
+  row-gap: 10px;
+}
+
+.sportClubAdminSportWrapper h3 {
+  text-decoration: underline;
+}
+
+.sportClubAdminSportWrapper > div:first-child h3 {
+  margin-top: 0;
+}

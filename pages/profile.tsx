@@ -1,8 +1,8 @@
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import Head from 'next/head'
-import { Component } from 'react'
+import React, { Component } from 'react'
 import { FrontEndController } from '../controller/frontEndController'
-import { IUser } from '../interfaces/database'
+import { ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, IUser } from '../interfaces/database'
 import styles from '../styles/Profile.module.css'
 import { Header } from '../components/header'
 import { Footer } from '../components/footer'
@@ -14,18 +14,22 @@ import { Dropdown, DropdownOption } from '../components/Dropdown/Dropdown'
 import { Icon } from '@fluentui/react'
 import { Button } from '../components/Button/Button'
 import { ConfirmPopUp } from '../components/ConfirmPopUp/ConfirmPopUp'
+import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
+import { ClickableIcon } from '../components/ClickableIcon/ClickableIcon'
+import { AdminSportClubSportUserList } from '../components/AdminSportClubSportUserList/AdminSportClubSportUserList'
+import { getSportClubPositionText } from '../shared/getSportClubPositionText'
 
 const onRenderOption = (option: DropdownOption): JSX.Element => {
   return(
     <div style={{ width: "100%", display: "flex"}}>
       {
-        option.data?.icon &&
+        option?.data?.icon &&
         <span style={{ display: "flex", alignItems: "center" }}>
           <Icon style={{ display: "flex", marginRight: '8px', fontSize: "15px", height: "15px" }} iconName={option.data.icon} />
         </span>
       }
       <span>
-        {option.text}
+        {option?.text}
       </span>
     </div>
   )
@@ -38,15 +42,13 @@ const onRenderCaretDown = (): JSX.Element => {
 }
 
 export interface ProfileState {
-  isLoggedIn: boolean | undefined;
-  currentToken: string;
-  currentUser: IUser | undefined;
   changedUser: IUser | undefined;
   selectedMenu: string;
   fetchData: boolean;
   submitProfile: boolean;
   submitEmail: boolean;
   submitPassword: boolean;
+  submitSportClub: boolean;
   oldPassword: string;
   newPassword: string;
   confirmPassword: string;
@@ -59,6 +61,11 @@ export interface ProfileState {
   success: boolean;
   displaySuccess: boolean;
   changedEmail: boolean;
+  deleteMembershipItem: ISportClubMembership;
+  availableSportClubs: ISportClub[];
+  adminClubs: ISportClub[];
+  selectedSportClub: ISportClub;
+  selectedSport: ISport;
 }
 
 export interface ProfileProps extends WithTranslation, WithRouterProps {
@@ -74,22 +81,20 @@ export async function getStaticProps({ locale }) {
 }
 
 /**
- * @class Home Component Class
+ * @class Profile Component Class
  * @component
  */
 class Profile extends Component<ProfileProps, ProfileState> {
   constructor(props: ProfileProps) {
     super(props)
     this.state = {
-      isLoggedIn: undefined,
-      currentToken: "",
-      currentUser: undefined,
       changedUser: undefined,
       selectedMenu: "profile",
       fetchData: false,
       submitProfile: false,
       submitEmail: false,
       submitPassword: false,
+      submitSportClub: false,
       oldPassword: "",
       newPassword: "",
       confirmPassword: "",
@@ -102,55 +107,68 @@ class Profile extends Component<ProfileProps, ProfileState> {
       success: false,
       displaySuccess: false,
       changedEmail: false,
+      deleteMembershipItem: undefined,
+      availableSportClubs: [],
+      adminClubs: [],
+      selectedSportClub: undefined,
+      selectedSport: undefined,
     }
   }
 
+  static contextType = PWPAuthContext;
+
   async componentDidMount() {
-    this.updateLoginState();
-    window.addEventListener('storage', this.storageTokenListener)
     const user = await FrontEndController.getUserFromToken(FrontEndController.getUserToken());
-    this.setState({ currentUser: user, changedUser: user });
+    this.updateAvailableSportClubs();
+    this.setState({ changedUser: user });
   }
 
   componentDidUpdate(prevProps: Readonly<ProfileProps>, prevState: Readonly<ProfileState>, snapshot?: any): void {
     const { menu } = this.props.router.query;
-    if (menu !== this.state.selectedMenu && this.options.find(element => element.key === menu?.toString())) {
+    if (menu !== this.state.selectedMenu && this.subPageOptions.find(element => element.key === menu?.toString())) {
       this.setState({ selectedMenu: menu.toString() });
     }
   }
 
   componentWillUnmount() {
-    window.removeEventListener('storage', this.storageTokenListener)
   }
 
   /**
-   * This method checks whether the event contains a change in the user-token. If it does, it updates the login state.
-   * @param {any} event Event triggered by an EventListener
+   * This function updates the users sport club lists to display sport clubs (membership/admin)
    */
-  storageTokenListener = async (event: any) => {
-    if (event.key === FrontEndController.userTokenName) {
-      this.updateLoginState();
-    }
-  }
-
-  /**
-   * This method updates the isLoggedIn state and currentToken state according to the current token in local storage.
-   * @returns Nothing
-   */
-  async updateLoginState() {
-    let currentToken = FrontEndController.getUserToken();
-    if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({ isLoggedIn: true, currentToken: currentToken })
+  private async updateAvailableSportClubs() {
+    const user = await FrontEndController.getUserFromToken(FrontEndController.getUserToken());
+    let sportClubs = await FrontEndController.getSportClubs(FrontEndController.getUserToken());
+    let adminClubs = await FrontEndController.getAdminSportClubs(FrontEndController.getUserToken());
+    if (adminClubs.length !== 0) {
+      if (this.subPageOptions.filter((option) => option.key === "sportClubAdmin").length === 0) {
+        this.subPageOptions.push({key: "sportClubAdmin", text: this.props.t('profile:SportClubAdmin'), data: {icon: "MoreSports"}})
+      }
     } else {
-      const { router } = this.props
-      router.push("/login")
+      this.subPageOptions = this.subPageOptions.filter((option) => option.key !== "sportClubAdmin");
     }
+    // remove memberships from dropdown options
+    for (let i = 0; i < sportClubs.length; i++) {
+      let sportClub = sportClubs[i];
+      for (let membershipSport of user.sportClubMembership.find((sportClubMembership: ISportClubMembership) => ((typeof sportClubMembership.sportClub === "object") ? sportClubMembership.sportClub.id : sportClubMembership.sportClub) === sportClub.id)?.membershipSport || []) {
+        const index = sportClub.sport.findIndex(i => i.id === membershipSport.sport.id);
+        sportClub.sport.splice(index, 1)
+      }
+      if (sportClub.sport.length === 0) {
+        sportClubs.splice(sportClubs.indexOf(sportClub), 1);
+        // decrement counter because element was removed
+        i--;
+      }
+    }
+
+    this.setState({ availableSportClubs: sportClubs, adminClubs: adminClubs });
   }
 
-  private options: DropdownOption[] = [
+  private subPageOptions: DropdownOption[] = [
     {key: "profile", text: this.props.t('common:Profile'), data: {icon: "Contact"}},
     {key: "email", text: this.props.t('profile:Email'), data: {icon: "Mail"}},
     {key: "password", text: this.props.t('profile:Password'), data: {icon: "Lock"}},
+    {key: "sportClubMemberships", text: this.props.t('profile:SportClubMemberships'), data: {icon: "MoreSports"}}
   ]
 
   private onChange = (event: React.FormEvent<HTMLDivElement>, item: DropdownOption): void => {
@@ -166,7 +184,12 @@ class Profile extends Component<ProfileProps, ProfileState> {
    */
   render() {
     const { router } = this.props
-    if (this.state.isLoggedIn === undefined) {
+
+    if (this.context.user === null) {
+      router.push("/login", "/login", { shallow: true })
+    }
+
+    if (this.context.user === undefined) {
       return (
         <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
           <div>
@@ -206,9 +229,9 @@ class Profile extends Component<ProfileProps, ProfileState> {
 
             <header>
               <Header 
-                username={this.state.currentUser?.username} 
-                hideLogin={this.state.isLoggedIn} 
-                hideLogout={!this.state.isLoggedIn} 
+                username={this.context.user?.username} 
+                hideLogin={this.context.user} 
+                hideLogout={!this.context.user} 
                 path={router.pathname} 
                 router={this.props.router}
               />
@@ -220,7 +243,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                   <h1>{this.props.t('profile:User')}: {FrontEndController.getUsernameFromToken(FrontEndController.getUserToken())}</h1>
                   
                   <Dropdown 
-                    options={this.options} 
+                    options={this.subPageOptions} 
                     selectedKey={this.state.selectedMenu}
                     onChange={this.onChange} 
                     onRenderOption={onRenderOption} 
@@ -244,12 +267,12 @@ class Profile extends Component<ProfileProps, ProfileState> {
                         <h1>{this.props.t('profile:Username')}</h1>
                         <input 
                           type="text"
-                          className={`${styles.input} ${this.state.usernameError && styles.inputError} ${this.state.currentUser?.username !== this.state.changedUser?.username && styles.inputChanged}`}
-                          placeholder={this.state.currentUser?.username}
+                          className={`${styles.input} ${this.state.usernameError && styles.inputError} ${this.context.user?.username !== this.state.changedUser?.username && styles.inputChanged}`}
+                          placeholder={this.context.user?.username}
                           value={this.state.changedUser?.username || ""}
                           onChange={async (event) => {
                             this.setState({ changedUser: { ...this.state.changedUser, username: event.target.value } })
-                            this.setState({ usernameError: (await FrontEndController.doesUserExist(event.target.value) && event.target.value !== this.state.currentUser?.username) || !await FrontEndController.isUsernameValid(event.target.value) })
+                            this.setState({ usernameError: (await FrontEndController.doesUserExist(event.target.value) && event.target.value !== this.context.user?.username) || !await FrontEndController.isUsernameValid(event.target.value) })
                           }}
                           readOnly={this.state.changedUser === undefined || this.state.submitProfile || this.state.displaySuccess}
                         />
@@ -264,8 +287,8 @@ class Profile extends Component<ProfileProps, ProfileState> {
                         <h1>{this.props.t('profile:FirstName')}</h1>
                         <input 
                           type="text"
-                          className={`${styles.input} ${this.state.currentUser?.firstName !== this.state.changedUser?.firstName && styles.inputChanged}`}
-                          placeholder={this.state.currentUser?.firstName}
+                          className={`${styles.input} ${this.context.user?.firstName !== this.state.changedUser?.firstName && styles.inputChanged}`}
+                          placeholder={this.context.user?.firstName}
                           value={this.state.changedUser?.firstName || ""}
                           onChange={(event) => {
                             this.setState({ changedUser: { ...this.state.changedUser, firstName: event.target.value.replaceAll("  ", " ").trimStart() } })
@@ -277,8 +300,8 @@ class Profile extends Component<ProfileProps, ProfileState> {
                         <h1>{this.props.t('profile:LastName')}</h1>
                         <input 
                           type="text"
-                          className={`${styles.input} ${this.state.currentUser?.lastName !== this.state.changedUser?.lastName && styles.inputChanged}`}
-                          placeholder={this.state.currentUser?.lastName}
+                          className={`${styles.input} ${this.context.user?.lastName !== this.state.changedUser?.lastName && styles.inputChanged}`}
+                          placeholder={this.context.user?.lastName}
                           value={this.state.changedUser?.lastName || ""}
                           onChange={(event) => {
                             this.setState({ changedUser: { ...this.state.changedUser, lastName: event.target.value.replaceAll(" ", "") } })
@@ -291,7 +314,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           onClick={() => {
                             this.setState({ submitProfile: true })
                           }}
-                          disabled={this.state.submitProfile || this.state.displaySuccess || this.state.usernameError || (this.state.currentUser?.username === this.state.changedUser?.username && this.state.currentUser?.firstName === this.state.changedUser?.firstName && this.state.currentUser?.lastName === this.state.changedUser?.lastName)}  
+                          disabled={this.state.submitProfile || this.state.displaySuccess || this.state.usernameError || (this.context.user?.username === this.state.changedUser?.username && this.context.user?.firstName === this.state.changedUser?.firstName && this.context.user?.lastName === this.state.changedUser?.lastName)}  
                         >
                           {this.props.t('profile:UpdateProfile')}
                         </Button>
@@ -302,7 +325,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                             title={this.props.t('profile:SubmitProfileChanges')} 
                             onConfirm={this.state.fetchData ? undefined : async () => {
                               this.setState({ fetchData: true })
-                              this.setState({ success: await FrontEndController.updateUserProfile(FrontEndController.getUserToken(), this.state.changedUser), currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()), fetchData: false, displaySuccess: true, submitProfile: false })
+                              this.setState({ success: await FrontEndController.updateUserProfile(FrontEndController.getUserToken(), this.state.changedUser), fetchData: false, displaySuccess: true, submitProfile: false })
                             }}
                             onCancel={this.state.fetchData ? undefined : () => {
                               this.setState({ submitProfile: false })
@@ -312,17 +335,17 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           >
                             <div className={styles.confirmWrapper}>
                               {
-                                this.state.currentUser?.username !== this.state.changedUser?.username &&
+                                this.context.user?.username !== this.state.changedUser?.username &&
                                 <div>
                                   <h1>{this.props.t('profile:Username')}</h1>
-                                  <p>{this.state.currentUser?.username} -&gt; {this.state.changedUser?.username}</p>
+                                  <p>{this.context.user?.username} -&gt; {this.state.changedUser?.username}</p>
                                 </div>
                               }
                               {
-                                (this.state.currentUser?.firstName !== this.state.changedUser?.firstName || this.state.currentUser?.lastName !== this.state.changedUser?.lastName) &&
+                                (this.context.user?.firstName !== this.state.changedUser?.firstName || this.context.user?.lastName !== this.state.changedUser?.lastName) &&
                                 <div>
                                   <h1>{this.props.t('profile:Name')}</h1>
-                                  <p>{this.state.currentUser?.firstName} {this.state.currentUser?.lastName} -&gt; {this.state.changedUser?.firstName} {this.state.changedUser?.lastName}</p>
+                                  <p>{this.context.user?.firstName} {this.context.user?.lastName} -&gt; {this.state.changedUser?.firstName} {this.state.changedUser?.lastName}</p>
                                 </div>
                               }
                             </div>
@@ -338,12 +361,12 @@ class Profile extends Component<ProfileProps, ProfileState> {
                         <h1>{this.props.t('profile:Email')}</h1>
                         <input 
                           type="email"
-                          className={`${styles.input} ${this.state.emailError && styles.inputError} ${this.state.currentUser?.email !== this.state.changedUser?.email && styles.inputChanged}`}
-                          placeholder={this.state.currentUser?.email}
+                          className={`${styles.input} ${this.state.emailError && styles.inputError} ${this.context.user?.email !== this.state.changedUser?.email && styles.inputChanged}`}
+                          placeholder={this.context.user?.email}
                           value={this.state.changedUser?.email || ""}
                           onChange={async (event) => {
                             this.setState({ changedUser: { ...this.state.changedUser, email: event.target.value } })
-                            this.setState({ emailError: !await FrontEndController.isEmailValid(event.target.value) || (await FrontEndController.doesEmailExist(event.target.value) && event.target.value !== this.state.currentUser?.email) })
+                            this.setState({ emailError: !await FrontEndController.isEmailValid(event.target.value) || (await FrontEndController.doesEmailExist(event.target.value) && event.target.value !== this.context.user?.email) })
                           }}
                           readOnly={this.state.changedUser === undefined || this.state.submitEmail || this.state.displaySuccess}
                         />
@@ -359,7 +382,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           onClick={() => {
                             this.setState({ submitEmail: true })
                           }}
-                          disabled={this.state.submitEmail || this.state.displaySuccess || this.state.emailError || this.state.currentUser?.email === this.state.changedUser?.email}
+                          disabled={this.state.submitEmail || this.state.displaySuccess || this.state.emailError || this.context.user?.email === this.state.changedUser?.email}
                         >
                           {this.props.t('profile:UpdateEmail')}
                         </Button>
@@ -370,7 +393,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           title={this.props.t('profile:SubmitEmailChanges')}
                           onConfirm={this.state.fetchData ? undefined : async () => {
                             this.setState({ fetchData: true })
-                            this.setState({ success: await FrontEndController.updateUserEmail(FrontEndController.getUserToken(), this.state.changedUser?.email), currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()), fetchData: false, changedEmail: true, displaySuccess: true, submitEmail: false })
+                            this.setState({ success: await FrontEndController.updateUserEmail(FrontEndController.getUserToken(), this.state.changedUser?.email), fetchData: false, changedEmail: true, displaySuccess: true, submitEmail: false })
                           }}
                           onCancel={this.state.fetchData ? undefined : () => {
                             this.setState({ submitEmail: false })
@@ -380,7 +403,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           <div className={styles.confirmWrapper}>
                             <div>
                               <h1>{this.props.t('profile:Email')}</h1>
-                              <p>{this.state.currentUser?.email} -&gt; {this.state.changedUser?.email}</p>
+                              <p>{this.context.user?.email} -&gt; {this.state.changedUser?.email}</p>
                             </div>
                           </div>
                         </ConfirmPopUp>
@@ -467,7 +490,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           title={this.props.t('profile:SubmitPasswordChanges')}
                           onConfirm={this.state.fetchData ? undefined : async () => {
                             this.setState({ fetchData: true })
-                            this.setState({ success: await FrontEndController.changePassword(FrontEndController.getUserToken(), this.state.oldPassword, this.state.newPassword), currentUser: await FrontEndController.getUserFromToken(FrontEndController.getUserToken()), fetchData: false, displaySuccess: true, submitPassword: false })
+                            this.setState({ success: await FrontEndController.changePassword(FrontEndController.getUserToken(), this.state.oldPassword, this.state.newPassword), fetchData: false, displaySuccess: true, submitPassword: false })
                           }}
                           onCancel={this.state.fetchData ? undefined : () => {
                             this.setState({ submitPassword: false })
@@ -479,10 +502,247 @@ class Profile extends Component<ProfileProps, ProfileState> {
                   }
 
                   {
+                    this.state.selectedMenu === "sportClubMemberships" &&
+                    <div>
+                      <span className={styles.inlineHeading}>
+                        <h2>{this.props.t('profile:MySportClubMemberships')}</h2>
+                        <ClickableIcon 
+                          iconName="Sync"
+                          onClick={async () => {
+                            this.setState({ fetchData: true })
+                            await FrontEndController.updateLoginStatus();
+                            await this.updateAvailableSportClubs();
+                            this.setState({ fetchData: false })
+                          }}
+                          spin={this.state.fetchData}
+                        />
+                      </span>
+                      <div>
+                        <div className={styles.sportClubMembershipTableWrapper}>
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>{this.props.t('profile:SportClub')}</th>
+                                <th>{this.props.t('profile:Sport')}</th>
+                                <th>{this.props.t('profile:Position')}</th>
+                                <th>{this.props.t('profile:Approved')}</th>
+                                <th></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {
+                                this.context.user?.sportClubMembership?.map((membership: ISportClubMembership, index) => {
+                                  return(
+                                    <React.Fragment key={index}>
+                                      {
+                                        membership.membershipSport.map((membershipSport: ISportClubMembershipSport, sportIndex) => {
+                                          return(
+                                            <tr key={"sport" + sportIndex}>
+                                              <td>{typeof membership.sportClub === "object" && membership.sportClub.name}</td>
+                                              <td>{membershipSport.sport.name}</td>
+                                              <td style={{ color: "var(--color-text-secondary)" }}>{this.props.t('profile:' + getSportClubPositionText(membershipSport?.memberStatus))}</td>
+                                              <td style={{ color: membershipSport.approved ? "var(--color-text-approved)" : "var(--color-text-warning)" }}>{membershipSport.approved.toString()}</td>
+                                              <td>
+                                                <ClickableIcon 
+                                                  iconName="Trash" 
+                                                  buttonSize="30px" 
+                                                  fontSize="18px"
+                                                  onClick={() => {
+                                                    let deleteMembership = structuredClone(membership);
+                                                    deleteMembership.membershipSport = [structuredClone(membershipSport)];
+                                                    this.setState({ deleteMembershipItem: deleteMembership })
+                                                  }}
+                                                />
+                                              </td>
+                                            </tr>
+                                          )
+                                        })
+                                      }
+                                    </React.Fragment>
+                                  )
+                                })
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      {
+                        (this.state.deleteMembershipItem) &&
+                        <ConfirmPopUp
+                          title={this.props.t('profile:DeleteMembership')}
+                          warning={this.props.t('profile:DeleteMembershipWarning')}
+                          onConfirm={this.state.fetchData ? undefined : async () => {
+                            this.setState({ fetchData: true })
+                            this.setState({ success: await FrontEndController.deleteSportClubMembership(FrontEndController.getUserToken(), this.state.deleteMembershipItem), fetchData: false, displaySuccess: true, deleteMembershipItem: undefined })
+                          }}
+                          onCancel={this.state.fetchData ? undefined : () => {
+                            this.setState({ deleteMembershipItem: undefined })
+                          }}
+                          sync={this.state.fetchData}
+                        >
+                          <div className={`${styles.confirmWrapper} ${styles.sportClubMembershipTableWrapper}`}>
+                            <table style={{margin: "0 auto"}}>
+                              <thead>
+                                <tr>
+                                  <th>{this.props.t('profile:SportClub')}</th>
+                                  <th>{this.props.t('profile:Sport')}</th>
+                                  <th>{this.props.t('profile:Approved')}</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {
+                                  this.state.deleteMembershipItem.membershipSport.map((membershipSport: ISportClubMembershipSport, sportIndex) => {
+                                    return(
+                                      <tr key={"deleteSport" + sportIndex}>
+                                        <td>{typeof this.state.deleteMembershipItem.sportClub === "object" && this.state.deleteMembershipItem.sportClub.name}</td>
+                                        <td>{membershipSport.sport.name}</td>
+                                        <td style={{ color: membershipSport.approved ? "var(--color-text-approved)" : "var(--color-text-warning)" }}>{membershipSport.approved.toString()}</td>
+                                      </tr>
+                                    )
+                                  })
+                                }
+                              </tbody>
+                            </table>
+                          </div>
+                        </ConfirmPopUp>
+                      }
+                      <h2>{this.props.t('profile:AddSportClubMembership')}</h2>
+                      <div>
+                        <div className={styles.inputWrapper}>
+                          <h1>{this.props.t('profile:SportClub')}</h1>
+                          <Dropdown 
+                            options={
+                              this.state.availableSportClubs?.reduce((returnValue: [], item, index) => returnValue.concat(Object.assign({ key: index.toString(), text: item.name })), []) || []
+                            }
+                            selectedKey={this.state.availableSportClubs?.indexOf(this.state.selectedSportClub).toString()}
+                            placeholder={{ key: "", text: this.props.t('profile:SelectSportClub') }}
+                            onRenderOption={onRenderOption} 
+                            onRenderCaretDown={onRenderCaretDown}
+                            onChange={(event: React.FormEvent<HTMLDivElement>, item: DropdownOption): void => {
+                              this.setState({ selectedSport: this.state.selectedSportClub === this.state.availableSportClubs[item.key] ? this.state.selectedSport : undefined, selectedSportClub: this.state.availableSportClubs[item.key] })
+                            }}
+                            width={"100%"}
+                          />
+                        </div>
+                        <div className={styles.inputWrapper}>
+                          <h1>{this.props.t('profile:Sport')}</h1>
+                          <Dropdown 
+                            options={
+                              this.state.selectedSportClub?.sport.reduce((returnValue: [], item, index) => returnValue.concat(Object.assign({ key: index.toString(), text: item.name })), []) || []
+                            }
+                            selectedKey={this.state.selectedSportClub?.sport.indexOf(this.state.selectedSport).toString()}
+                            placeholder={{ key: "", text: this.props.t('profile:SelectSport') }}
+                            onRenderOption={onRenderOption}
+                            onRenderCaretDown={onRenderCaretDown}
+                            onChange={(event: React.FormEvent<HTMLDivElement>, item: DropdownOption): void => {
+                              this.setState({ selectedSport: this.state.selectedSportClub.sport[item.key] })
+                            }}
+                            width={"100%"}
+                          />
+                          {
+                            this.state.selectedSportClub === undefined &&
+                              <p className={styles.errorText}>
+                                {this.props.t('profile:SelectSportClub')}
+                              </p>
+                          }
+                        </div>
+                      </div>
+                      <div className={styles.submitButton}>
+                        <Button
+                          onClick={() => {
+                            this.setState({ submitSportClub: true })
+                          }}
+                          disabled={this.state.submitSportClub || this.state.displaySuccess || this.state.selectedSportClub === undefined || this.state.selectedSport === undefined}
+                        >
+                          {this.props.t('profile:AddSportClubMembership')}
+                        </Button>
+                      </div>
+                      {
+                        this.state.submitSportClub &&
+                        <ConfirmPopUp
+                          title={this.props.t('profile:SubmitAddSportClubMembership')}
+                          message={this.props.t('profile:SubmitAddSportClubMembershipMessage')}
+                          onConfirm={this.state.fetchData ? undefined : async () => {
+                            this.setState({ fetchData: true })
+                            this.setState({ success: await FrontEndController.addSportClubMembership(FrontEndController.getUserToken(), {id: undefined, user: undefined, membershipSport: [{approved: undefined, memberStatus: undefined, sport: this.state.selectedSport}], sportClub: this.state.selectedSportClub}), selectedSportClub: undefined, selectedSport: undefined, fetchData: false, displaySuccess: true, submitSportClub: false })
+                          }}
+                          onCancel={this.state.fetchData ? undefined : () => {
+                            this.setState({ submitSportClub: false })
+                          }}
+                          sync={this.state.fetchData}
+                        >
+                          <div className={`${styles.confirmWrapper} ${styles.sportClubMembershipTableWrapper}`}>
+                            <table style={{margin: "0 auto"}}>
+                              <thead>
+                                <tr>
+                                  <th>{this.props.t('profile:SportClub')}</th>
+                                  <th>{this.props.t('profile:Sport')}</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td>{this.state.selectedSportClub?.name}</td>
+                                  <td>{this.state.selectedSport?.name}</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </ConfirmPopUp>
+                      }
+                    </div>
+                  }
+
+                  {
+                    this.state.selectedMenu === "sportClubAdmin" &&
+                    <div className={styles.sportClubAdminWrapper}>
+                      {
+                        this.state.adminClubs.map((club, clubIndex) => {
+                          return (
+                            <div key={"club" + clubIndex} className={styles.adminClubItem}>
+                              <span className={styles.inlineHeading}>
+                                <h2>{club.name}</h2>
+                                <ClickableIcon 
+                                  iconName="Sync"
+                                  onClick={async () => {
+                                    this.setState({ fetchData: true })
+                                    await this.updateAvailableSportClubs();
+                                    this.setState({ fetchData: false })
+                                  }}
+                                  spin={this.state.fetchData}
+                                />
+                              </span>
+                              <div className={styles.sportClubAdminSportWrapper}>
+                                {
+                                  club.sport.map((sport, sportIndex) => {
+                                    return (
+                                      <div key={"sportAdmin" + sportIndex}>
+                                        <AdminSportClubSportUserList 
+                                          sport={sport}
+                                          club={club}
+                                          t={this.props.t}
+                                          i18n={this.props.i18n}
+                                          tReady={this.props.tReady}
+                                        />
+                                      </div>
+                                    )
+                                  })
+                                }
+                              </div>
+                            </div>
+                          )
+                        })
+                      }
+                    </div>
+                  }
+
+                  {
                     this.state.displaySuccess &&
                       <ConfirmPopUp
                         title={this.state.success ? this.props.t('common:Success') : this.props.t('common:Error')}
                         onConfirm={() => {
+                          if (this.state.selectedMenu === "sportClubMemberships" || this.state.selectedMenu === "sportClubAdmin") {
+                            this.updateAvailableSportClubs();
+                          }
                           this.setState({ displaySuccess: false, changedEmail: false, oldPassword: "", newPassword: "", confirmPassword: "" })
                         }}
                         message={this.state.success && this.props.t('profile:UpdateUserSuccessMessage') + (this.state.changedEmail ? "\n\n" + this.props.t('profile:UpdateEmailSuccessMessage') : "")}
@@ -493,7 +753,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
               </main>
 
               <footer>
-                <Footer isLoggedIn={this.state.isLoggedIn} />
+                <Footer isLoggedIn={this.context.user} />
               </footer>
             </div>
           </div>

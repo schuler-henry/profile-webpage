@@ -24,5 +24,21 @@
   "UpdateUserErrorMessage": "Ihr Benutzer konnten nicht aktualisiert werden!\nBitte versuchen Sie es zu einem späteren Zeitpunkt erneut.",
   "PasswordInvalid": "Passwort ist ungültig",
   "PasswordOldNewMatch": "Das neue Passwort darf nicht mit dem alten Passwort übereinstimmen",
-  "PasswordMismatch": "Passwörter stimmen nicht überein"
+  "PasswordMismatch": "Passwörter stimmen nicht überein",
+  "MySportClubMemberships": "Meine Mitgliedschaften",
+  "SportClub": "Sportverein",
+  "SportClubMemberships": "Sportverein (Mitgliedschaften)",
+  "SportClubAdmin": "Sportverein (Admin)",
+  "Sport": "Sportart",
+  "Position": "Position",
+  "Approved": "Genehmigt",
+  "DeleteMembership": "Mitgliedschaft löschen",
+  "AcceptMembership": "Mitgliedschaft bestätigen",
+  "DeleteMembershipWarning": "Wenn Sie die Mitgliedschaft wieder hinzufügen, muss sie erneut genehmigt werden.",
+  "DeleteAdminMembershipWarning": "Wollen Sie die aufgelistete Mitgliedschaft wirklich löschen?",
+  "AddSportClubMembership": "Mitgliedschaft hinzufügen",
+  "SelectSportClub": "Sportverein auswählen",
+  "SelectSport": "Sportart auswählen",
+  "SubmitAddSportClubMembership": "Mitgliedschaft hinzufügen",
+  "SubmitAddSportClubMembershipMessage": "Nachdem Sie die Sportvereinsmitgliedschaft hinzugefügt haben, muss sie noch von einem Administrator genehmigt werden."
 }

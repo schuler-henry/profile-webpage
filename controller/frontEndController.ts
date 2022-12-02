@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { ColorTheme } from '../enums/colorTheme';
-import { ITimer, IUser } from '../interfaces/database';
+import { ISportClub, ISportClubMembership, ITimer, IUser } from '../interfaces/database';
 import { GitHubUser, Repository } from '../interfaces/Github';
 
 /**
@@ -12,6 +12,21 @@ export class FrontEndController {
   static themeName = "pwp.theme.token";
 
   //#region User Methods
+
+  /**
+   * This method triggers a localStorage event which triggers app.tsx to fetch user data
+   */
+  static async updateLoginStatus(): Promise<void> {
+    var loginEvent = document.createEvent('StorageEvent');
+    loginEvent.initStorageEvent('storage', false, false, FrontEndController.userTokenName, null, null, null, localStorage);
+    dispatchEvent(loginEvent);
+    // return promise that turns true if event is registered
+    return new Promise((resolve, reject) => {
+      window.addEventListener("userContextChanged", () => {
+        resolve();
+      }, { once: true });
+    });
+  }
 
   /**
    * This method checks whether a given email exists in the database
@@ -247,6 +262,50 @@ export class FrontEndController {
   }
 
   /**
+   * This method adds a new sport club membership to the user (needs to be approved by sport club manager afterwards)
+   */
+  static async addSportClubMembership(userToken: string, sportClubMembership: ISportClubMembership): Promise<boolean> {
+    const response = await fetch('/api/users/add_sportclub_membership', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        sportClubMembership: sportClubMembership
+      })
+    });
+
+    const data = await response.json();
+
+    this.updateLoginStatus();
+
+    return data.wasSuccessful;
+  }
+
+  /**
+   * This method removes a sport club membership from the user
+   */
+  static async deleteSportClubMembership(userToken: string, sportClubMembership: ISportClubMembership): Promise<boolean> {
+    const response = await fetch('/api/users/delete_sportclub_membership', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        sportClubMembership: sportClubMembership
+      })
+    });
+
+    const data = await response.json();
+
+    this.updateLoginStatus();
+
+    return data.wasSuccessful;
+  }
+
+  /**
    * This method checks whether the given token has a valid signature and user
    */
   static async verifyUserByToken(token: string): Promise<boolean> {
@@ -283,6 +342,7 @@ export class FrontEndController {
 
     localStorage.removeItem(this.userTokenName);
     localStorage.setItem(this.userTokenName, data.userToken);
+    this.updateLoginStatus();
   }
 
   /**
@@ -290,6 +350,7 @@ export class FrontEndController {
    */
   static logoutUser(): boolean {
     localStorage.removeItem(this.userTokenName);
+    this.updateLoginStatus();
     return true;
   }
 
@@ -463,6 +524,130 @@ export class FrontEndController {
     });
 
     const data = await response.json();
+    return data.wasSuccessful;
+  }
+
+  //#endregion
+
+  //#region Sport Functions
+
+  /**
+   * This method returns all existing sport clubs
+   */
+  static async getSportClubs(token: string): Promise<ISportClub[]> {
+    const response = await fetch('/api/sport/get_clubs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+      })
+    });
+
+    const data = await response.json();
+    return data.clubs;
+  }
+
+  /**
+   * This method returns all existing sport clubs where the given user has admin/trainer permission
+   */
+  static async getAdminSportClubs(token: string): Promise<ISportClub[]> {
+    const response = await fetch('/api/sport/get_admin_clubs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+      })
+    });
+
+    const data = await response.json();
+    // console.log(data.clubs)
+    return data.clubs;
+  }
+
+  /**
+   * This method accepts a sport club membership (user permission required)
+   */
+  static async acceptSportClubMembership(userToken: string, sportClubMembership: ISportClubMembership): Promise<boolean> {
+    const response = await fetch('/api/sport/accept_sportclub_membership', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        sportClubMembership: sportClubMembership
+      })
+    });
+
+    const data = await response.json();
+
+    return data.wasSuccessful;
+  }
+
+  /**
+   * This method deletes a sport club membership for a user (Trainer permission required)
+   */
+  static async deleteAdminSportClubMembership(userToken: string, sportClubMembership: ISportClubMembership): Promise<boolean> {
+    const response = await fetch('/api/sport/delete_admin_sportclub_membership', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        sportClubMembership: sportClubMembership
+      })
+    });
+
+    const data = await response.json();
+
+    return data.wasSuccessful;
+  }
+
+  /**
+   * This method returns all users that are not members of the given sport club sport (Trainer permission required)
+   */
+  static async getUsersWithoutSportClubMembershipSport(userToken: string, sportClubId: number, sportId: number): Promise<IUser[]> {
+    const response = await fetch('/api/sport/get_users_without_sportclub_membership_sport', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        sportClubId: sportClubId,
+        sportId: sportId
+      })
+    });
+
+    const data = await response.json();
+
+    return data.users;
+  }
+
+  /**
+   * This method adds a sport club membership for multiple users (Trainer permission required)
+   */
+  static async addAdminSportClubMemberships(userToken: string, sportClubId: number, sportId: number, users: IUser[]): Promise<boolean> {
+    const response = await fetch('/api/sport/add_admin_sportclub_membership_for_users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        sportClubId: sportClubId,
+        sportId: sportId,
+        users: users
+      })
+    });
+
+    const data = await response.json();
+
     return data.wasSuccessful;
   }
 

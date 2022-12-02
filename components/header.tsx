@@ -37,16 +37,16 @@ export class Header extends Component<HeaderProps, HeaderState> {
     let studiesElement = document.getElementById('NavBarStudies');
     let appsElement = document.getElementById('NavBarApps');
     studiesElement.addEventListener('mouseenter', () => {document.getElementById("SubContentStudies").classList.toggle(`${styles.active}`)});
-    studiesElement.addEventListener('mouseleave', () => {document.getElementById("SubContentStudies").classList.toggle(`${styles.active}`)});
+    studiesElement.addEventListener('mouseleave', () => {document.getElementById("SubContentStudies").classList.remove(`${styles.active}`)});
     appsElement?.addEventListener('mouseenter', () => {document.getElementById("SubContentApps").classList.toggle(`${styles.active}`)});
-    appsElement?.addEventListener('mouseleave', () => {document.getElementById("SubContentApps").classList.toggle(`${styles.active}`)});
+    appsElement?.addEventListener('mouseleave', () => {document.getElementById("SubContentApps").classList.remove(`${styles.active}`)});
   }
 
   componentDidUpdate(prevProps: Readonly<HeaderProps>, prevState: Readonly<HeaderState>, snapshot?: any): void {
     if (this.props.hideLogout !== prevProps.hideLogout) {
       let appsElement = document.getElementById('NavBarApps');
       appsElement?.addEventListener('mouseenter', () => {document.getElementById("SubContentApps").classList.toggle(`${styles.active}`)});
-      appsElement?.addEventListener('mouseleave', () => {document.getElementById("SubContentApps").classList.toggle(`${styles.active}`)});  
+      appsElement?.addEventListener('mouseleave', () => {document.getElementById("SubContentApps").classList.remove(`${styles.active}`)});  
     }
   }
 
@@ -142,7 +142,6 @@ export class Header extends Component<HeaderProps, HeaderState> {
           <Button
             onClick={() => {
               FrontEndController.logoutUser();
-              location.reload();
             }
             }>
             {LanguageContext.t('common:Logout')}

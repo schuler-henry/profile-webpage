@@ -60,6 +60,7 @@
 
 .gitHubElement ul li {
   font-family: 'Roboto Mono', monospace;
+  font-weight: 400;
 }
 
 .scrollText {

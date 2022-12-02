@@ -11,10 +11,9 @@ import { PWPLanguageProvider } from "../../../components/PWPLanguageProvider/PWP
 import { FrontEndController } from "../../../controller/frontEndController";
 import { Repository } from "../../../interfaces/Github";
 import { GitHubRepository } from "../../../components/GitHubRepository/GitHubRepository";
+import { PWPAuthContext } from "../../../components/PWPAuthProvider/PWPAuthProvider";
 
 export interface ProjectsState {
-  isLoggedIn: boolean;
-  currentToken: string;
   repoData: Repository;
 }
 
@@ -34,47 +33,21 @@ class Projects extends Component<ProjectsProps, ProjectsState> {
   constructor(props: ProjectsProps) {
     super(props)
     this.state = {
-      isLoggedIn: undefined,
-      currentToken: "",
       repoData: undefined,
     }
   }
 
+  static contextType = PWPAuthContext;
+
   componentDidMount() {
-    this.updateLoginState();
-    window.addEventListener('storage', this.storageTokenListener)
   }
 
   componentWillUnmount() {
-    window.removeEventListener('storage', this.storageTokenListener)
-  }
-
-  /**
-   * This method checks whether the event contains a change in the user-token. If it does, it updates the login state.
-   * @param {any} event Event triggered by an EventListener
-   */
-   storageTokenListener = async (event: any) => {
-    if (event.key === FrontEndController.userTokenName) {
-      this.updateLoginState();
-    }
-  }
-
-  /**
-   * This method updates the isLoggedIn state and currentToken state according to the current token in local storage.
-   * @returns Nothing
-   */
-   async updateLoginState() {
-    const currentToken = FrontEndController.getUserToken();
-    if (await FrontEndController.verifyUserByToken(currentToken)) {
-      this.setState({ isLoggedIn: true, currentToken: currentToken })
-      return
-    }
-    this.setState({ isLoggedIn: false })
   }
 
   render() {
     const { router } = this.props
-    if (this.state.isLoggedIn === undefined) {
+    if (this.context.user === undefined) {
       return (
         <PWPLanguageProvider i18n={this.props.i18n} t={this.props.t}>
           <div>
@@ -83,16 +56,6 @@ class Projects extends Component<ProjectsProps, ProjectsState> {
               <meta name="description" content="Projects" />
               <link rel="icon" href="/favicon.ico" />
             </Head>
-
-            <header>
-              <Header 
-                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-                hideLogin={this.state.isLoggedIn} 
-                hideLogout={!this.state.isLoggedIn} 
-                path={router.pathname} 
-                router={this.props.router}
-              />
-            </header>
 
             <main>
               <PageLoadingScreen />
@@ -112,9 +75,9 @@ class Projects extends Component<ProjectsProps, ProjectsState> {
 
             <header>
               <Header 
-                username={FrontEndController.getUsernameFromToken(this.state.currentToken)} 
-                hideLogin={this.state.isLoggedIn} 
-                hideLogout={!this.state.isLoggedIn} 
+                username={this.context.user?.username} 
+                hideLogin={this.context.user} 
+                hideLogout={!this.context.user} 
                 path={router.pathname} 
                 router={this.props.router}
               />
@@ -135,7 +98,7 @@ class Projects extends Component<ProjectsProps, ProjectsState> {
               </main>
 
               <footer>
-                <Footer isLoggedIn={this.state.isLoggedIn} />
+                <Footer isLoggedIn={this.context.user} />
               </footer>
             </div>
           </div>

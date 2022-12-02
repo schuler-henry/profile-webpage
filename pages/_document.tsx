@@ -1,23 +1,28 @@
+/* eslint-disable react/no-danger */
+import * as React from 'react'
+import { Stylesheet, InjectionMode } from '@fluentui/react'
 import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/document'
-import { ServerStyleSheets } from '@material-ui/styles'
-import React from 'react';
-import { InjectionMode, resetIds, Stylesheet } from '@fluentui/react';
+import { resetIds } from '@fluentui/react'
 
+// Do this in file scope to initialize the stylesheet before Fluent UI React components are imported.
+const stylesheet = Stylesheet.getInstance()
+
+// Set the config.
+stylesheet.setConfig({
+  injectionMode: InjectionMode.none,
+  namespace: 'server'
+})
+
+// Now set up the document, and just reset the stylesheet.
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
-    const sheets = new ServerStyleSheets();
-    const originalRenderPage = ctx.renderPage;
-
-    ctx.renderPage = () =>
-      originalRenderPage({
-        enhanceApp: (App) => (props) => sheets.collect(<App {...props} />),
-      });
+    stylesheet.reset()
+    resetIds()
 
     const initialProps = await Document.getInitialProps(ctx)
-    // console.log("Document")
-    return { 
+    return {
       ...initialProps,
-      styles: [...React.Children.toArray(initialProps.styles), sheets.getStyleElement()],
+      styles: [initialProps.styles, <style key="fluentui-css" dangerouslySetInnerHTML={{ __html: stylesheet.getRules(true) }} />]
     }
   }
 
@@ -25,8 +30,8 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" />
-          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Mono:wght@400;600&display=swap" />
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" />
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Mono:wght@300;400;500;600;700&display=swap" />
         </Head>
         <body>
           <Main />
@@ -38,7 +43,3 @@ class MyDocument extends Document {
 }
 
 export default MyDocument
-
-function getUnicodeFlagIcon(arg0: string): string | JSX.Element {
-  throw new Error('Function not implemented.')
-}

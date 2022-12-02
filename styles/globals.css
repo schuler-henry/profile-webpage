@@ -3,10 +3,12 @@ body {
   padding: 0;
   margin: 0;
   font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
   color: var(--color-text-primary);
   background-color: var(--color-bg-primary);
   width: 100vw;
   transition: background 2.5s ease-in-out;
+  overflow: hidden;
 }
 
 body {
@@ -15,6 +17,7 @@ body {
   --color-text-off: #BBBBBB;
   --color-text-inverted: #000000;
   --color-text-warning: #ff2222;
+  --color-text-approved: #00ff00;
   --color-bg-primary: #151515;
   --color-bg-secondary: #00C0FF;
   --color-bg-hover: #2A2A2A;
@@ -35,6 +38,7 @@ body[data-theme="light"] {
   --color-text-off: #555555;
   --color-text-inverted: #FFFFFF;
   --color-text-warning: #ff0000;
+  --color-text-approved: #22ff22;
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #00C0FF;
   --color-bg-hover: #EAEAEA;
@@ -61,6 +65,10 @@ body[data-theme="light"] {
   border-radius: 20px;
   border: solid 5px transparent;
   box-shadow: inset 0 0 10px 10px #404040;
+}
+
+::-webkit-scrollbar-corner {
+  background-color: rgba(0, 0, 0, 0);
 }
 
 main {
