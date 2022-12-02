@@ -415,6 +415,23 @@ export class FrontEndController {
     return data.content;
   }
 
+  static async getFileURLFromDatabase(bucketID: string, filePath: string): Promise<string> {
+    const response = await fetch('/api/files/getFileUrlFromBucket', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        bucketID: bucketID,
+        filePath: filePath,
+      })
+    });
+
+    const data = await response.json();
+    // console.log(data)
+    return data.url;
+  }
+
   //#endregion
 
   //#region Github API

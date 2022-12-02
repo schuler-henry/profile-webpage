@@ -225,6 +225,30 @@ export class DatabaseModel {
     return updatedTimer;
   }
 
+  async getFileURLFromBucket(bucketID: string, filePath: string): Promise<string> {
+    // check if file exists, otherwise return null
+    const exists = await DatabaseModel.CLIENT
+      .rpc('check_bucket_item_exists', { bucketId: bucketID, filePath: filePath });
+
+    if (exists.data === null || exists.error !== null || exists.data.length === 0) {
+      return null;
+    }
+
+    const data: { success: boolean } = exists.data[0];
+
+    if (data.success) {
+      const result = await DatabaseModel.CLIENT
+        .storage
+        .from(bucketID)
+        .getPublicUrl(filePath);
+  
+      let url = result.data.publicURL;
+      return url;
+    }
+
+    return null
+  }
+
   //#endregion
 
   //#region Sport Methods

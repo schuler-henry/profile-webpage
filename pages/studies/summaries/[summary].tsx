@@ -18,6 +18,7 @@ import { ColorTheme } from '../../../enums/colorTheme';
 import { PageLoadingScreen } from '../../../components/PageLoadingScreen/PageLoadingScreen';
 import { PWPLanguageProvider } from '../../../components/PWPLanguageProvider/PWPLanguageProvider';
 import { PWPAuthContext } from '../../../components/PWPAuthProvider/PWPAuthProvider';
+import PDFObject from 'pdfobject';
 
 export interface SummaryState {
   summary: matter.GrayMatterFile<any>;
@@ -55,7 +56,9 @@ class Summary extends Component<SummaryProps, SummaryState> {
 
   async getMarkdownFileContent() {
     const { summary } = this.props.router.query
-    this.setState({ summary: matter(await FrontEndController.getFileContent("content/studies/summaries/", summary + ".md")) });
+    let summaryBlob = matter(await FrontEndController.getFileContent("content/studies/summaries/", summary + ".md"));
+    summaryBlob.content = summaryBlob.content.replaceAll("class=\"pdfViewer\"", `class=\"${PDFObject.supportsPDFs ? styles.pdf : styles.noPdf}\"`)
+    this.setState({ summary: summaryBlob });
   }
 
   render() {
@@ -103,7 +106,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
                     components={{ table: ({ node }) => <div className={styles.tableScroll} dangerouslySetInnerHTML={{ __html: toHtml(node) }}></div> }}
                     rehypePlugins={[rehypeRaw]}
                     remarkPlugins={[remarkGfm]}
-                    className={FrontEndController.getTheme() === ColorTheme.darkTheme ? stylesDark.markdown : stylesLight.markdown}>
+                    className={`${FrontEndController.getTheme() === ColorTheme.darkTheme ? stylesDark.markdown : stylesLight.markdown}`}>
                     {this.state.summary.content}
                   </ReactMarkdown>
                 </div>
