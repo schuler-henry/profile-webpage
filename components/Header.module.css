@@ -141,6 +141,10 @@
 .navContentIcon {
   height: fit-content;
   width: fit-content;
+  position: absolute;
+  right: 20px;
+  top: 0;
+  cursor: pointer;
 }
 
 .mobileMenuExtender {

@@ -70,16 +70,16 @@ export class GitHubRepository extends Component<GitHubRepositoryProps, GitHubRep
                         </div>
                       </Link>
                       <div className={styles.gitHubHeaderText}>
-                        <p className={styles.repositoryHeaderName}>
+                        <div className={styles.repositoryHeaderName}>
                           <a href={`https://github.com/${this.props.username}/${this.props.reponame}`} onClick={() => { document.location.href = `https://github.com/${this.props.username}/${this.props.reponame}` }}>
                             {this.props.heading}
                           </a>
-                        </p>
-                        <p className={styles.repositoryHeaderInfo}>
+                        </div>
+                        <div className={styles.repositoryHeaderInfo}>
                           <p className={this.state.windowWidth || this.state.repoData ? document.getElementById(uid(this.props.reponame))?.scrollWidth > document.getElementById(uid(this.props.reponame))?.clientWidth ? styles.scrollText : null : null} id={uid(this.props.reponame)}>
                             {this.state.repoData ? `${LanguageContext.t('gitHub:Language')}: ${this.state.repoData.language} - ${LanguageContext.t('gitHub:CreatedOn')}: ${new Date(this.state.repoData.created_at).toLocaleDateString("de-DE")}${this.state.repoData.license ? ` - ${LanguageContext.t('gitHub:License')}: ${this.state.repoData.license.name}` : ""}` : "Test"}
                           </p>
-                        </p>
+                        </div>
                       </div>
                       <Button 
                         onClick={() => {navigator.clipboard.writeText(`git clone ${this.state.repoData.clone_url}`)}}
@@ -88,15 +88,15 @@ export class GitHubRepository extends Component<GitHubRepositoryProps, GitHubRep
                       </Button>
                     </div>
                     <div className={styles.gitHubContent}>
-                      <p className={styles.gitHubElement}>
+                      <div className={styles.gitHubElement}>
                         <p className={styles.elementHead}>
                           Description:
                         </p>
                         <p>
                           {this.state.repoData ? this.state.repoData.description : "Loading..."}
                         </p>
-                      </p>
-                      <p className={styles.gitHubElement}>
+                      </div>
+                      <div className={styles.gitHubElement}>
                         <p className={styles.elementHead}>
                           Contributors:
                         </p>
@@ -119,7 +119,7 @@ export class GitHubRepository extends Component<GitHubRepositoryProps, GitHubRep
                             </li>
                           ))}
                         </ul>
-                      </p>
+                      </div>
                     </div>
                   </div>
                 )}
