@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import { Component } from 'react'
-import fs from 'fs'
 import matter from 'gray-matter';
 import { Summary } from '../../../components/SummaryItem/SummaryItem';
 import styles from '../../../styles/studies/Summaries.module.css'
@@ -15,45 +14,38 @@ import { PWPLanguageProvider } from '../../../components/PWPLanguageProvider/PWP
 import { PWPAuthContext } from '../../../components/PWPAuthProvider/PWPAuthProvider';
 
 export interface SummariesState {
+  listItems: { [key: string]: any }[];
+  loadingItems: boolean;
 }
 
 export interface SummariesProps extends WithTranslation, WithRouterProps {
-  data: string[];
   i18n: I18n;
 }
 
 export const getStaticProps = async ({ locale }) => {
-  const directory = fs.readdirSync(`${process.cwd()}/content/studies/summaries`, 'utf-8');
-  const files = directory.filter(fn => fn.endsWith(".md"));
-  const data = files.map(file => {
-    const path = `${process.cwd()}/content/studies/summaries/${file}`;
-    const rawContent = fs.readFileSync(path, {
-      encoding: "utf-8"
-    });
-    // console.log(rawContent);
-    return rawContent
-  });
-
   return {
     props: {
-      data,
       ...(await serverSideTranslations(locale, ['common', 'summaries'])),
     }
   }
 }
 
 class Summaries extends Component<SummariesProps, SummariesState> {
-  private realData = this.props.data.map(summary => matter(summary));
-  private listItems = this.realData.map(listItem => listItem.data);
   constructor(props: SummariesProps) {
     super(props)
     this.state = {
+      listItems: [],
+      loadingItems: true,
     }
   }
 
   static contextType = PWPAuthContext;
 
-  componentDidMount() {
+  async componentDidMount() {
+    const summaries: string[] = await FrontEndController.getAllSummaries();
+    const realData = summaries.map(summary => matter(summary));
+    const listItems = realData.map(listItem => listItem.data);
+    this.setState({ listItems: listItems, loadingItems: false });
   }
 
   componentWillUnmount() {
@@ -103,8 +95,14 @@ class Summaries extends Component<SummariesProps, SummariesState> {
                   <h1>
                     {this.props.t('common:Summaries')}
                   </h1>
+                  {
+                    this.state.loadingItems &&
+                    <div style={{ position: "absolute", top: "0", left: "0", bottom: "0", right: "0", zIndex: "10", backgroundColor: "rgba(0,0,0,0.6)" }}>
+                      <PageLoadingScreen />
+                    </div>
+                  }
                   <div className={styles.container}>
-                    {this.listItems.map((summary, i) => (
+                    {this.state.listItems.map((summary, i) => (
                       <div key={i} className={styles.summary}>
                         <Summary summary={summary} />
                       </div>

@@ -415,6 +415,23 @@ export class FrontEndController {
     return data.content;
   }
 
+  static async getFileFromDatabase(bucketID: string, filePath: string): Promise<string> {
+    const response = await fetch('/api/files/get_file_from_bucket', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        bucketID: bucketID,
+        filePath: filePath,
+      })
+    });
+
+    const data = await response.json();
+
+    return data.content;
+  }
+
   static async getFileURLFromDatabase(bucketID: string, filePath: string): Promise<string> {
     const response = await fetch('/api/files/getFileUrlFromBucket', {
       method: 'POST',
@@ -430,6 +447,23 @@ export class FrontEndController {
     const data = await response.json();
     // console.log(data)
     return data.url;
+  }
+
+  //#endregion
+
+  //#region Summaries Methods
+
+  static async getAllSummaries(): Promise<string[]> {
+    const response = await fetch('/api/files/get_all_summaries', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+
+    const data = await response.json();
+
+    return data.summaries;
   }
 
   //#endregion

@@ -34,7 +34,7 @@
   height: 40px;
 }
 
-.gitHubHeaderText p {
+.gitHubHeaderText div, .gitHubHeaderText p {
   font-weight: bold;
   margin: 1px 0;
   font-size: 13.5px;
@@ -45,7 +45,7 @@
   overflow: hidden;
 }
 
-.gitHubContent p {
+.gitHubContent p, .gitHubContent .gitHubElement {
   margin: 5px 0;
 }
 
