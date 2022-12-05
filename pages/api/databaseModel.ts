@@ -225,6 +225,10 @@ export class DatabaseModel {
     return updatedTimer;
   }
 
+  //#endregion
+
+  //#region Bucket Methods
+
   async getFileURLFromBucket(bucketID: string, filePath: string): Promise<string> {
     // check if file exists, otherwise return null
     const exists = await DatabaseModel.CLIENT
@@ -249,6 +253,46 @@ export class DatabaseModel {
     return null
   }
 
+  async downloadFileFromBucket(bucketID: string, filePath: string): Promise<Blob> {
+    // check if file exists, otherwise return null
+    const exists = await DatabaseModel.CLIENT
+      .rpc('check_bucket_item_exists', { bucketId: bucketID, filePath: filePath });
+
+    if (exists.data === null || exists.error !== null || exists.data.length === 0) {
+      return null;
+    }
+
+    const data: { success: boolean } = exists.data[0];
+
+    if (data.success) {
+      const result = await DatabaseModel.CLIENT
+        .storage
+        .from(bucketID)
+        .download(filePath);
+
+      return result.data;
+    }
+
+    return null;
+  }
+
+  /**
+   * This method returns item infos for max. 100 items in a bucket
+   * @param bucketID bucket name
+   * @param folderPath without leading slash
+   * @returns list of all files and folders at bucket location
+   */
+  async getFolderContentInfoFromBucket(bucketID: string, folderPath: string): Promise<any[]> {
+    const result = await DatabaseModel.CLIENT
+      .storage
+      .from(bucketID)
+      .list(folderPath, {
+        limit: 100,
+        offset: 0,
+      })
+
+    return result.data;
+  }
   //#endregion
 
   //#region Sport Methods

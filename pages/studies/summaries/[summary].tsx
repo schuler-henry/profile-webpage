@@ -19,6 +19,7 @@ import { PageLoadingScreen } from '../../../components/PageLoadingScreen/PageLoa
 import { PWPLanguageProvider } from '../../../components/PWPLanguageProvider/PWPLanguageProvider';
 import { PWPAuthContext } from '../../../components/PWPAuthProvider/PWPAuthProvider';
 import PDFObject from 'pdfobject';
+import { Icon } from '@fluentui/react';
 
 export interface SummaryState {
   summary: matter.GrayMatterFile<any>;
@@ -47,7 +48,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
 
   static contextType = PWPAuthContext;
 
-  componentDidMount() {
+  async componentDidMount() {
     this.getMarkdownFileContent();
   }
 
@@ -56,7 +57,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
 
   async getMarkdownFileContent() {
     const { summary } = this.props.router.query
-    let summaryBlob = matter(await FrontEndController.getFileContent("content/studies/summaries/", summary + ".md"));
+    let summaryBlob = matter(await FrontEndController.getFileFromDatabase("studies.summaries", "summaries/" + summary + ".md"));
     summaryBlob.content = summaryBlob.content.replaceAll("class=\"pdfViewer\"", `class=\"${PDFObject.supportsPDFs ? styles.pdf : styles.noPdf}\"`)
     this.setState({ summary: summaryBlob });
   }
@@ -109,6 +110,16 @@ class Summary extends Component<SummaryProps, SummaryState> {
                     className={`${FrontEndController.getTheme() === ColorTheme.darkTheme ? stylesDark.markdown : stylesLight.markdown}`}>
                     {this.state.summary.content}
                   </ReactMarkdown>
+                </div>
+                <div style={{position: "absolute", bottom: "20px", right: "20px", backgroundColor: "black", width: "50px", height: "50px", display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "25px", cursor: "pointer"}}
+                  onClick={() => {
+                    document.getElementsByClassName("scrollBody")[0].scrollTo(0, 0);
+                  }}
+                >
+                  <Icon 
+                    iconName="chevronUp"
+                    style={{color: "white", fontSize: "20px"}}
+                  />
                 </div>
               </main>
 

@@ -580,8 +580,33 @@ Henry Schuler`,
     return content;
   }
 
+  async getFileFromBucket(bucketID: string, filePath: string): Promise<string> {
+    const fileBlob = await this.databaseModel.downloadFileFromBucket(bucketID, filePath);
+    return await fileBlob.text();
+  }
+
   async getFileURLFromBucket(bucketID: string, filePath: string): Promise<string> {
     return this.databaseModel.getFileURLFromBucket(bucketID, filePath);
+  }
+
+  //#endregion
+
+  //#region Summaries Methods
+
+  async handleGetAllSummaries(): Promise<string[]> {
+    const fileNames: string[] = (await this.databaseModel.getFolderContentInfoFromBucket("studies.summaries", "summaries"))
+                                  .filter(item => item.name.endsWith('.md'))
+                                  .map(item => item.name)
+
+    const data = await Promise.all(
+      fileNames.map(
+        async (fileName: string) => {
+          return (await this.databaseModel.downloadFileFromBucket("studies.summaries", `summaries/${fileName}`)).text()
+        }
+      )
+    )
+
+    return data
   }
 
   //#endregion

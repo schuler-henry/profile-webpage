@@ -8,16 +8,16 @@ type Data = {
 const BACK_END_CONTROLLER = new BackEndController();
 
 /**
- * Api Route to get a file from the file system
+ * Api Route to get a file from the bucket
  * @category API
  */
-async function getFileContent(req: NextApiRequest, res: NextApiResponse<Data>) {
+async function getFileFromBucket(req: NextApiRequest, res: NextApiResponse<Data>) {
+  const bucketID: string = req.body.bucketID;
   const filePath: string = req.body.filePath;
-  const fileName: string = req.body.fileName;
     
-  const content: string = BACK_END_CONTROLLER.getFileContent(filePath, fileName);
+  const content: string = await BACK_END_CONTROLLER.getFileFromBucket(bucketID, filePath);
 
   res.status(200).json({ content: content });
 }
 
-export default getFileContent;
+export default getFileFromBucket;
