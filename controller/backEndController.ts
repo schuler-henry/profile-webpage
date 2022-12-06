@@ -580,9 +580,9 @@ Henry Schuler`,
     return content;
   }
 
-  async getFileFromBucket(bucketID: string, filePath: string): Promise<string> {
+  async getFileFromBucket(bucketID: string, filePath: string): Promise<Blob> {
     const fileBlob = await this.databaseModel.downloadFileFromBucket(bucketID, filePath);
-    return await fileBlob.text();
+    return fileBlob;
   }
 
   async getFileURLFromBucket(bucketID: string, filePath: string): Promise<string> {

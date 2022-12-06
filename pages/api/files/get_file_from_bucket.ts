@@ -15,7 +15,7 @@ async function getFileFromBucket(req: NextApiRequest, res: NextApiResponse<Data>
   const bucketID: string = req.body.bucketID;
   const filePath: string = req.body.filePath;
     
-  const content: string = await BACK_END_CONTROLLER.getFileFromBucket(bucketID, filePath);
+  const content: string = await (await BACK_END_CONTROLLER.getFileFromBucket(bucketID, filePath)).text();
 
   res.status(200).json({ content: content });
 }
