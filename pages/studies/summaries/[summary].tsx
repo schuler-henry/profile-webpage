@@ -20,6 +20,10 @@ import { PWPLanguageProvider } from '../../../components/PWPLanguageProvider/PWP
 import { PWPAuthContext } from '../../../components/PWPAuthProvider/PWPAuthProvider';
 import PDFObject from 'pdfobject';
 import { Icon } from '@fluentui/react';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+
+import 'katex/dist/katex.min.css' // `rehype-katex` does not import the CSS for you
 
 export interface SummaryState {
   summary: matter.GrayMatterFile<any>;
@@ -105,8 +109,8 @@ class Summary extends Component<SummaryProps, SummaryState> {
                 <div className={styles.content}>
                   <ReactMarkdown
                     components={{ table: ({ node }) => <div className={styles.tableScroll} dangerouslySetInnerHTML={{ __html: toHtml(node) }}></div> }}
-                    rehypePlugins={[rehypeRaw]}
-                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw, rehypeKatex]}
+                    remarkPlugins={[remarkGfm, remarkMath]}
                     className={`${FrontEndController.getTheme() === ColorTheme.darkTheme ? stylesDark.markdown : stylesLight.markdown}`}>
                     {this.state.summary.content}
                   </ReactMarkdown>
