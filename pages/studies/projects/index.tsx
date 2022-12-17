@@ -9,12 +9,12 @@ import styles from '../../../styles/studies/Projects.module.css'
 import { PageLoadingScreen } from "../../../components/PageLoadingScreen/PageLoadingScreen";
 import { PWPLanguageProvider } from "../../../components/PWPLanguageProvider/PWPLanguageProvider";
 import { FrontEndController } from "../../../controller/frontEndController";
-import { Repository } from "../../../interfaces/Github";
+import { GitHubProject } from "../../../interfaces/database";
 import { GitHubRepository } from "../../../components/GitHubRepository/GitHubRepository";
 import { PWPAuthContext } from "../../../components/PWPAuthProvider/PWPAuthProvider";
 
 export interface ProjectsState {
-  repoData: Repository;
+  projects: GitHubProject[];
 }
 
 export interface ProjectsProps extends WithTranslation, WithRouterProps {
@@ -33,13 +33,14 @@ class Projects extends Component<ProjectsProps, ProjectsState> {
   constructor(props: ProjectsProps) {
     super(props)
     this.state = {
-      repoData: undefined,
+      projects: []
     }
   }
 
   static contextType = PWPAuthContext;
 
-  componentDidMount() {
+  async componentDidMount() {
+    this.setState({ projects: await FrontEndController.getGitHubProjects() })
   }
 
   componentWillUnmount() {
@@ -90,9 +91,18 @@ class Projects extends Component<ProjectsProps, ProjectsState> {
                     {this.props.t('common:Projects')}
                   </h1>
                   <div className={styles.elements}>
-                    <GitHubRepository username="dhbw-fn-tit20" reponame="web-notes" heading="WEB NOTES" />
-                    <GitHubRepository username="dhbw-fn-tit20" reponame="dev-chat" heading="DEV CHAT" />
-                    <GitHubRepository username="schuler-henry" reponame="snp-timediff" heading="Time difference calculator" />
+                    {
+                      this.state.projects.map((project) => {
+                        return (
+                          <GitHubRepository 
+                            key={project.heading} 
+                            username={project.username} 
+                            reponame={project.reponame} 
+                            heading={project.heading} 
+                          />
+                        )
+                      })
+                    }
                   </div>
                 </div>
               </main>
