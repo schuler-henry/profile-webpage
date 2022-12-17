@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs'
 import path from 'path'
 import * as bcrypt from 'bcrypt';
-import { ISportClub, ISportClubMembership, ISportClubMembershipSport, ITimer, IUser } from '../interfaces/database';
+import { GitHubProject, ISportClub, ISportClubMembership, ISportClubMembershipSport, ITimer, IUser } from '../interfaces/database';
 import { randomStringGenerator } from '../shared/randomStringGenerator';
 import { SMTPClient } from 'emailjs';
 import { isEmailValid } from '../pages/api/users/requirements';
@@ -609,6 +609,14 @@ Henry Schuler`,
     return data
   }
 
+  //#endregion
+
+  //#region GitHubProjects Methods
+  
+  async handleGetGitHubProjects(): Promise<GitHubProject[]> {
+    return this.databaseModel.getGitHubProjectsFromResponse(await this.databaseModel.selectGitHubProjectsTable());
+  }
+  
   //#endregion
 
   //#region Timer Methods

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { ColorTheme } from '../enums/colorTheme';
-import { ISportClub, ISportClubMembership, ITimer, IUser } from '../interfaces/database';
+import { GitHubProject, ISportClub, ISportClubMembership, ITimer, IUser } from '../interfaces/database';
 import { GitHubUser, Repository } from '../interfaces/Github';
 
 /**
@@ -466,6 +466,23 @@ export class FrontEndController {
     return data.summaries;
   }
 
+  //#endregion
+
+  //#region GitHubProjects Methods
+
+  static async getGitHubProjects(): Promise<GitHubProject[]> {
+    const response = await fetch('/api/projects/get_all_projects', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+
+    const data = await response.json();
+
+    return data.projects;
+  }
+  
   //#endregion
 
   //#region Github API

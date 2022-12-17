@@ -1,7 +1,7 @@
 // @ts-check
 import { createClient, PostgrestResponse, SupabaseClient } from '@supabase/supabase-js'
 import { AccessLevel } from '../../enums/accessLevel';
-import { ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, ISportLocation, ITimer, IUser } from '../../interfaces/database'
+import { GitHubProject, ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, ISportLocation, ITimer, IUser } from '../../interfaces/database'
 
 /**
  * DataBase Model to Connect BackendController with Supabase DB
@@ -168,6 +168,32 @@ export class DatabaseModel {
       .match({ 'id': targetUserID });
 
     return deletedUser;
+  }
+
+  //#endregion
+
+  //#region GitHubProjects Methods
+
+  getGitHubProjectsFromResponse(dbResponse: PostgrestResponse<GitHubProject>): GitHubProject[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      return [];
+    }
+
+    const allGitHubProjects: GitHubProject[] = [];
+
+    for (const gitHubProject of dbResponse.data) {
+      allGitHubProjects.push({ username: gitHubProject.username, reponame: gitHubProject.reponame, heading: gitHubProject.heading })
+    }
+
+    return allGitHubProjects;
+  }
+
+  async selectGitHubProjectsTable(): Promise<PostgrestResponse<GitHubProject>> {
+    const gitHubProjectsResponse = await DatabaseModel.CLIENT
+      .from('GitHubProjects')
+      .select();
+
+    return gitHubProjectsResponse;
   }
 
   //#endregion
