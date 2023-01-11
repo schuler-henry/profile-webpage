@@ -80,7 +80,7 @@ export class SportMatchItem extends Component<SportMatchItemProps, SportMatchIte
                                   <br />
                                   </>
                                 }
-                                <span style={ this.context.user?.id === user.id ? { backgroundColor: "rgb(0, 255, 0, 0.2)" } : {} }>
+                                <span className={this.context.user?.id === user.id ? styles.isUser : ""}>
                                   {
                                     (!user.firstName || user.firstName === "" && !user.lastName || user.lastName === "") ?
                                     <>

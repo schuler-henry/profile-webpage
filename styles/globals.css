@@ -8,8 +8,6 @@ body {
   background-color: var(--color-bg-primary);
   width: 100vw;
   transition: background 2.5s ease-in-out;
-  /* TODO: check if this hidden value is necessary -> otherwise mobile browser not refreshable / can't scroll down */
-  /* overflow: hidden; */
 }
 
 body {

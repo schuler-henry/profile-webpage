@@ -172,7 +172,7 @@ class SportEvent extends Component<SportEventProps, SportEventState> {
                           <SportEventItem 
                             key={index} 
                             sportEvent={sportEvent} 
-                            isCreator={sportEvent.creator.id === this.context.user.id}
+                            isCreator={sportEvent.creator.id === this.context.user?.id}
                             onChange={async () => {
                               this.setState({ updating: true });
                               this.setState({ sportEvents: await FrontEndController.getSportEvents(FrontEndController.getUserToken()), updating: false });

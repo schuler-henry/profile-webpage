@@ -31,3 +31,9 @@
   flex-direction: row;
   gap: 5px;
 }
+
+.isUser {
+  background-color: var(--color-bg-hover);
+  padding: 2px 5px;
+  border-radius: 2px;
+}

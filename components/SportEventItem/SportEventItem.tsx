@@ -210,6 +210,9 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
                         </p>
                       </div>
                     </div>
+                    <div className={styles.visibilityLevel}>
+                      { this.props.sportEvent.visibility }
+                    </div>
                   </div>
                 </div>
                 <div className={this.state.positionValues ? styles.content : ""} hidden={!this.state.positionValues}>

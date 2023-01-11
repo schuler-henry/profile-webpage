@@ -111,7 +111,15 @@ export class SportEventItemEdit extends Component<SportEventItemEditProps, Sport
     }
   }
 
-  tabs = ["Left", "Right", "Content"]
+  private tabs = ["Sport Event", "Event Details", "Content"]
+
+  private visibilityOptions: DropdownOption[] = [
+    { key: SportEventVisibility.creatorOnly.toString(), text: "0 Creator (Private)"},
+    { key: SportEventVisibility.creatorMembers.toString(), text: "1 Creator + Member"},
+    { key: SportEventVisibility.creatorMemberClubSportMember.toString(), text: "2 Creator + Member + Sport Member (Club)"},
+    { key: SportEventVisibility.creatorMemberClubMember.toString(), text: "3 Creator + Member + Club Member"},
+    { key: SportEventVisibility.public.toString(), text: "4 Everyone (Public)"},
+  ]
 
   selectTab(id: number) {
     this.setState({ tab: id });
@@ -255,6 +263,9 @@ export class SportEventItemEdit extends Component<SportEventItemEditProps, Sport
                 </p>
               </div>
             </div>
+            <div className={sportEventItemStyles.visibilityLevel}>
+              { this.state.sportEvent.visibility }
+            </div>
           </div>
         </div>
         <div className={styles.content} style={this.state.preview ? {display: "none"} : {}}>
@@ -396,11 +407,24 @@ export class SportEventItemEdit extends Component<SportEventItemEditProps, Sport
                   }}
                   width="100%"
                 />
+                <h2>
+                  Visibility
+                </h2>
+                <Dropdown 
+                  options={ this.visibilityOptions }
+                  onRenderOption={onRenderOption}
+                  onRenderCaretDown={onRenderCaretDown}
+                  selectedKey={this.state.sportEvent.visibility.toString()}
+                  onChange={(event, option) => {
+                    this.setState({ sportEvent: {...this.state.sportEvent, visibility: parseInt(option.key)} })
+                  }}
+                  width="100%"
+                />
               </div>
             }
             {
               this.state.tab === 2 &&
-              <div className={sportEventItemStyles.content}>
+              <div className={sportEventItemStyles.content} style={{borderTop: "none"}}>
                 {
                   this.state.sportEvent.sportMatch.map((sportMatch, sportMatchIndex) => {
                     return (
@@ -419,7 +443,8 @@ export class SportEventItemEdit extends Component<SportEventItemEditProps, Sport
                 }
                 <Button
                   onClick={() => {
-                    this.setState({ sportEvent: {...this.state.sportEvent, sportMatch: [...this.state.sportEvent.sportMatch, {id: undefined, description: undefined, sportTeam: [], sportMatchSet: [] }] } })
+                    const lowestId = this.state.sportEvent.sportMatch.reduce((returnValue, item) => item.id < returnValue ? item.id : returnValue, 0)
+                    this.setState({ sportEvent: {...this.state.sportEvent, sportMatch: [...this.state.sportEvent.sportMatch, {id: lowestId - 1, description: undefined, sportTeam: [], sportMatchSet: [] }] } })
                   }}
                 >
                   Add Sport Match

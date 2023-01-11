@@ -98,6 +98,12 @@
   padding-top: 10px;
 }
 
+.isUser {
+  background-color: var(--color-bg-hover);
+  padding: 2px 5px;
+  border-radius: 2px;
+}
+
 /* media query for non touch display */
 @media (hover: hover) {
   .setTable input {
