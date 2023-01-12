@@ -11,6 +11,9 @@ import { ColorTheme } from '../enums/colorTheme';
 import { useEffect, useState } from 'react';
 import { PWPThemeProvider } from '../components/PWPThemeProvider/PWPThemeProvider';
 import { PWPAuthProvider } from '../components/PWPAuthProvider/PWPAuthProvider';
+import BadmintonIcon from '../public/icons/badminton.png'
+import VolleyballIcon from '../public/icons/volleyball.png'
+import Image from 'next/image';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [theme, setTheme] = useState(0);
@@ -33,7 +36,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         Send: <SendIcon />,
         Contact: <ContactIcon />,
         Lock: <LockIcon />,
-        MoreSports: <MoreSportsIcon />
+        MoreSports: <MoreSportsIcon />,
+        Badminton: <Image src={BadmintonIcon} alt="icon" />,
+        Volleyball: <Image src={VolleyballIcon} alt="" />
       }
     })
     initializeIcons();

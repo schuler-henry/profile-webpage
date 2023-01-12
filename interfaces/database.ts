@@ -1,6 +1,7 @@
 // User:
 
 import { AccessLevel } from "../enums/accessLevel";
+import { SportEventVisibility } from "../enums/sportEventVisibility";
 
 export interface IUser {
   /** 
@@ -73,12 +74,19 @@ export interface ISportEvent {
   startTime: Date;
   endTime: Date;
   description: string;
-  visibility: number;
+  /**
+   * 0: creator only
+   * 1: creator and members
+   * 2: creator, members and listet clubs (user must be part of that club's sport)
+   * 3: creator, members and listet clubs (everyone from that club)
+   * 4: everyone
+   */
+  visibility: SportEventVisibility;
   creator: IUser;
   sport: ISport;
   sportLocation: ISportLocation;
   sportEventType: ISportEventType;
-  sportClub: ISportClub[];
+  sportClubs: {sportClub: ISportClub, host: boolean}[];
   sportMatch: ISportMatch[];
 }
 

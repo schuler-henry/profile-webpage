@@ -103,6 +103,14 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
                     E-Mail: contact&#64;henryschuler.de <br />
                   </p>
                 </div>
+                <div className={styles.content}>
+                  <h2>Legal information</h2>
+                  <h3>Used Icons</h3>
+                  <p style={{ display: "flex", flexDirection: "column" }}>
+                    <a href="https://www.flaticon.com/free-icons/badminton" title="badminton icons">Badminton icons created by rismaars - Flaticon</a>
+                    <a href="https://www.flaticon.com/free-icons/ball" title="ball icons">Ball icons created by Freepik - Flaticon</a>
+                  </p>
+                </div>
               </main>
 
               <footer>

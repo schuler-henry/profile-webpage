@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { ColorTheme } from '../enums/colorTheme';
-import { GitHubProject, ISportClub, ISportClubMembership, ITimer, IUser } from '../interfaces/database';
+import { GitHubProject, ISport, ISportClub, ISportClubMembership, ISportEvent, ISportEventType, ISportLocation, ITimer, IUser } from '../interfaces/database';
 import { GitHubUser, Repository } from '../interfaces/Github';
 
 /**
@@ -137,7 +137,7 @@ export class FrontEndController {
   }
 
   /**
-   * This method logs a user in if there is a match with the database. Therfore a token is created which is stored in the browsers local storage.
+   * This method logs a user in if there is a match with the database. Therefore a token is created which is stored in the browsers local storage.
    */
   static async loginUser(username: string, password: string): Promise<string> {
     const response = await fetch('/api/users/login', {
@@ -352,6 +352,21 @@ export class FrontEndController {
     localStorage.removeItem(this.userTokenName);
     this.updateLoginStatus();
     return true;
+  }
+
+  static async getAllUsers(userToken: string): Promise<IUser[]> {
+    const response = await fetch('/api/users/get_all_users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+      })
+    });
+
+    const data = await response.json();
+    return data.users;
   }
 
   //#endregion
@@ -700,6 +715,111 @@ export class FrontEndController {
     const data = await response.json();
 
     return data.wasSuccessful;
+  }
+
+  /**
+   * This method returns all sportEvents
+   */
+  static async getSportEvents(userToken: string): Promise<ISportEvent[]> {
+    const response = await fetch('/api/sport/get_sport_event', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: userToken,
+      })
+    });
+
+    const data = await response.json();
+    // console.log(data)
+    return data.sportEvent;
+  }
+
+  static async deleteSportEvent(userToken: string, sportEventId: number): Promise<boolean> {
+    const response = await fetch('/api/sport/delete_sport_event', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: userToken,
+        sportEventId: sportEventId
+      })
+    });
+
+    const data = await response.json();
+    return data.wasSuccessful;
+  }
+
+  static async updateSportEvent(userToken: string, sportEvent: ISportEvent): Promise<boolean> {
+    const response = await fetch('/api/sport/update_sport_event', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: userToken,
+        sportEvent: sportEvent
+      })
+    });
+
+    const data = await response.json();
+    return data.wasSuccessful;
+  }
+
+  /**
+   * This method returns all sports
+   */
+  static async getAllSports(userToken: string): Promise<ISport[]> {
+    const response = await fetch('/api/sport/get_all_sports', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: userToken,
+      })
+    });
+
+    const data = await response.json();
+
+    return data.sports;
+  }
+
+  /**
+   * This method returns all sport event types from the database
+   */
+  static async getAllSportEventTypes(userToken: string): Promise<ISportEventType[]> {
+    const response = await fetch('/api/sport/get_all_sport_event_types', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: userToken,
+      })
+    });
+
+    const data = await response.json();
+
+    return data.sportEventTypes;
+  }
+
+  static async getAllSportLocations(userToken: string): Promise<ISportLocation[]> {
+    const response = await fetch('/api/sport/get_all_sport_locations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: userToken,
+      })
+    });
+
+    const data = await response.json();
+
+    return data.sportLocations;
   }
 
   //#endregion
