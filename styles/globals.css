@@ -8,7 +8,6 @@ body {
   background-color: var(--color-bg-primary);
   width: 100vw;
   transition: background 2.5s ease-in-out;
-  overflow: hidden;
 }
 
 body {
@@ -69,6 +68,10 @@ body[data-theme="light"] {
 
 ::-webkit-scrollbar-corner {
   background-color: rgba(0, 0, 0, 0);
+}
+
+body[data-theme="dark"] input {
+  color-scheme: dark;
 }
 
 main {
@@ -135,6 +138,20 @@ input {
   border-color: var(--color-border-primary);
   border-width: 2pt;
   border-radius: 2pt;
+}
+
+textarea {
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  padding: 10px;
+  width: 100%;
+  font-size: 14px;
+  min-height: 76px;
+}
+
+textarea:focus {
+  outline: none;
 }
 
 :not(ul.contains-task-list) ul.contains-task-list {

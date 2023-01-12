@@ -54,6 +54,12 @@ class Apps extends Component<AppsProps, AppsState> {
       icon: "Timer",
       url: "/apps/timer"
     },
+    {
+      name: "SportEvent",
+      description: "Manage the sport events of your clubs.",
+      icon: "MoreSports",
+      url: "/apps/sportEvent"
+    }
   ];
 
   async componentDidMount() {

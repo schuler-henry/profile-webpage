@@ -1,7 +1,7 @@
 import { I18n, TFunction } from 'next-i18next';
 import { createContext, useContext } from 'react';
 
-type PWPLanguageContextType = {
+export type PWPLanguageContextType = {
   i18n: I18n;
   t: TFunction;
 }
