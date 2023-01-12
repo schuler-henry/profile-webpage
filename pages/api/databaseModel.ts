@@ -1,7 +1,8 @@
 // @ts-check
 import { createClient, PostgrestResponse, SupabaseClient } from '@supabase/supabase-js'
 import { AccessLevel } from '../../enums/accessLevel';
-import { ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, ISportLocation, ITimer, IUser } from '../../interfaces/database'
+import { SportEventVisibility } from '../../enums/sportEventVisibility';
+import { GitHubProject, ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, ISportEvent, ISportEventType, ISportLocation, ISportMatch, ISportMatchSet, ISportScore, ISportTeam, ITimer, IUser } from '../../interfaces/database'
 
 /**
  * DataBase Model to Connect BackendController with Supabase DB
@@ -24,11 +25,11 @@ export class DatabaseModel {
   //#region Universal Methods
 
   /**
-   * Checks if DB-Response is successful
+   * Checks if DB-Response is successful and at least one row is returned
    */
   evaluateSuccess(dbResponse: PostgrestResponse<any>): boolean {
     if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
-      console.log(dbResponse.error)
+      // console.log("ERROR", dbResponse.error)
       return false;
     }
     return true;
@@ -172,6 +173,32 @@ export class DatabaseModel {
 
   //#endregion
 
+  //#region GitHubProjects Methods
+
+  getGitHubProjectsFromResponse(dbResponse: PostgrestResponse<GitHubProject>): GitHubProject[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      return [];
+    }
+
+    const allGitHubProjects: GitHubProject[] = [];
+
+    for (const gitHubProject of dbResponse.data) {
+      allGitHubProjects.push({ username: gitHubProject.username, reponame: gitHubProject.reponame, heading: gitHubProject.heading })
+    }
+
+    return allGitHubProjects;
+  }
+
+  async selectGitHubProjectsTable(): Promise<PostgrestResponse<GitHubProject>> {
+    const gitHubProjectsResponse = await DatabaseModel.CLIENT
+      .from('GitHubProjects')
+      .select();
+
+    return gitHubProjectsResponse;
+  }
+
+  //#endregion
+
   //#region Timer Methods
 
   getTimersFromResponse(dbResponse: PostgrestResponse<ITimer>): ITimer[] {
@@ -299,7 +326,7 @@ export class DatabaseModel {
 
   getSportClubsFromResponse(dbResponse: PostgrestResponse<ISportClub>): ISportClub[] {
     if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
-      console.log(dbResponse.error)
+      // console.log(dbResponse.error)
       return [];
     }
 
@@ -311,9 +338,48 @@ export class DatabaseModel {
     return allSportClubs;
   }
 
+  getSportsFromResponse(dbResponse: PostgrestResponse<ISport>): ISport[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      return [];
+    }
+
+    const allSports: ISport[] = [];
+
+    for (const sport of dbResponse.data) {
+      allSports.push({ id: sport.id, name: sport.name })
+    }
+    return allSports;
+  }
+
+  getSportEventTypesFromResponse(dbResponse: PostgrestResponse<ISportEventType>): ISportEventType[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      return [];
+    }
+
+    const allSportEventTypes: ISportEventType[] = [];
+
+    for (const sportEventType of dbResponse.data) {
+      allSportEventTypes.push({ id: sportEventType.id, name: sportEventType.name })
+    }
+    return allSportEventTypes;
+  }
+
+  getSportLocationsFromResponse(dbResponse: PostgrestResponse<ISportLocation>): ISportLocation[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      return [];
+    }
+
+    const allSportLocations: ISportLocation[] = [];
+
+    for (const sportLocation of dbResponse.data) {
+      allSportLocations.push({ id: sportLocation.id, name: sportLocation.name, address: sportLocation.address })
+    }
+    return allSportLocations;
+  }
+
   getSportClubMembershipFromResponse(dbResponse: PostgrestResponse<ISportClubMembership>): ISportClubMembership[] {
     if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
-      console.log(dbResponse.error)
+      // console.log(dbResponse.error)
       return [];
     }
 
@@ -337,6 +403,435 @@ export class DatabaseModel {
       allSportClubMembershipSports.push({ sport: sportClubMembershipSport.sport, memberStatus: sportClubMembershipSport.memberStatus, approved: sportClubMembershipSport.approved })
     }
     return allSportClubMembershipSports;
+  }
+
+  async getSportEventsFromResponse(dbResponse: PostgrestResponse<ISportEvent>): Promise<ISportEvent[]> {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      // console.log(dbResponse.error)
+      return [];
+    }
+
+    const allSportEvents: ISportEvent[] = [];
+
+    for (const sportEvent of structuredClone(dbResponse.data)) {
+      allSportEvents.push({ id: sportEvent.id, description: sportEvent.description, startTime: new Date(sportEvent.startTime + "Z"), endTime: new Date(sportEvent.endTime + "Z"), visibility: sportEvent.visibility, creator: undefined, sport: undefined, sportClubs: undefined, sportEventType: undefined, sportMatch: undefined, sportLocation: undefined })
+      if (sportEvent.creator) {
+        allSportEvents[allSportEvents.length - 1].creator = { id: sportEvent.creator.id, username: sportEvent.creator.username, password: sportEvent.creator.password, accessLevel: sportEvent.creator.accessLevel, firstName: sportEvent.creator.firstName, lastName: sportEvent.creator.lastName, email: sportEvent.creator.email, unconfirmedEmail: sportEvent.creator.unconfirmedEmail, activationCode: sportEvent.creator.activationCode, active: sportEvent.creator.active, sportClubMembership: sportEvent.creator.sportClubMembership }
+      }
+      if (sportEvent.sport) {
+        allSportEvents[allSportEvents.length - 1].sport = { id: sportEvent.sport.id, name: sportEvent.sport.name }
+      }
+      if (sportEvent.sportLocation) {
+        allSportEvents[allSportEvents.length - 1].sportLocation = { id: sportEvent.sportLocation.id, name: sportEvent.sportLocation.name, address: sportEvent.sportLocation.address }
+      }
+      if (sportEvent.sportEventType) {
+        allSportEvents[allSportEvents.length - 1].sportEventType = { id: sportEvent.sportEventType.id, name: sportEvent.sportEventType.name }
+      }
+      if (sportEvent.sportClubs) {
+        allSportEvents[allSportEvents.length - 1].sportClubs = []
+        for (const sportClubs of sportEvent.sportClubs) {
+          allSportEvents[allSportEvents.length - 1].sportClubs.push({ host: sportClubs.host, sportClub: undefined })
+          if (sportClubs.sportClub) {
+            allSportEvents[allSportEvents.length - 1].sportClubs[allSportEvents[allSportEvents.length - 1].sportClubs.length - 1].sportClub = { id: sportClubs.sportClub.id, name: sportClubs.sportClub.name, address: sportClubs.sportClub.address, sport: sportClubs.sportClub.sport, sportLocation: sportClubs.sportClub.sportLocation, sportClubMembership: sportClubs.sportClub.sportClubMembership }
+          }
+        }
+      }
+      if (sportEvent.sportMatch) {
+        const sportEventIndex = allSportEvents.length - 1;
+        allSportEvents[sportEventIndex].sportMatch = []
+        for (const sportMatch of sportEvent.sportMatch) {
+          allSportEvents[sportEventIndex].sportMatch.push({ id: sportMatch.id, description: sportMatch.description, sportTeam: undefined, sportMatchSet: undefined })
+          if (sportMatch.sportTeam) {
+            const sportMatchIndex = allSportEvents[sportEventIndex].sportMatch.length - 1;
+            allSportEvents[sportEventIndex].sportMatch[sportMatchIndex].sportTeam = []
+            for (const sportTeam of sportMatch.sportTeam) {
+              allSportEvents[sportEventIndex].sportMatch[sportMatchIndex].sportTeam.push({ teamNumber: sportTeam.teamNumber, user: undefined })
+              const sportTeamIndex = allSportEvents[sportEventIndex].sportMatch[sportMatchIndex].sportTeam.length - 1;
+              allSportEvents[sportEventIndex].sportMatch[sportMatchIndex].sportTeam[sportTeamIndex].user = []
+              // fetch users separately because supabase caches the subquery -> every team has the same users
+              for (const user of this.getUserFromResponse(await this.selectSportTeamUsers(sportMatch.id, sportTeam.teamNumber)) ) {
+                allSportEvents[sportEventIndex].sportMatch[sportMatchIndex].sportTeam[sportTeamIndex].user.push({ id: user.id, username: user.username, password: user.password, accessLevel: user.accessLevel, firstName: user.firstName, lastName: user.lastName, email: user.email, unconfirmedEmail: user.unconfirmedEmail, activationCode: user.activationCode, active: user.active, sportClubMembership: user.sportClubMembership })
+              }
+            }
+          }
+          if (sportMatch.sportMatchSet) {
+            const sportMatchIndex = allSportEvents[sportEventIndex].sportMatch.length - 1;
+            allSportEvents[sportEventIndex].sportMatch[sportMatchIndex].sportMatchSet = []
+            for (const sportMatchSet of sportMatch.sportMatchSet) {
+              allSportEvents[sportEventIndex].sportMatch[sportMatchIndex].sportMatchSet.push({ id: sportMatchSet.id, setNumber: sportMatchSet.setNumber, sportScore: undefined })
+              if (sportMatchSet.sportScore) {
+                const sportMatchSetIndex = allSportEvents[sportEventIndex].sportMatch[sportMatchIndex].sportMatchSet.length - 1;
+                allSportEvents[sportEventIndex].sportMatch[sportMatchIndex].sportMatchSet[sportMatchSetIndex].sportScore = []
+                for (const sportScore of sportMatchSet.sportScore) {
+                  allSportEvents[sportEventIndex].sportMatch[sportMatchIndex].sportMatchSet[sportMatchSetIndex].sportScore.push({ teamNumber: sportScore.teamNumber, score: sportScore.score })
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return allSportEvents;
+  }
+
+  getSportMatchFromResponse(dbResponse: PostgrestResponse<ISportMatch>): ISportMatch[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      return []
+    }
+
+    const allSportMatches: ISportMatch[] = [];
+
+    for (const sportMatch of dbResponse.data) {
+      allSportMatches.push({ id: sportMatch.id, description: sportMatch.description, sportTeam: undefined, sportMatchSet: undefined })
+    }
+
+    return allSportMatches;
+  }
+
+  getSportMatchSetFromResponse(dbResponse: PostgrestResponse<ISportMatchSet>): ISportMatchSet[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      return []
+    }
+
+    const allSportMatchSets: ISportMatchSet[] = [];
+
+    for (const sportMatchSet of dbResponse.data) {
+      allSportMatchSets.push({ id: sportMatchSet.id, setNumber: sportMatchSet.setNumber, sportScore: undefined })
+    }
+
+    return allSportMatchSets;
+  }
+
+  async addSportEventTable(sportEvent: ISportEvent): Promise<PostgrestResponse<ISportEvent>> {
+    const dbResponse = await DatabaseModel.CLIENT
+      .from('SportEvent')
+      .insert([
+        {
+          startTime: sportEvent.startTime,
+          endTime: sportEvent.endTime,
+          description: sportEvent.description,
+          visibility: sportEvent.visibility,
+          sport: sportEvent.sport.id,
+          sportLocation: sportEvent.sportLocation.id,
+          sportEventType: sportEvent.sportEventType.id,
+          creator: sportEvent.creator.id
+        }
+      ]);
+    
+    return dbResponse;
+  }
+
+  async deleteSportEventTable(sportEvent: { id?: number, startTime?: Date, endTime?: Date, description?: string, visibility?: string, sport?: number, sportLocation?: number, sportEventType?: number, creator?: number }): Promise<PostgrestResponse<ISportEvent>> {
+    let idColumnName = "";
+    let startTimeColumnName = "";
+    let endTimeColumnName = "";
+    let descriptionColumnName = "";
+    let visibilityColumnName = "";
+    let sportColumnName = "";
+    let sportLocationColumnName = "";
+    let sportEventTypeColumnName = "";
+    let creatorColumnName = "";
+
+    if (!(sportEvent.id === undefined)) idColumnName = "id";
+    if (!(sportEvent.startTime === undefined)) startTimeColumnName = "startTime";
+    if (!(sportEvent.endTime === undefined)) endTimeColumnName = "endTime";
+    if (!(sportEvent.description === undefined)) descriptionColumnName = "description";
+    if (!(sportEvent.visibility === undefined)) visibilityColumnName = "visibility";
+    if (!(sportEvent.sport === undefined)) sportColumnName = "sport";
+    if (!(sportEvent.sportLocation === undefined)) sportLocationColumnName = "sportLocation";
+    if (!(sportEvent.sportEventType === undefined)) sportEventTypeColumnName = "sportEventType";
+    if (!(sportEvent.creator === undefined)) creatorColumnName = "creator";
+    
+    const dbResponse = await DatabaseModel.CLIENT
+      .from('SportEvent')
+      .delete()
+      .eq(idColumnName, sportEvent.id)
+      .eq(startTimeColumnName, sportEvent.startTime)
+      .eq(endTimeColumnName, sportEvent.endTime)
+      .eq(descriptionColumnName, sportEvent.description)
+      .eq(visibilityColumnName, sportEvent.visibility)
+      .eq(sportColumnName, sportEvent.sport)
+      .eq(sportLocationColumnName, sportEvent.sportLocation)
+      .eq(sportEventTypeColumnName, sportEvent.sportEventType)
+      .eq(creatorColumnName, sportEvent.creator);
+    
+    return dbResponse;
+  }
+
+  async updateSportEventTable(id: number, sportEvent: { id?: number, startTime?: Date, endTime?: Date, description?: string, visibility?: SportEventVisibility, creator?: number, sport?: number, sportLocation?: number, sportEventType?: number }): Promise<PostgrestResponse<ISportEvent>> {
+    const updatedSportEvent = await DatabaseModel.CLIENT
+      .from('SportEvent')
+      .update({
+        id: sportEvent.id,
+        startTime: sportEvent.startTime,
+        endTime: sportEvent.endTime,
+        description: sportEvent.description,
+        visibility: sportEvent.visibility,
+        creator: sportEvent.creator,
+        sport: sportEvent.sport,
+        sportLocation: sportEvent.sportLocation,
+        sportEventType: sportEvent.sportEventType
+      })
+      .eq('id', id)
+
+    return updatedSportEvent;
+  }
+
+  async addSportEventSportClubRelationTable(sportClubs: { sportEvent: number, sportClub: number, host?: boolean }) : Promise<PostgrestResponse<{ sportClub: ISportClub, host: boolean }>> {
+    const addedSportEventSportClubRelation = await DatabaseModel.CLIENT
+      .from('SportEvent_SportClub_Relation')
+      .insert([
+        {
+          sportEvent: sportClubs.sportEvent,
+          sportClub: sportClubs.sportClub,
+          host: sportClubs.host
+        }
+      ])
+
+    return addedSportEventSportClubRelation;
+  }
+
+  async deleteSportEventSportClubRelationTable(sportClubs: { sportEvent?: number, sportClub?: number, host?: boolean }) : Promise<PostgrestResponse<{ sportClub: ISportClub, host: boolean }>> {
+    let sportEventColumnName = "";
+    let sportClubColumnName = "";
+    let hostColumnName = "";
+
+    if (!(sportClubs.sportEvent === undefined)) sportEventColumnName = "sportEvent";
+    if (!(sportClubs.sportClub === undefined)) sportClubColumnName = "sportClub";
+    if (!(sportClubs.host === undefined)) hostColumnName = "host";
+    
+    const deletedSportEventSportClubRelation = await DatabaseModel.CLIENT
+      .from('SportEvent_SportClub_Relation')
+      .delete()
+      .eq(sportEventColumnName, sportClubs.sportEvent)
+      .eq(sportClubColumnName, sportClubs.sportClub)
+      .eq(hostColumnName, sportClubs.host)
+
+    return deletedSportEventSportClubRelation;
+  }
+
+  async updateSportEventSportClubRelationTable(oldSportClubs: { sportEvent?: number, sportClub?: number, host?: boolean }, newSportClubs: { sportEvent?: number, sportClub?: number, host?: boolean }) : Promise<PostgrestResponse<{ sportClub: ISportClub, host: boolean }>> {
+    let sportEventColumnName = "";
+    let sportClubColumnName = "";
+    let hostColumnName = "";
+
+    if (!(oldSportClubs.sportEvent === undefined)) sportEventColumnName = "sportEvent";
+    if (!(oldSportClubs.sportClub === undefined)) sportClubColumnName = "sportClub";
+    if (!(oldSportClubs.host === undefined)) hostColumnName = "host";
+    
+    const updatedSportEventSportClubRelation = await DatabaseModel.CLIENT
+      .from('SportEvent_SportClub_Relation')
+      .update({
+        sportEvent: newSportClubs.sportEvent,
+        sportClub: newSportClubs.sportClub,
+        host: newSportClubs.host
+      })
+      .eq(sportEventColumnName, oldSportClubs.sportEvent)
+      .eq(sportClubColumnName, oldSportClubs.sportClub)
+      .eq(hostColumnName, oldSportClubs.host)
+
+    return updatedSportEventSportClubRelation;
+  }
+
+  async addSportMatchTable(sportMatch: { description: string, sportEvent: number }): Promise<PostgrestResponse<ISportMatch>> {
+    const addedSportMatch = await DatabaseModel.CLIENT
+      .from('SportMatch')
+      .insert([
+        {
+          description: sportMatch.description,
+          sportEvent: sportMatch.sportEvent
+        }
+      ])
+
+    return addedSportMatch;
+  }
+
+  async deleteSportMatchTable(sportMatch: {id?: number, description?: string, sportEvent?: number}): Promise<PostgrestResponse<ISportMatch>> {
+    let idColumnName = "";
+    let descriptionColumnName = "";
+    let sportEventColumnName = "";
+
+    if (!(sportMatch.id === undefined)) idColumnName = "id";
+    if (!(sportMatch.description === undefined)) descriptionColumnName = "description";
+    if (!(sportMatch.sportEvent === undefined)) sportEventColumnName = "sportEvent";
+
+    const deletedSportMatch = await DatabaseModel.CLIENT
+      .from('SportMatch')
+      .delete()
+      .eq(idColumnName, sportMatch.id)
+      .eq(descriptionColumnName, sportMatch.description)
+      .eq(sportEventColumnName, sportMatch.sportEvent)
+
+    return deletedSportMatch;
+  }
+
+  async updateSportMatchTable(oldSportMatch: {id?: number, description?: string, sportEvent?: number}, newSportMatch: {id?: number, description?: string, sportEvent?: number}): Promise<PostgrestResponse<ISportMatch>> {
+    let idColumnName = "";
+    let descriptionColumnName = "";
+    let sportEventColumnName = "";
+
+    if (!(oldSportMatch.id === undefined)) idColumnName = "id";
+    if (!(oldSportMatch.description === undefined)) descriptionColumnName = "description";
+    if (!(oldSportMatch.sportEvent === undefined)) sportEventColumnName = "sportEvent";
+
+    const updatedSportMatch = await DatabaseModel.CLIENT
+      .from('SportMatch')
+      .update({
+        id: newSportMatch.id,
+        description: newSportMatch.description,
+        sportEvent: newSportMatch.sportEvent
+      })
+      .eq(idColumnName, oldSportMatch.id)
+      .eq(descriptionColumnName, oldSportMatch.description)
+      .eq(sportEventColumnName, oldSportMatch.sportEvent)
+
+    return updatedSportMatch;
+  }
+
+  async addSportMatchUserRelationTable(sportMatchUser: {sportMatch: number, user: number, teamNumber: number}): Promise<PostgrestResponse<{sportMatch: number, user: number, teamNumber: number}>> {
+    const addedSportMatchUserRelation = await DatabaseModel.CLIENT
+      .from('SportMatch_User_Relation')
+      .insert([
+        {
+          sportMatch: sportMatchUser.sportMatch,
+          user: sportMatchUser.user,
+          teamNumber: sportMatchUser.teamNumber
+        }
+      ])
+
+    return addedSportMatchUserRelation;
+  }
+
+  async deleteSportMatchUserRelationTable(sportMatchUser: {sportMatch?: number, user?: number, teamNumber?: number}): Promise<PostgrestResponse<ISportTeam>> {
+    let sportMatchColumnName = "";
+    let userColumnName = "";
+    let teamNumberColumnName = "";
+
+    if (!(sportMatchUser.sportMatch === undefined)) sportMatchColumnName = "sportMatch";
+    if (!(sportMatchUser.user === undefined)) userColumnName = "user";
+    if (!(sportMatchUser.teamNumber === undefined)) teamNumberColumnName = "teamNumber";
+
+    const deletedSportMatchUserRelation = await DatabaseModel.CLIENT
+      .from('SportMatch_User_Relation')
+      .delete()
+      .eq(sportMatchColumnName, sportMatchUser.sportMatch)
+      .eq(userColumnName, sportMatchUser.user)
+      .eq(teamNumberColumnName, sportMatchUser.teamNumber)
+
+    return deletedSportMatchUserRelation;
+  }
+
+  async addSportMatchSetTable(sportMatchSet: {sportMatch: number, setNumber: number}): Promise<PostgrestResponse<ISportMatchSet>> {
+    const addedSportMatchSet = await DatabaseModel.CLIENT
+      .from('SportMatchSet')
+      .insert([
+        {
+          sportMatch: sportMatchSet.sportMatch,
+          setNumber: sportMatchSet.setNumber
+        }
+      ])
+
+    return addedSportMatchSet;
+  }
+
+  async deleteSportMatchSetTable(sportMatchSet: {id?: number, sportMatch?: number, setNumber?: number}): Promise<PostgrestResponse<ISportMatchSet>> {
+    let idColumnName = "";
+    let sportMatchColumnName = "";
+    let setNumberColumnName = "";
+
+    if (!(sportMatchSet.id === undefined)) idColumnName = "id";
+    if (!(sportMatchSet.sportMatch === undefined)) sportMatchColumnName = "sportMatch";
+    if (!(sportMatchSet.setNumber === undefined)) setNumberColumnName = "setNumber";
+
+    const deletedSportMatchSet = await DatabaseModel.CLIENT
+      .from('SportMatchSet')
+      .delete()
+      .eq(idColumnName, sportMatchSet.id)
+      .eq(sportMatchColumnName, sportMatchSet.sportMatch)
+      .eq(setNumberColumnName, sportMatchSet.setNumber)
+
+    return deletedSportMatchSet;
+  }
+
+  async updateSportMatchSetTable(oldSportMatchSet: {id?: number, sportMatch?: number, setNumber?: number}, newSportMatchSet: {id?: number, sportMatch?: number, setNumber?: number}): Promise<PostgrestResponse<ISportMatchSet>> {
+    let idColumnName = "";
+    let sportMatchColumnName = "";
+    let setNumberColumnName = "";
+
+    if (!(oldSportMatchSet.id === undefined)) idColumnName = "id";
+    if (!(oldSportMatchSet.sportMatch === undefined)) sportMatchColumnName = "sportMatch";
+    if (!(oldSportMatchSet.setNumber === undefined)) setNumberColumnName = "setNumber";
+
+    const updatedSportMatchSet = await DatabaseModel.CLIENT
+      .from('SportMatchSet')
+      .update({
+        id: newSportMatchSet.id,
+        sportMatch: newSportMatchSet.sportMatch,
+        setNumber: newSportMatchSet.setNumber
+      })
+      .eq(idColumnName, oldSportMatchSet.id)
+      .eq(sportMatchColumnName, oldSportMatchSet.sportMatch)
+      .eq(setNumberColumnName, oldSportMatchSet.setNumber)
+
+    return updatedSportMatchSet;
+  }
+
+  async addSportSetScoreTable(sportSetScore: {sportMatchSet: number, teamNumber: number, score: number}): Promise<PostgrestResponse<ISportScore>> {
+    // console.log("ADD SPORT SET SCORE TABLE");
+    const addedSportSetScore = await DatabaseModel.CLIENT
+      .from('SportSetScore')
+      .insert([
+        {
+          sportMatchSet: sportSetScore.sportMatchSet,
+          teamNumber: sportSetScore.teamNumber,
+          score: sportSetScore.score
+        }
+      ])
+
+    return addedSportSetScore;
+  }
+
+  async deleteSportSetScoreTable(sportSetScore: {sportMatchSet?: number, teamNumber?: number, score?: number}): Promise<PostgrestResponse<ISportScore>> {
+    let sportMatchSetColumnName = "";
+    let teamNumberColumnName = "";
+    let scoreColumnName = "";
+
+    if (!(sportSetScore.sportMatchSet === undefined)) sportMatchSetColumnName = "sportMatchSet";
+    if (!(sportSetScore.teamNumber === undefined)) teamNumberColumnName = "teamNumber";
+    if (!(sportSetScore.score === undefined)) scoreColumnName = "score";
+
+    const deletedSportSetScore = await DatabaseModel.CLIENT
+      .from('SportSetScore')
+      .delete()
+      .eq(sportMatchSetColumnName, sportSetScore.sportMatchSet)
+      .eq(teamNumberColumnName, sportSetScore.teamNumber)
+      .eq(scoreColumnName, sportSetScore.score)
+
+    return deletedSportSetScore;
+  }
+
+  async updateSportSetScoreTable(oldSportSetScore: {sportMatchSet?: number, teamNumber?: number, score?: number}, newSportSetScore: {sportMatchSet?: number, teamNumber?: number, score?: number}): Promise<PostgrestResponse<ISportScore>> {
+    // console.log("UPDATE SPORT SET SCORE TABLE");
+    let sportMatchSetColumnName = "";
+    let teamNumberColumnName = "";
+    let scoreColumnName = "";
+
+    if (!(oldSportSetScore.sportMatchSet === undefined)) sportMatchSetColumnName = "sportMatchSet";
+    if (!(oldSportSetScore.teamNumber === undefined)) teamNumberColumnName = "teamNumber";
+    if (!(oldSportSetScore.score === undefined)) scoreColumnName = "score";
+
+    const updatedSportSetScore = await DatabaseModel.CLIENT
+      .from('SportSetScore')
+      .update({
+        sportMatchSet: newSportSetScore.sportMatchSet,
+        teamNumber: newSportSetScore.teamNumber,
+        score: newSportSetScore.score
+      })
+      .eq(sportMatchSetColumnName, oldSportSetScore.sportMatchSet)
+      .eq(teamNumberColumnName, oldSportSetScore.teamNumber)
+      .eq(scoreColumnName, oldSportSetScore.score)
+
+    return updatedSportSetScore;
   }
 
   async selectSportClubTable(sportClub: {id?: number, name?: string, address?: string, sport?: ISport[], sportLocation?: ISportLocation[]}): Promise<PostgrestResponse<ISportClub>> {
@@ -424,6 +919,57 @@ export class DatabaseModel {
       .in(sportColumnName, sportClubMembership.sportID);
 
     return sportClubMembershipResponse;
+  }
+
+  async selectSportTable(sport: {id?: number, name?: string}): Promise<PostgrestResponse<ISport>> {
+    let idColumnName = "";
+    let nameColumnName = "";
+    
+    if (!(sport.id === undefined)) idColumnName = "id";
+    if (!(sport.name === undefined)) nameColumnName = "name";
+
+    const sportResponse = await DatabaseModel.CLIENT
+      .from('Sport')
+      .select()
+      .eq(idColumnName, sport.id)
+      .eq(nameColumnName, sport.name);
+
+    return sportResponse;
+  }
+
+  async selectSportEventTypeTable(sportEventType: {id?: number, name?: string}): Promise<PostgrestResponse<ISportEventType>> {
+    let idColumnName = "";
+    let nameColumnName = "";
+
+    if (!(sportEventType.id === undefined)) idColumnName = "id";
+    if (!(sportEventType.name === undefined)) nameColumnName = "name";
+
+    const sportEventTypeResponse = await DatabaseModel.CLIENT
+      .from('SportEventType')
+      .select()
+      .eq(idColumnName, sportEventType.id)
+      .eq(nameColumnName, sportEventType.name);
+
+    return sportEventTypeResponse;
+  }
+
+  async selectSportLocationTable(sportLocation: {id?: number, name?: string, address?: string}): Promise<PostgrestResponse<ISportLocation>> {
+    let idColumnName = "";
+    let nameColumnName = "";
+    let addressColumnName = "";
+
+    if (!(sportLocation.id === undefined)) idColumnName = "id";
+    if (!(sportLocation.name === undefined)) nameColumnName = "name";
+    if (!(sportLocation.address === undefined)) addressColumnName = "address";
+
+    const sportLocationResponse = await DatabaseModel.CLIENT
+      .from('SportLocation')
+      .select()
+      .eq(idColumnName, sportLocation.id)
+      .eq(nameColumnName, sportLocation.name)
+      .eq(addressColumnName, sportLocation.address);
+
+    return sportLocationResponse;
   }
 
   async selectSportClubMembershipSportRelationTable(sportClubMembershipSport: {sportClubMembership?: number, sport?: number, memberStatus?: number, approved?: boolean}): Promise<PostgrestResponse<ISportClubMembershipSport>> {
@@ -535,6 +1081,20 @@ export class DatabaseModel {
       .rpc('get_users_without_membership_sport', { sportClubID: sportClubID, sportID: sportID });
 
     return matches;
+  }
+
+  async selectSportEventTable(): Promise<PostgrestResponse<ISportEvent>> {
+    const sportEventResponse = await DatabaseModel.CLIENT
+      .rpc('get_sport_events', {  });
+
+    return sportEventResponse;
+  }
+
+  async selectSportTeamUsers(sportMatchId: number, sportTeamNumber: number): Promise<PostgrestResponse<IUser>> {
+    const sportTeamUsers = await DatabaseModel.CLIENT
+      .rpc('get_sport_team_users', { sportMatchId: sportMatchId, sportTeamNumber: sportTeamNumber });
+
+    return sportTeamUsers;
   }
 
   //#endregion
