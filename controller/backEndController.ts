@@ -280,8 +280,8 @@ Henry Schuler`,
             )
           } catch (e) {
             // TODO: Handle failed email sending, i.e. delete user from DB
-            console.log("Email send failed !!!!")
-            console.log(e)
+            // console.log("Email send failed !!!!")
+            // console.log(e)
           }
           return true
         }
@@ -298,7 +298,7 @@ Henry Schuler`,
     let user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: username, activationCode: activationCode}))[0];
 
     if (user === undefined || user.unconfirmedEmail === "" || user.unconfirmedEmail === null) {
-      console.log("User is undefined or unconfirmed email is empty")
+      // console.log("User is undefined or unconfirmed email is empty")
       return false;
     }
 
@@ -359,7 +359,7 @@ Henry Schuler`,
     }
 
     if (!isEmailValid(newEmail) || await this.handleEmailAlreadyExists(newEmail)) {
-      console.log("email invalid")
+      // console.log("email invalid")
       return false;
     }
 
@@ -413,8 +413,8 @@ Henry Schuler`,
         )
       } catch (e) {
         // TODO: Handle failed email sending, i.e. delete changes from DB
-        console.log("Email send failed !!!!")
-        console.log(e)
+        // console.log("Email send failed !!!!")
+        // console.log(e)
       }
       return true
     }

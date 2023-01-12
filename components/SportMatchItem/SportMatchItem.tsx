@@ -6,6 +6,7 @@ import { SportMatchItemEdit } from "../SportMatchItemEdit/SportMatchItemEdit";
 import { ClickableIcon } from "../ClickableIcon/ClickableIcon";
 import { ConfirmPopUp } from "../ConfirmPopUp/ConfirmPopUp";
 import { getWinnerTeamNumber } from "../../shared/getWinnerTeamNumber";
+import { PWPLanguageContext } from "../PWPLanguageProvider/PWPLanguageProvider";
 
 export interface SportMatchItemState {
   winnerTeamNumber: number[]; // index = teamNumber; value = number of sets won
@@ -55,115 +56,123 @@ export class SportMatchItem extends Component<SportMatchItemProps, SportMatchIte
         )
       }
       return (
-        <div className={styles.elementWrapper}>
-          <table>
-            <thead>
-              <tr>
-                <td></td>
-                <td colSpan={this.props.sportMatch.sportMatchSet.length}>Result</td>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                this.props.sportMatch.sportTeam.sort((a, b) => a.teamNumber > b.teamNumber ? 1 : -1).map((sportTeam, sportTeamIndex) => {
-                  return (
-                    <tr key={"sportTeam" + sportTeamIndex}>
-                      <td style={ this.state.winnerTeamNumber && (this.state.winnerTeamNumber[sportTeam.teamNumber] === Math.max(...this.state.winnerTeamNumber)) ? {} : { color: "var(--color-text-off)"} }>
-                        {
-                          sportTeam.user?.map((user, userIndex) => {
-                            return (
-                              <React.Fragment key={"user" + userIndex}>
-                                {
-                                  userIndex !== 0 && 
-                                  <>
-                                  &nbsp;/
-                                  <br />
-                                  </>
-                                }
-                                <span className={this.context.user?.id === user.id ? styles.isUser : ""}>
+        <PWPLanguageContext.Consumer>
+          { LanguageContext => (
+            <div className={styles.elementWrapper}>
+              <table>
+                <thead>
+                  <tr>
+                    <td></td>
+                    <td colSpan={this.props.sportMatch.sportMatchSet.length}>{LanguageContext.t("sport:Result")}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    this.props.sportMatch.sportTeam.sort((a, b) => a.teamNumber > b.teamNumber ? 1 : -1).map((sportTeam, sportTeamIndex) => {
+                      return (
+                        <tr key={"sportTeam" + sportTeamIndex}>
+                          <td style={ this.state.winnerTeamNumber && (this.state.winnerTeamNumber[sportTeam.teamNumber] === Math.max(...this.state.winnerTeamNumber)) ? {} : { color: "var(--color-text-off)"} }>
+                            {
+                              sportTeam.user?.map((user, userIndex) => {
+                                return (
+                                  <React.Fragment key={"user" + userIndex}>
+                                    {
+                                      userIndex !== 0 && 
+                                      <>
+                                      &nbsp;/
+                                      <br />
+                                      </>
+                                    }
+                                    <span className={this.context.user?.id === user.id ? styles.isUser : ""}>
+                                      {
+                                        (!user.firstName || user.firstName === "" && !user.lastName || user.lastName === "") ?
+                                        <>
+                                          { user.username }
+                                        </>
+                                        :
+                                        <>
+                                          { user.firstName }
+                                          &nbsp;
+                                          { user.lastName }
+                                        </>
+                                      }
+                                    </span>
+                                  </React.Fragment>
+                                )
+                              })
+                            }
+                          </td>
+                          {
+                            this.props.sportMatch.sportMatchSet.sort((a, b) => a.setNumber > b.setNumber ? 1 : -1).map((sportMatchSet, sportMatchSetIndex) => {
+                              return (
+                                <td key={"sportMatchSet" + sportMatchSetIndex} style={ sportMatchSet.sportScore.reduce((a, b) => a.score > b.score ? a : b).teamNumber === sportTeam.teamNumber ? { color: "red" } : {}}>
                                   {
-                                    (!user.firstName || user.firstName === "" && !user.lastName || user.lastName === "") ?
-                                    <>
-                                      { user.username }
-                                    </>
-                                    :
-                                    <>
-                                      { user.firstName }
-                                      &nbsp;
-                                      { user.lastName }
-                                    </>
+                                    sportMatchSet.sportScore.find((item) => item.teamNumber === sportTeam.teamNumber)?.score
                                   }
-                                </span>
-                              </React.Fragment>
-                            )
-                          })
-                        }
-                      </td>
-                      {
-                        this.props.sportMatch.sportMatchSet.sort((a, b) => a.setNumber > b.setNumber ? 1 : -1).map((sportMatchSet, sportMatchSetIndex) => {
-                          return (
-                            <td key={"sportMatchSet" + sportMatchSetIndex} style={ sportMatchSet.sportScore.reduce((a, b) => a.score > b.score ? a : b).teamNumber === sportTeam.teamNumber ? { color: "red" } : {}}>
-                              {
-                                sportMatchSet.sportScore.find((item) => item.teamNumber === sportTeam.teamNumber)?.score
-                              }
-                            </td>
-                          )
-                        })
-                      }
-                    </tr>
-                  )
-                })
-              }
-            </tbody>
-          </table>
-          <div className={styles.info}>
-            <p>
-              {this.props.sportMatch.description}
-            </p>
-            <div className={styles.buttonGroup}>
-              {
-                this.props.onChange &&
-                <ClickableIcon 
-                  iconName="Edit"
-                  onClick={() => {
-                    this.setState({ edit: true })
-                  }}
-                />
-              }
-              {
-                this.props.onDelete && 
-                <ClickableIcon
-                  iconName="Delete"
-                  onClick={() => {
-                    this.setState({ confirmDelete: true })
-                  }}
-                />
-              }
-              {
-                this.state.confirmDelete &&
-                <ConfirmPopUp 
-                  title="Delete sport match"
-                  message="Are you sure you want to delete this sport match?"
-                  onConfirm={() => {
-                    this.props.onDelete();
-                    this.setState({ confirmDelete: false });
-                  }}
-                  onCancel={() => {
-                    this.setState({ confirmDelete: false });
-                  }}
-                />
-              }
+                                </td>
+                              )
+                            })
+                          }
+                        </tr>
+                      )
+                    })
+                  }
+                </tbody>
+              </table>
+              <div className={styles.info}>
+                <p>
+                  {this.props.sportMatch.description}
+                </p>
+                <div className={styles.buttonGroup}>
+                  {
+                    this.props.onChange &&
+                    <ClickableIcon 
+                      iconName="Edit"
+                      onClick={() => {
+                        this.setState({ edit: true })
+                      }}
+                    />
+                  }
+                  {
+                    this.props.onDelete && 
+                    <ClickableIcon
+                      iconName="Delete"
+                      onClick={() => {
+                        this.setState({ confirmDelete: true })
+                      }}
+                    />
+                  }
+                  {
+                    this.state.confirmDelete &&
+                    <ConfirmPopUp 
+                      title={LanguageContext.t("sport:DeleteSportMatch")}
+                      message={LanguageContext.t("sport:DeleteSportMatchMessage")}
+                      onConfirm={() => {
+                        this.props.onDelete();
+                        this.setState({ confirmDelete: false });
+                      }}
+                      onCancel={() => {
+                        this.setState({ confirmDelete: false });
+                      }}
+                    />
+                  }
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          )}
+        </PWPLanguageContext.Consumer>
       );
     } else {
       return (
-        <div>
-          <p>
-            No Sport Event Match
-          </p>
-        </div>
+        <PWPLanguageContext.Consumer>
+          { LanguageContext => (
+            <div>
+              <p>
+                { LanguageContext.t("sport:NoSportEventMatch")}
+              </p>
+            </div>
+          )}
+        </PWPLanguageContext.Consumer>
       );
     }
   }

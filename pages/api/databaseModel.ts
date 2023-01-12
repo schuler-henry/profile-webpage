@@ -29,7 +29,7 @@ export class DatabaseModel {
    */
   evaluateSuccess(dbResponse: PostgrestResponse<any>): boolean {
     if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
-      console.log("ERROR", dbResponse.error)
+      // console.log("ERROR", dbResponse.error)
       return false;
     }
     return true;
@@ -232,7 +232,7 @@ export class DatabaseModel {
 
   getSportClubsFromResponse(dbResponse: PostgrestResponse<ISportClub>): ISportClub[] {
     if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
-      console.log(dbResponse.error)
+      // console.log(dbResponse.error)
       return [];
     }
 
@@ -285,7 +285,7 @@ export class DatabaseModel {
 
   getSportClubMembershipFromResponse(dbResponse: PostgrestResponse<ISportClubMembership>): ISportClubMembership[] {
     if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
-      console.log(dbResponse.error)
+      // console.log(dbResponse.error)
       return [];
     }
 
@@ -313,7 +313,7 @@ export class DatabaseModel {
 
   async getSportEventsFromResponse(dbResponse: PostgrestResponse<ISportEvent>): Promise<ISportEvent[]> {
     if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
-      console.log(dbResponse.error)
+      // console.log(dbResponse.error)
       return [];
     }
 
@@ -683,7 +683,7 @@ export class DatabaseModel {
   }
 
   async addSportSetScoreTable(sportSetScore: {sportMatchSet: number, teamNumber: number, score: number}): Promise<PostgrestResponse<ISportScore>> {
-    console.log("ADD SPORT SET SCORE TABLE");
+    // console.log("ADD SPORT SET SCORE TABLE");
     const addedSportSetScore = await DatabaseModel.CLIENT
       .from('SportSetScore')
       .insert([
@@ -717,7 +717,7 @@ export class DatabaseModel {
   }
 
   async updateSportSetScoreTable(oldSportSetScore: {sportMatchSet?: number, teamNumber?: number, score?: number}, newSportSetScore: {sportMatchSet?: number, teamNumber?: number, score?: number}): Promise<PostgrestResponse<ISportScore>> {
-    console.log("UPDATE SPORT SET SCORE TABLE");
+    // console.log("UPDATE SPORT SET SCORE TABLE");
     let sportMatchSetColumnName = "";
     let teamNumberColumnName = "";
     let scoreColumnName = "";

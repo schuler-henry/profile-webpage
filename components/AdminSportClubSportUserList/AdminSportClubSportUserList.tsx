@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import styles from "./AdminSportClubSportUserList.module.css";
 import { ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, IUser } from "../../interfaces/database";
-import { PWPLanguageContext } from "../PWPLanguageProvider/PWPLanguageProvider";
 import { ClickableIcon } from "../ClickableIcon/ClickableIcon";
 import { FrontEndController } from "../../controller/frontEndController";
 import { DropdownOption } from "../Dropdown/Dropdown";
