@@ -32,6 +32,14 @@ export interface ITimer {
   startTime: Date;
 }
 
+// Projects:
+
+export interface GitHubProject {
+  username: string;
+  reponame: string;
+  heading: string;
+}
+
 // Sport:
 
 export interface ISport {

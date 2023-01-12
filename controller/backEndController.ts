@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs'
 import path from 'path'
 import * as bcrypt from 'bcrypt';
-import { ISport, ISportClub, ISportClubMembership, ISportEvent, ISportEventType, ISportLocation, ITimer, IUser } from '../interfaces/database';
+import { GitHubProject, ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, ISportEvent, ISportEventType, ISportLocation, ITimer, IUser } from '../interfaces/database';
 import { randomStringGenerator } from '../shared/randomStringGenerator';
 import { SMTPClient } from 'emailjs';
 import { isEmailValid } from '../pages/api/users/requirements';
@@ -594,6 +594,43 @@ Henry Schuler`,
     return content;
   }
 
+  async getFileFromBucket(bucketID: string, filePath: string): Promise<Blob> {
+    const fileBlob = await this.databaseModel.downloadFileFromBucket(bucketID, filePath);
+    return fileBlob;
+  }
+
+  async getFileURLFromBucket(bucketID: string, filePath: string): Promise<string> {
+    return this.databaseModel.getFileURLFromBucket(bucketID, filePath);
+  }
+
+  //#endregion
+
+  //#region Summaries Methods
+
+  async handleGetAllSummaries(): Promise<string[]> {
+    const fileNames: string[] = (await this.databaseModel.getFolderContentInfoFromBucket("studies.summaries", "summaries"))
+                                  .filter(item => item.name.endsWith('.md'))
+                                  .map(item => item.name)
+
+    const data = await Promise.all(
+      fileNames.map(
+        async (fileName: string) => {
+          return (await this.databaseModel.downloadFileFromBucket("studies.summaries", `summaries/${fileName}`)).text()
+        }
+      )
+    )
+
+    return data
+  }
+
+  //#endregion
+
+  //#region GitHubProjects Methods
+  
+  async handleGetGitHubProjects(): Promise<GitHubProject[]> {
+    return this.databaseModel.getGitHubProjectsFromResponse(await this.databaseModel.selectGitHubProjectsTable());
+  }
+  
   //#endregion
 
   //#region Timer Methods

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { ColorTheme } from '../enums/colorTheme';
-import { ISport, ISportClub, ISportClubMembership, ISportEvent, ISportEventType, ISportLocation, ITimer, IUser } from '../interfaces/database';
+import { GitHubProject, ISport, ISportClub, ISportClubMembership, ISportEvent, ISportEventType, ISportLocation, ITimer, IUser } from '../interfaces/database';
 import { GitHubUser, Repository } from '../interfaces/Github';
 
 /**
@@ -430,6 +430,74 @@ export class FrontEndController {
     return data.content;
   }
 
+  static async getFileFromDatabase(bucketID: string, filePath: string): Promise<string> {
+    const response = await fetch('/api/files/get_file_from_bucket', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        bucketID: bucketID,
+        filePath: filePath,
+      })
+    });
+
+    const data = await response.json();
+
+    return data.content;
+  }
+
+  static async getFileURLFromDatabase(bucketID: string, filePath: string): Promise<string> {
+    const response = await fetch('/api/files/getFileUrlFromBucket', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        bucketID: bucketID,
+        filePath: filePath,
+      })
+    });
+
+    const data = await response.json();
+    // console.log(data)
+    return data.url;
+  }
+
+  //#endregion
+
+  //#region Summaries Methods
+
+  static async getAllSummaries(): Promise<string[]> {
+    const response = await fetch('/api/files/get_all_summaries', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+
+    const data = await response.json();
+
+    return data.summaries;
+  }
+
+  //#endregion
+
+  //#region GitHubProjects Methods
+
+  static async getGitHubProjects(): Promise<GitHubProject[]> {
+    const response = await fetch('/api/projects/get_all_projects', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+
+    const data = await response.json();
+
+    return data.projects;
+  }
+  
   //#endregion
 
   //#region Github API

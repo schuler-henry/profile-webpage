@@ -237,21 +237,20 @@ export class Header extends Component<HeaderProps, HeaderState> {
                             <span className={styles.navContent} onClick={(event) => { this.closeNav(event); }}>
                               {LanguageContext.t('common:Studies')}
                             </span>
-                            <div className={styles.navContentIcon}>
-                              <Link href={''} passHref>
-                                <Icon 
-                                  iconName="ChevronRight" 
-                                  className={styles.mobileMenuExtender}
-                                  id="studiesChevron"
-                                  onClick={() => {
-                                    document.getElementById("SubContentStudies").classList.toggle(`${styles.activeMobile}`);
-                                    document.getElementById("studiesChevron").classList.toggle(`${styles.rotate90}`);
-                                  }}
-                                />
-                              </Link>
-                            </div>
+                            
                           </div>
                         </Link>
+                        <div className={styles.navContentIcon}>
+                          <Icon 
+                            iconName="ChevronRight" 
+                            className={styles.mobileMenuExtender}
+                            id="studiesChevron"
+                            onClick={() => {
+                              document.getElementById("SubContentStudies").classList.toggle(`${styles.activeMobile}`);
+                              document.getElementById("studiesChevron").classList.toggle(`${styles.rotate90}`);
+                            }}
+                          />
+                        </div>
                         <div className={styles.navSubContent} id="SubContentStudies">
                           <div className={styles.navSubContentItem}>
                             <Link href={'/studies/summaries'} passHref>
@@ -283,21 +282,19 @@ export class Header extends Component<HeaderProps, HeaderState> {
                                 <span className={styles.navContent} onClick={(event) => { this.closeNav(event); }}>
                                   {LanguageContext.t('common:Apps')}
                                 </span>
-                                <div className={styles.navContentIcon}>
-                                  <Link href={''} passHref>
-                                    <Icon 
-                                      iconName="ChevronRight" 
-                                      className={styles.mobileMenuExtender}
-                                      id="appsChevron"
-                                      onClick={() => {
-                                        document.getElementById("SubContentApps").classList.toggle(`${styles.activeMobile}`);
-                                        document.getElementById("appsChevron").classList.toggle(`${styles.rotate90}`);
-                                      }}
-                                    />
-                                  </Link>
-                                </div>
                               </div>
                             </Link>
+                            <div className={styles.navContentIcon}>
+                              <Icon 
+                                iconName="ChevronRight" 
+                                className={styles.mobileMenuExtender}
+                                id="appsChevron"
+                                onClick={() => {
+                                  document.getElementById("SubContentApps").classList.toggle(`${styles.activeMobile}`);
+                                  document.getElementById("appsChevron").classList.toggle(`${styles.rotate90}`);
+                                }}
+                              />
+                            </div>
                             <div className={styles.navSubContent} id="SubContentApps">
                               <div className={styles.navSubContentItem}>
                                 <Link href={'/apps/timer'} passHref>

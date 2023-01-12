@@ -2,7 +2,7 @@
 import { createClient, PostgrestResponse, SupabaseClient } from '@supabase/supabase-js'
 import { AccessLevel } from '../../enums/accessLevel';
 import { SportEventVisibility } from '../../enums/sportEventVisibility';
-import { ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, ISportEvent, ISportEventType, ISportLocation, ISportMatch, ISportMatchSet, ISportScore, ISportTeam, ITimer, IUser } from '../../interfaces/database'
+import { GitHubProject, ISport, ISportClub, ISportClubMembership, ISportClubMembershipSport, ISportEvent, ISportEventType, ISportLocation, ISportMatch, ISportMatchSet, ISportScore, ISportTeam, ITimer, IUser } from '../../interfaces/database'
 
 /**
  * DataBase Model to Connect BackendController with Supabase DB
@@ -173,6 +173,32 @@ export class DatabaseModel {
 
   //#endregion
 
+  //#region GitHubProjects Methods
+
+  getGitHubProjectsFromResponse(dbResponse: PostgrestResponse<GitHubProject>): GitHubProject[] {
+    if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
+      return [];
+    }
+
+    const allGitHubProjects: GitHubProject[] = [];
+
+    for (const gitHubProject of dbResponse.data) {
+      allGitHubProjects.push({ username: gitHubProject.username, reponame: gitHubProject.reponame, heading: gitHubProject.heading })
+    }
+
+    return allGitHubProjects;
+  }
+
+  async selectGitHubProjectsTable(): Promise<PostgrestResponse<GitHubProject>> {
+    const gitHubProjectsResponse = await DatabaseModel.CLIENT
+      .from('GitHubProjects')
+      .select();
+
+    return gitHubProjectsResponse;
+  }
+
+  //#endregion
+
   //#region Timer Methods
 
   getTimersFromResponse(dbResponse: PostgrestResponse<ITimer>): ITimer[] {
@@ -226,6 +252,74 @@ export class DatabaseModel {
     return updatedTimer;
   }
 
+  //#endregion
+
+  //#region Bucket Methods
+
+  async getFileURLFromBucket(bucketID: string, filePath: string): Promise<string> {
+    // check if file exists, otherwise return null
+    const exists = await DatabaseModel.CLIENT
+      .rpc('check_bucket_item_exists', { bucketId: bucketID, filePath: filePath });
+
+    if (exists.data === null || exists.error !== null || exists.data.length === 0) {
+      return null;
+    }
+
+    const data: { success: boolean } = exists.data[0];
+
+    if (data.success) {
+      const result = await DatabaseModel.CLIENT
+        .storage
+        .from(bucketID)
+        .getPublicUrl(filePath);
+  
+      let url = result.data.publicURL;
+      return url;
+    }
+
+    return null
+  }
+
+  async downloadFileFromBucket(bucketID: string, filePath: string): Promise<Blob> {
+    // check if file exists, otherwise return null
+    const exists = await DatabaseModel.CLIENT
+      .rpc('check_bucket_item_exists', { bucketId: bucketID, filePath: filePath });
+
+    if (exists.data === null || exists.error !== null || exists.data.length === 0) {
+      return null;
+    }
+
+    const data: { success: boolean } = exists.data[0];
+
+    if (data.success) {
+      const result = await DatabaseModel.CLIENT
+        .storage
+        .from(bucketID)
+        .download(filePath);
+
+      return result.data;
+    }
+
+    return null;
+  }
+
+  /**
+   * This method returns item infos for max. 100 items in a bucket
+   * @param bucketID bucket name
+   * @param folderPath without leading slash
+   * @returns list of all files and folders at bucket location
+   */
+  async getFolderContentInfoFromBucket(bucketID: string, folderPath: string): Promise<any[]> {
+    const result = await DatabaseModel.CLIENT
+      .storage
+      .from(bucketID)
+      .list(folderPath, {
+        limit: 100,
+        offset: 0,
+      })
+
+    return result.data;
+  }
   //#endregion
 
   //#region Sport Methods
