@@ -219,7 +219,7 @@ export class SportMatchItemEdit extends Component<SportMatchItemEditProps, Sport
                                     <td key={sportScoreIndex.toString()}>
                                       <input 
                                         type="number" 
-                                        value={sportScore.score.toString()} 
+                                        value={sportScore.score === 0 ? "" : sportScore.score.toString()} 
                                         min="0"
                                         onChange={(event) => {
                                           sportScore.score = parseInt(event.target.value) || 0;
