@@ -48,6 +48,9 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
     if (!this.state.edit && this.props.sportEvent.id === undefined) {
       this.setState({ edit: true });
     }
+    if (prevProps.sportEvent.id !== this.props.sportEvent.id) {
+      this.setState({ edit: false })
+    }
   }
 
   private minimize() {
