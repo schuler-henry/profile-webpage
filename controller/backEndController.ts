@@ -779,8 +779,7 @@ Henry Schuler`,
     if (
       !sportEvent.startTime ||
       !sportEvent.endTime ||
-      !sportEvent.description ||
-      !sportEvent.visibility ||
+      sportEvent.visibility === undefined ||
       !sportEvent.sport ||
       !sportEvent.sportLocation ||
       !sportEvent.sportEventType
