@@ -8,6 +8,7 @@ import { randomStringGenerator } from '../shared/randomStringGenerator';
 import { SMTPClient } from 'emailjs';
 import { isEmailValid } from '../pages/api/users/requirements';
 import { SportEventVisibility } from '../enums/sportEventVisibility';
+import { AccessLevel } from '../enums/accessLevel';
 
 /**
  * Backend Controller of PersonalWebPage
@@ -574,6 +575,110 @@ Henry Schuler`,
       })
     }
     return [];
+  }
+
+  async handleSearchUsers(userToken: string, searchString: string): Promise<IUser[]> {
+    if (!this.isTokenValid(userToken)) {
+      return [];
+    }
+    
+    const allUsers = await this.handleGetAllUsers(userToken);
+    let selectedUsers: IUser[] = [];
+
+    // check content of searchString
+    searchString = searchString.trim().toLowerCase();
+    const searchItems = searchString.split(" ");
+
+    if (searchItems.length === 2) {
+      // check if searchItems are firstName and lastName
+      const matchingUsers = allUsers.filter((user) => {
+        return user.firstName.toLowerCase() === searchItems[0] && user.lastName.toLowerCase() === searchItems[1] ||
+          user.firstName.toLowerCase() === searchItems[1] && user.lastName.toLowerCase() === searchItems[0]
+      })
+      const matchingStartUsers = allUsers.filter((user) => {
+        return user.firstName.toLowerCase().startsWith(searchItems[0]) && user.lastName.toLowerCase().startsWith(searchItems[1]) ||
+          user.firstName.toLowerCase().startsWith(searchItems[1]) && user.lastName.toLowerCase().startsWith(searchItems[0])
+      })
+      // add matchingUsers to selectedUsers if not already in selectedUsers
+      for (const matchingUser of matchingUsers) {
+        if (!selectedUsers.find((user) => user.id === matchingUser.id)) {
+          selectedUsers.push(matchingUser);
+        }
+      }
+      // add matchingStartUsers to selectedUsers if not already in selectedUsers
+      for (const matchingStartUser of matchingStartUsers) {
+        if (!selectedUsers.find((user) => user.id === matchingStartUser.id)) {
+          selectedUsers.push(matchingStartUser);
+        }
+      }
+    }
+
+    // exact match
+    for (const searchItem of searchItems) {
+      // get all items matching the searchItem in the username, firstName or lastName exactly
+      const matchingUsers = allUsers.filter((user) => {
+        return user.username.toLowerCase() === searchItem || user.firstName.toLowerCase() === searchItem || user.lastName.toLowerCase() === searchItem
+      })
+      // add matchingUsers to selectedUsers if not already in selectedUsers
+      for (const matchingUser of matchingUsers) {
+        if (!selectedUsers.find((user) => user.id === matchingUser.id)) {
+          selectedUsers.push(matchingUser);
+        }
+      }
+    }
+
+    // starts with
+    for (const searchItem of searchItems) {
+      // get all items starting with the searchItem in the username, firstName or lastName
+      const matchingUsers = allUsers.filter((user) => {
+        return user.username.toLowerCase().startsWith(searchItem) || user.firstName.toLowerCase().startsWith(searchItem) || user.lastName.toLowerCase().startsWith(searchItem)
+      })
+      // add matchingUsers to selectedUsers if not already in selectedUsers
+      for (const matchingUser of matchingUsers) {
+        if (!selectedUsers.find((user) => user.id === matchingUser.id)) {
+          selectedUsers.push(matchingUser);
+        }
+      }
+    }
+
+    // includes
+    for (const searchItem of searchItems) {
+      // get all items matching the searchItem in the username, firstName or lastName
+      const matchingUsers = allUsers.filter((user) => {
+        return user.username.toLowerCase().includes(searchItem) || user.firstName.toLowerCase().includes(searchItem) || user.lastName.toLowerCase().includes(searchItem)
+      })
+      // add matchingUsers to selectedUsers if not already in selectedUsers
+      for (const matchingUser of matchingUsers) {
+        if (!selectedUsers.find((user) => user.id === matchingUser.id)) {
+          selectedUsers.push(matchingUser);
+        }
+      }
+    }
+
+    return selectedUsers;
+  }
+
+  async handleGetActivationCode(userToken: string, userID: number): Promise<string> {
+    if (!this.isTokenValid(userToken)) {
+      return "empty";
+    }
+
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({ userID: this.getIdFromToken(userToken) }))[0];
+
+    if (!user || user.accessLevel < AccessLevel.ADMIN) {
+      return "empty";
+    }
+
+    const targetUser = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({ userID: userID }))[0];
+
+    console.log(targetUser);
+
+    if (!targetUser || targetUser.password !== null || targetUser.email !== null || targetUser.unconfirmedEmail !== null) {
+      return "empty";
+    }
+
+    // targetUser was found + targetUser was created by an admin
+    return targetUser.activationCode;
   }
 
   //#endregion

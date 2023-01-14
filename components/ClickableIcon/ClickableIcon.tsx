@@ -11,6 +11,7 @@ export interface ClickableIconProps {
   onClick?: MouseEventHandler | undefined;
   buttonSize?: string;
   fontSize?: string;
+  buttonColor?: string;
   color?: string;
   spin?: boolean;
   style?: React.CSSProperties;
@@ -25,7 +26,7 @@ export class ClickableIcon extends Component<ClickableIconProps, ClickableIconSt
       <div 
         className={styles.button} 
         onClick={this.props.onClick}
-        style={{...this.props.style, width: this.props.buttonSize, height: this.props.buttonSize }}
+        style={{...this.props.style, width: this.props.buttonSize, height: this.props.buttonSize, backgroundColor: this.props.buttonColor }}
       >
         <Icon
           className={`${styles.icon} ${this.props.spin ? styles.spinnerAnimation : null}`}

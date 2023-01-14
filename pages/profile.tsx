@@ -18,6 +18,7 @@ import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
 import { ClickableIcon } from '../components/ClickableIcon/ClickableIcon'
 import { AdminSportClubSportUserList } from '../components/AdminSportClubSportUserList/AdminSportClubSportUserList'
 import { getSportClubPositionText } from '../shared/getSportClubPositionText'
+import { AccessLevel } from '../enums/accessLevel'
 
 const onRenderOption = (option: DropdownOption): JSX.Element => {
   return(
@@ -61,6 +62,9 @@ export interface ProfileState {
   success: boolean;
   displaySuccess: boolean;
   changedEmail: boolean;
+  searchUser: string;
+  foundUsers: IUser[];
+  maxViewableUsers: number;
   deleteMembershipItem: ISportClubMembership;
   availableSportClubs: ISportClub[];
   adminClubs: ISportClub[];
@@ -107,6 +111,9 @@ class Profile extends Component<ProfileProps, ProfileState> {
       success: false,
       displaySuccess: false,
       changedEmail: false,
+      searchUser: "",
+      foundUsers: [],
+      maxViewableUsers: 3,
       deleteMembershipItem: undefined,
       availableSportClubs: [],
       adminClubs: [],
@@ -119,8 +126,13 @@ class Profile extends Component<ProfileProps, ProfileState> {
 
   async componentDidMount() {
     const user = await FrontEndController.getUserFromToken(FrontEndController.getUserToken());
+    if (user.accessLevel >= AccessLevel.ADMIN) {
+      // get subPageOptions element with key="password" and add element after it without removing any elements
+      const index = this.subPageOptions.findIndex(element => element.key === "password");
+      this.subPageOptions.splice(index + 1, 0, {key: "admin", text: this.props.t('profile:Admin'), data: {icon: "ContactCardSettingsIcon"}})     
+    }
     this.updateAvailableSportClubs();
-    this.setState({ changedUser: user });
+    this.setState({ changedUser: user, });
   }
 
   componentDidUpdate(prevProps: Readonly<ProfileProps>, prevState: Readonly<ProfileState>, snapshot?: any): void {
@@ -142,7 +154,9 @@ class Profile extends Component<ProfileProps, ProfileState> {
     let adminClubs = await FrontEndController.getAdminSportClubs(FrontEndController.getUserToken());
     if (adminClubs.length !== 0) {
       if (this.subPageOptions.filter((option) => option.key === "sportClubAdmin").length === 0) {
-        this.subPageOptions.push({key: "sportClubAdmin", text: this.props.t('profile:SportClubAdmin'), data: {icon: "MoreSports"}})
+        // get subPageOptions element with key="sportClubMemberships" and add element after it without removing any elements
+        const index = this.subPageOptions.findIndex(element => element.key === "sportClubMemberships");
+        this.subPageOptions.splice(index + 1, 0, {key: "sportClubAdmin", text: this.props.t('profile:SportClubAdmin'), data: {icon: "MoreSports"}})
       }
     } else {
       this.subPageOptions = this.subPageOptions.filter((option) => option.key !== "sportClubAdmin");
@@ -162,6 +176,11 @@ class Profile extends Component<ProfileProps, ProfileState> {
     }
 
     this.setState({ availableSportClubs: sportClubs, adminClubs: adminClubs });
+  }
+
+  private async searchUser() {
+    this.setState({ fetchData: true });
+    this.setState({ foundUsers: await FrontEndController.findUsers(FrontEndController.getUserToken(), this.state.searchUser), searchUser: "", maxViewableUsers: 3, fetchData: false })
   }
 
   private subPageOptions: DropdownOption[] = [
@@ -497,6 +516,168 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           }}
                           sync={this.state.fetchData}
                         />
+                      }
+                    </div>
+                  }
+
+                  {
+                    this.state.selectedMenu === "admin" &&
+                    <div>
+                      {
+                        this.context.user.accessLevel >= AccessLevel.ADMIN ?
+                          <div>
+                            <div className={styles.inputWrapper}>
+                              <h1>
+                                Search for a user:
+                              </h1>
+                              <div className={styles.inlineSubmit}>
+                                <input 
+                                  type="text" 
+                                  className={styles.input}
+                                  value={this.state.searchUser}
+                                  disabled={this.state.fetchData}
+                                  onChange={async (event) => {
+                                    this.setState({ searchUser: event.target.value })
+                                  }}
+                                  onKeyDown={async (event) => {
+                                    if (event.key === "Enter" && !this.state.fetchData) {
+                                      console.log("click")
+                                      event.preventDefault();
+                                      this.searchUser()
+                                    }
+                                  }}
+                                />
+                                <ClickableIcon 
+                                  iconName={this.state.fetchData ? "Sync" : "Play"}
+                                  onClick={async () => { !this.state.fetchData && this.searchUser() }}
+                                  spin={this.state.fetchData}
+                                />
+                                {
+                                  this.state.foundUsers.length > 0 &&
+                                  <ClickableIcon
+                                    iconName={this.state.maxViewableUsers === 0 ? "ChevronRight" : "ChevronDown"}
+                                    onClick={() => {
+                                      this.setState({ maxViewableUsers: this.state.maxViewableUsers === 0 ? 3 : 0 })
+                                    }}
+                                    fontSize={"15px"}
+                                  />
+                                }
+                              </div>
+                              {
+                                this.state.foundUsers && this.state.maxViewableUsers > 0 &&
+                                <div className={styles.userList}>
+                                  {
+                                    // TODO: Add a limit of max. 3 users to display
+                                    // TODO: Add a "show more" button to display more users (if there are more than 3) -> increase limit by 3
+                                    this.state.foundUsers.slice(0, this.state.maxViewableUsers).map((user, index) => {
+                                      return (
+                                        <div key={"UserListElement" + user.username} className={styles.userItem}>
+                                          <div className={styles.table}>
+                                            <table>
+                                              <tbody>
+                                                <tr>
+                                                  <td>
+                                                    <h1>
+                                                      Username:
+                                                    </h1>
+                                                  </td>
+                                                  <td>
+                                                    {user.username}
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td>
+                                                    <h1>
+                                                      Name:
+                                                    </h1>
+                                                  </td>
+                                                  <td>
+                                                    {user.firstName} {user.lastName}
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td>
+                                                    <h1>
+                                                      E-Mail:
+                                                    </h1>
+                                                  </td>
+                                                  <td>
+                                                    {user.email}
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td>
+                                                    <h1>
+                                                      Activation&nbsp;Code:
+                                                    </h1>
+                                                  </td>
+                                                  <td>
+                                                    <div className={styles.activationCode}>
+                                                      <p style={{ backgroundColor: user.activationCode === "" ? "var(--color-bg-selected)" : ""}}>
+                                                        {user.activationCode}
+                                                      </p>
+                                                      <ClickableIcon 
+                                                        iconName={user.activationCode === "" ? 'View' : 'Hide3'} 
+                                                        fontSize='16px'
+                                                        buttonSize='18px'
+                                                        onClick={async () => {
+                                                          if (!this.state.fetchData) {
+                                                            if (user.activationCode === "") {
+                                                              this.setState({ fetchData: true })
+                                                              const activationCode = await FrontEndController.getActivationCode(FrontEndController.getUserToken(), user.id)
+                                                              this.setState({ foundUsers: this.state.foundUsers.map((foundUser) => {return(foundUser.id === user.id ? {...foundUser, activationCode: activationCode} : foundUser)}), fetchData: false})
+                                                            } else {
+                                                              this.setState({ fetchData: true })
+                                                              this.setState({ foundUsers: this.state.foundUsers.map((foundUser) => {return(foundUser.id === user.id ? {...foundUser, activationCode: ""} : foundUser)}), fetchData: false})
+                                                            }
+                                                          }
+                                                        }}
+                                                      />
+                                                      {
+                                                        user.activationCode !== "" &&
+                                                        <ClickableIcon 
+                                                          iconName='Copy'
+                                                          fontSize='16px'
+                                                          buttonSize='18px'
+                                                          onClick={() => {
+                                                            try {
+                                                              navigator.clipboard.writeText(user.activationCode)
+                                                            } catch {
+                                                              alert("Could not copy activation code to clipboard. Please copy it manually.")
+                                                            }
+                                                          }}
+                                                        />
+                                                      }
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        </div>
+                                      )
+                                    })
+                                  }
+                                  {
+                                    this.state.foundUsers.length > this.state.maxViewableUsers &&
+                                    <div className={styles.buttonItem}>
+                                      <Button
+                                        onClick={() => {
+                                          this.setState({ maxViewableUsers: this.state.maxViewableUsers + 3 })
+                                        }}
+                                      >
+                                        View more users
+                                      </Button>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
+                          :
+                          <div className={styles.errorWrapper}>
+                            <h1>You are not authorized to view this page.</h1>
+                          </div>
                       }
                     </div>
                   }

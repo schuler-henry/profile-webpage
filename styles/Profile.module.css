@@ -117,3 +117,68 @@
 .sportClubAdminSportWrapper > div:first-child h3 {
   margin-top: 0;
 }
+
+.errorWrapper h1 {
+  margin-bottom: 5px;
+  font-size: 14px;
+  text-decoration: none;
+  color: var(--color-text-warning);
+}
+
+.inlineSubmit {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.userList {
+  /* List three card items in a row */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-gap: 20px;
+  margin: 20px 0;
+}
+
+.userItem {
+  padding: 10px;
+  border-radius: 5px;
+  background-color: var(--color-bg-off);
+}
+
+.userItem .table {
+  overflow-x: auto;
+}
+
+.userItem h1 {
+  padding: 0;
+  margin: 0;
+}
+
+.userItem table {
+  max-width: 100%;
+  overflow: scroll;
+}
+
+.userItem table tbody td {
+  padding: 5px;
+}
+
+.userItem .activationCode {
+  display: flex;
+  flex-flow: row;
+  gap: 8px;
+}
+
+.userItem .activationCode p {
+  margin: 0;
+  padding: 0;
+  min-width: 80px;
+}
+
+.userList .buttonItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
