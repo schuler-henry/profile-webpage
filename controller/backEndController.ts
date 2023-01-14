@@ -222,6 +222,10 @@ export class BackEndController {
     return "";
   }
 
+  generateActivationCode(): string {
+    return randomStringGenerator(10);
+  }
+
   /**
    * API function to register a user
    */
@@ -233,9 +237,9 @@ export class BackEndController {
       const vEmailValid = isEmailValid(email);
       if (vUsernameValid && vPasswordValid && vEmailValid) {
         const hashedPassword = await this.hashPassword(password);
-        const activationCode = randomStringGenerator(10);
+        const activationCode = this.generateActivationCode();
 
-        if (this.databaseModel.evaluateSuccess(await this.databaseModel.addUser(username, hashedPassword, email, activationCode))) {
+        if (this.databaseModel.evaluateSuccess(await this.databaseModel.addUser({ username: username, password: hashedPassword, email: email, activationCode: activationCode }))) {
           // send email with activation code
           const emailClient = new SMTPClient({
             user: process.env.MAIL,
@@ -336,10 +340,10 @@ Henry Schuler`,
       user.username = newUser.username;
     }
     if (user.firstName !== newUser.firstName) {
-      user.firstName = newUser.firstName.replace(/ /g, "");
+      user.firstName = newUser.firstName.replace(/  /g, " ").trim();
     }
     if (user.lastName !== newUser.lastName) {
-      user.lastName = newUser.lastName.replace(/  /g, " ").trim();
+      user.lastName = newUser.lastName.replace(/ /g, "");
     }
 
     return this.databaseModel.evaluateSuccess(await this.databaseModel.updateUser(user));
@@ -671,14 +675,39 @@ Henry Schuler`,
 
     const targetUser = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({ userID: userID }))[0];
 
-    console.log(targetUser);
-
     if (!targetUser || targetUser.password !== null || targetUser.email !== null || targetUser.unconfirmedEmail !== null) {
       return "empty";
     }
 
     // targetUser was found + targetUser was created by an admin
     return targetUser.activationCode;
+  }
+
+  async handleCreateUserAsAdmin(userToken: string, username: string, firstName: string, lastName: string): Promise<string> {
+    if (!this.isTokenValid(userToken)) {
+      return "";
+    }
+
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({ userID: this.getIdFromToken(userToken) }))[0];
+
+    if (!user || user.accessLevel < AccessLevel.ADMIN) {
+      return "";
+    }
+
+    if (await this.handleUserAlreadyExists(username)) {
+      return "";
+    }
+
+    // user does not already exist -> create user
+    const activationCode = this.generateActivationCode();
+    const newUser = this.databaseModel.getUserFromResponse(await this.databaseModel.addUser({ username: username, activationCode: activationCode, firstName: firstName.replace(/  /g, " ").trim(), lastName: lastName.replace(/ /g, "") }))[0];
+
+    // check if user was created
+    if (!newUser) {
+      return "";
+    }
+
+    return newUser.activationCode;
   }
 
   //#endregion
