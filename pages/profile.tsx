@@ -18,6 +18,7 @@ import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
 import { ClickableIcon } from '../components/ClickableIcon/ClickableIcon'
 import { AdminSportClubSportUserList } from '../components/AdminSportClubSportUserList/AdminSportClubSportUserList'
 import { getSportClubPositionText } from '../shared/getSportClubPositionText'
+import { AccessLevel } from '../enums/accessLevel'
 
 const onRenderOption = (option: DropdownOption): JSX.Element => {
   return(
@@ -61,6 +62,16 @@ export interface ProfileState {
   success: boolean;
   displaySuccess: boolean;
   changedEmail: boolean;
+  searchUser: string;
+  foundUsers: IUser[];
+  maxViewableUsers: number;
+  createUserUsername: string;
+  createUserFirstName: string;
+  createUserLastName: string;
+  createUserUsernameError: boolean;
+  createUserActivationCode: string;
+  submitCreateUser: boolean;
+  displayCreateUserSuccess: boolean;
   deleteMembershipItem: ISportClubMembership;
   availableSportClubs: ISportClub[];
   adminClubs: ISportClub[];
@@ -107,6 +118,16 @@ class Profile extends Component<ProfileProps, ProfileState> {
       success: false,
       displaySuccess: false,
       changedEmail: false,
+      searchUser: "",
+      foundUsers: [],
+      maxViewableUsers: 3,
+      createUserUsername: "",
+      createUserFirstName: "",
+      createUserLastName: "",
+      createUserUsernameError: false,
+      createUserActivationCode: "",
+      submitCreateUser: false,
+      displayCreateUserSuccess: false,
       deleteMembershipItem: undefined,
       availableSportClubs: [],
       adminClubs: [],
@@ -119,8 +140,13 @@ class Profile extends Component<ProfileProps, ProfileState> {
 
   async componentDidMount() {
     const user = await FrontEndController.getUserFromToken(FrontEndController.getUserToken());
+    if (user.accessLevel >= AccessLevel.ADMIN) {
+      // get subPageOptions element with key="password" and add element after it without removing any elements
+      const index = this.subPageOptions.findIndex(element => element.key === "password");
+      this.subPageOptions.splice(index + 1, 0, {key: "admin", text: this.props.t('profile:Admin'), data: {icon: "ContactCardSettingsIcon"}})     
+    }
     this.updateAvailableSportClubs();
-    this.setState({ changedUser: user });
+    this.setState({ changedUser: user, });
   }
 
   componentDidUpdate(prevProps: Readonly<ProfileProps>, prevState: Readonly<ProfileState>, snapshot?: any): void {
@@ -142,7 +168,9 @@ class Profile extends Component<ProfileProps, ProfileState> {
     let adminClubs = await FrontEndController.getAdminSportClubs(FrontEndController.getUserToken());
     if (adminClubs.length !== 0) {
       if (this.subPageOptions.filter((option) => option.key === "sportClubAdmin").length === 0) {
-        this.subPageOptions.push({key: "sportClubAdmin", text: this.props.t('profile:SportClubAdmin'), data: {icon: "MoreSports"}})
+        // get subPageOptions element with key="sportClubMemberships" and add element after it without removing any elements
+        const index = this.subPageOptions.findIndex(element => element.key === "sportClubMemberships");
+        this.subPageOptions.splice(index + 1, 0, {key: "sportClubAdmin", text: this.props.t('profile:SportClubAdmin'), data: {icon: "MoreSports"}})
       }
     } else {
       this.subPageOptions = this.subPageOptions.filter((option) => option.key !== "sportClubAdmin");
@@ -162,6 +190,11 @@ class Profile extends Component<ProfileProps, ProfileState> {
     }
 
     this.setState({ availableSportClubs: sportClubs, adminClubs: adminClubs });
+  }
+
+  private async searchUser() {
+    this.setState({ fetchData: true });
+    this.setState({ foundUsers: await FrontEndController.findUsers(FrontEndController.getUserToken(), this.state.searchUser), searchUser: "", maxViewableUsers: 3, fetchData: false })
   }
 
   private subPageOptions: DropdownOption[] = [
@@ -497,6 +530,341 @@ class Profile extends Component<ProfileProps, ProfileState> {
                           }}
                           sync={this.state.fetchData}
                         />
+                      }
+                    </div>
+                  }
+
+                  {
+                    this.state.selectedMenu === "admin" &&
+                    <div>
+                      {
+                        this.context.user.accessLevel >= AccessLevel.ADMIN ?
+                          <div>
+                            <div className={styles.inputWrapper}>
+                              <h1>
+                                {this.props.t("profile:SearchForUser")}
+                              </h1>
+                              <div className={styles.inlineSubmit}>
+                                <input 
+                                  type="text" 
+                                  className={styles.input}
+                                  value={this.state.searchUser}
+                                  disabled={this.state.fetchData}
+                                  onChange={async (event) => {
+                                    this.setState({ searchUser: event.target.value })
+                                  }}
+                                  onKeyDown={async (event) => {
+                                    if (event.key === "Enter" && !this.state.fetchData) {
+                                      event.preventDefault();
+                                      this.searchUser()
+                                    }
+                                  }}
+                                  enterKeyHint="done"
+                                />
+                                <ClickableIcon 
+                                  iconName={this.state.fetchData ? "Sync" : "Play"}
+                                  onClick={async () => { !this.state.fetchData && this.searchUser() }}
+                                  spin={this.state.fetchData}
+                                />
+                                {
+                                  this.state.foundUsers.length > 0 &&
+                                  <ClickableIcon
+                                    iconName={this.state.maxViewableUsers === 0 ? "ChevronRight" : "ChevronDown"}
+                                    onClick={() => {
+                                      this.setState({ maxViewableUsers: this.state.maxViewableUsers === 0 ? 3 : 0 })
+                                    }}
+                                    fontSize={"15px"}
+                                  />
+                                }
+                              </div>
+                              {
+                                this.state.foundUsers.length > 0 && this.state.maxViewableUsers > 0 &&
+                                <div className={styles.userList}>
+                                  {
+                                    this.state.foundUsers.slice(0, this.state.maxViewableUsers).map((user, index) => {
+                                      return (
+                                        <div key={"UserListElement" + user.username} className={styles.userItem}>
+                                          <div className={styles.table}>
+                                            <table>
+                                              <tbody>
+                                                <tr>
+                                                  <td>
+                                                    <h1>
+                                                      {this.props.t("profile:Username")}:
+                                                    </h1>
+                                                  </td>
+                                                  <td>
+                                                    {user.username}
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td>
+                                                    <h1>
+                                                      {this.props.t("profile:Name")}:
+                                                    </h1>
+                                                  </td>
+                                                  <td>
+                                                    {user.firstName} {user.lastName}
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td>
+                                                    <h1>
+                                                      {this.props.t("profile:Email")}:
+                                                    </h1>
+                                                  </td>
+                                                  <td>
+                                                    {user.email}
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td>
+                                                    <h1 style={{ whiteSpace: "nowrap" }}>
+                                                      {this.props.t("profile:ActivationCode")}:
+                                                    </h1>
+                                                  </td>
+                                                  <td>
+                                                    <div className={styles.activationCode}>
+                                                      <p style={{ backgroundColor: user.activationCode === "" ? "var(--color-bg-selected)" : ""}}>
+                                                        {user.activationCode}
+                                                      </p>
+                                                      <ClickableIcon 
+                                                        iconName={user.activationCode === "" ? 'View' : 'Hide3'} 
+                                                        fontSize='16px'
+                                                        buttonSize='18px'
+                                                        onClick={async () => {
+                                                          if (!this.state.fetchData) {
+                                                            if (user.activationCode === "") {
+                                                              this.setState({ fetchData: true })
+                                                              const activationCode = await FrontEndController.getActivationCode(FrontEndController.getUserToken(), user.id)
+                                                              this.setState({ foundUsers: this.state.foundUsers.map((foundUser) => {return(foundUser.id === user.id ? {...foundUser, activationCode: activationCode} : foundUser)}), fetchData: false})
+                                                            } else {
+                                                              this.setState({ fetchData: true })
+                                                              this.setState({ foundUsers: this.state.foundUsers.map((foundUser) => {return(foundUser.id === user.id ? {...foundUser, activationCode: ""} : foundUser)}), fetchData: false})
+                                                            }
+                                                          }
+                                                        }}
+                                                      />
+                                                      {
+                                                        user.activationCode !== "" &&
+                                                        <ClickableIcon 
+                                                          iconName='Copy'
+                                                          fontSize='16px'
+                                                          buttonSize='18px'
+                                                          onClick={() => {
+                                                            try {
+                                                              navigator.clipboard.writeText(user.activationCode)
+                                                            } catch {
+                                                              alert("Could not copy activation code to clipboard. Please copy it manually.")
+                                                            }
+                                                          }}
+                                                        />
+                                                      }
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        </div>
+                                      )
+                                    })
+                                  }
+                                  {
+                                    this.state.foundUsers.length > this.state.maxViewableUsers &&
+                                    <div className={styles.buttonItem}>
+                                      <Button
+                                        onClick={() => {
+                                          this.setState({ maxViewableUsers: this.state.maxViewableUsers + 3 })
+                                        }}
+                                      >
+                                        {this.props.t("profile:ViewMoreUsers")}
+                                      </Button>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+                            <div className={styles.inputWrapper}>
+                              <h1>
+                                {this.props.t("profile:CreateUser")}
+                              </h1>
+                              <input 
+                                type="text"
+                                className={`${styles.input} ${this.state.createUserUsernameError && styles.inputError} ${this.state.createUserUsername === "" ? styles.inputChanged : styles.inputOk}`}
+                                placeholder={this.props.t("profile:Username")}
+                                value={this.state.createUserUsername}
+                                disabled={this.state.fetchData}
+                                onChange={async (event) => {
+                                  this.setState({ createUserUsername: event.target.value.trim() })
+                                  this.setState({ createUserUsernameError: event.target.value.trim() !== "" && (await FrontEndController.doesUserExist(event.target.value.trim()) || !await FrontEndController.isUsernameValid(event.target.value.trim())) })
+                                }}
+                              />
+                              {
+                                this.state.createUserUsernameError &&
+                                  <p className={styles.errorText}>
+                                    {this.props.t('profile:UsernameTaken')}
+                                  </p>
+                              }
+                              <h1></h1>
+                              <input 
+                                type="text"
+                                className={`${styles.input} ${this.state.createUserFirstName === "" ? styles.inputChanged : styles.inputOk}`}
+                                placeholder={this.props.t("profile:FirstName")}
+                                value={this.state.createUserFirstName}
+                                disabled={this.state.fetchData}
+                                onChange={(event) => {
+                                  this.setState({ createUserFirstName: event.target.value.replaceAll("  ", " ").trimStart() })
+                                }}
+                              />
+                              <h1></h1>
+                              <input 
+                                type="text"
+                                className={`${styles.input} ${this.state.createUserLastName === "" ? styles.inputChanged : styles.inputOk}`}
+                                placeholder={this.props.t("profile:LastName")}
+                                value={this.state.createUserLastName}
+                                disabled={this.state.fetchData}
+                                onChange={(event) => {
+                                  this.setState({ createUserLastName: event.target.value.replaceAll(" ", "") })
+                                }}
+                                enterKeyHint="done"
+                              />
+                            </div>
+                            <div className={styles.submitButton}>
+                              <Button
+                                disabled={this.state.fetchData || this.state.createUserUsername === "" || this.state.createUserFirstName === "" || this.state.createUserLastName === ""}
+                                onClick={() => {
+                                  this.setState({ submitCreateUser: true })
+                                }}
+                              >
+                                {this.props.t("profile:SubmitCreateUser")}
+                              </Button>
+                            </div>
+                            {
+                              this.state.submitCreateUser &&
+                                <ConfirmPopUp 
+                                  title={this.props.t('profile:SubmitCreateUser')} 
+                                  onConfirm={this.state.fetchData ? undefined : async () => {
+                                    this.setState({ fetchData: true })
+                                    const activationCode = await FrontEndController.createUserAsAdmin(FrontEndController.getUserToken(), this.state.createUserUsername, this.state.createUserFirstName, this.state.createUserLastName)
+                                    this.setState({ success: activationCode !== "", fetchData: false, createUserActivationCode: activationCode, displayCreateUserSuccess: true, submitCreateUser: false })
+                                  }}
+                                  onCancel={this.state.fetchData ? undefined : () => {
+                                    this.setState({ submitCreateUser: false })
+                                  }}
+                                  warning={this.props.t('profile:UndoWarning')}
+                                  sync={this.state.fetchData}
+                                >
+                                  <div className={styles.confirmWrapper} style={{ alignItems: "center" }}>
+                                    <div className={styles.userItem}>
+                                      <div className={styles.table}>
+                                        <table>
+                                          <tbody>
+                                            <tr>
+                                              <td>
+                                                <h1>
+                                                  {this.props.t("profile:Username")}:
+                                                </h1>
+                                              </td>
+                                              <td>
+                                                {this.state.createUserUsername}
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td>
+                                                <h1>
+                                                  {this.props.t("profile:Name")}:
+                                                </h1>
+                                              </td>
+                                              <td>
+                                                {this.state.createUserFirstName} {this.state.createUserLastName}
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </ConfirmPopUp>
+                            }
+                            {
+                              this.state.displayCreateUserSuccess && 
+                                <ConfirmPopUp
+                                  title={this.state.success ? this.props.t('common:Success') : this.props.t('common:Error')}
+                                  warning={!this.state.success && this.props.t('profile:CreateUserErrorMessage')}
+                                  onConfirm={() => {
+                                    this.state.success ? 
+                                      this.setState({ createUserUsername: "", createUserFirstName: "", createUserLastName: "", createUserActivationCode: "", displayCreateUserSuccess: false, success: false })
+                                      :
+                                      this.setState({ displayCreateUserSuccess: false, success: false })
+                                  }}
+                                >
+                                  {
+                                    this.state.success &&
+                                      <div className={styles.confirmWrapper} style={{ alignItems: "center" }}>
+                                        <div className={styles.userItem}>
+                                          <div className={styles.table}>
+                                            <table>
+                                              <tbody>
+                                                <tr>
+                                                  <td>
+                                                    <h1>
+                                                      {this.props.t("profile:Username")}:
+                                                    </h1>
+                                                  </td>
+                                                  <td>
+                                                    {this.state.createUserUsername}
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td>
+                                                    <h1>
+                                                      {this.props.t("profile:Name")}:
+                                                    </h1>
+                                                  </td>
+                                                  <td>
+                                                    {this.state.createUserFirstName} {this.state.createUserLastName}
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td>
+                                                    <h1 style={{ whiteSpace: "nowrap" }}>
+                                                      {this.props.t("profile:ActivationCode")}:
+                                                    </h1>
+                                                  </td>
+                                                  <td>
+                                                    <div className={styles.activationCode}>
+                                                      <p>
+                                                        {this.state.createUserActivationCode}
+                                                      </p>
+                                                      <ClickableIcon 
+                                                        iconName='Copy'
+                                                        fontSize='16px'
+                                                        buttonSize='18px'
+                                                        onClick={() => {
+                                                          try {
+                                                            navigator.clipboard.writeText(this.state.createUserActivationCode)
+                                                          } catch {
+                                                            alert("Could not copy activation code to clipboard. Please copy it manually.")
+                                                          }
+                                                        }}
+                                                      />
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        </div>
+                                      </div>
+                                  }
+                                </ConfirmPopUp>
+                            }
+                          </div>
+                          :
+                          <div className={styles.errorWrapper}>
+                            <h1>You are not authorized to view this page.</h1>
+                          </div>
                       }
                     </div>
                   }

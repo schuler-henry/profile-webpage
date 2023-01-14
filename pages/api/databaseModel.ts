@@ -136,11 +136,32 @@ export class DatabaseModel {
   /**
    * This method adds a user to the db
    */
-  async addUser(username: string, hashedPassword: string, email: string, activationCode: string): Promise<PostgrestResponse<IUser>> {
+  async addUser(
+    user: {
+      username: string, 
+      password?: string, 
+      accessLevel?: AccessLevel, 
+      firstName?: string, 
+      lastName?: string, 
+      email?: string, 
+      unconfirmedEmail?: string, 
+      activationCode?: string, 
+      active?: boolean
+    }): Promise<PostgrestResponse<IUser>> {
     const addedUser = await DatabaseModel.CLIENT
       .from('User')
       .insert([
-        { username: username, password: hashedPassword, accessLevel: AccessLevel.USER, unconfirmedEmail: email?.toLowerCase(), activationCode: activationCode, active: false },
+        { 
+          username: user.username, 
+          password: user.password || null, 
+          accessLevel: user.accessLevel || AccessLevel.USER,
+          firstName: user.firstName || null,
+          lastName: user.lastName || null,
+          email: user.email?.toLowerCase() || null,
+          unconfirmedEmail: user.email?.toLowerCase() || null, 
+          activationCode: user.activationCode || null, 
+          active: user.active || false 
+        },
       ]);
 
     return addedUser;

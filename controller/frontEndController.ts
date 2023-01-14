@@ -369,6 +369,56 @@ export class FrontEndController {
     return data.users;
   }
 
+  static async findUsers(userToken: string, searchString: string): Promise<IUser[]> {
+    const response = await fetch('/api/users/find_users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        searchString: searchString
+      })
+    });
+
+    const data = await response.json();
+    return data.users;
+  }
+
+  static async getActivationCode(userToken: string, userID: number): Promise<string> {
+    const response = await fetch('/api/users/get_activation_code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        userID: userID
+      })
+    });
+
+    const data = await response.json();
+    return data.activationCode;
+  }
+
+  static async createUserAsAdmin(userToken: string, username: string, firstName: string, lastName: string): Promise<string> {
+    const response = await fetch('/api/users/create_user_as_admin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        username: username,
+        firstName: firstName,
+        lastName: lastName
+      })
+    });
+
+    const data = await response.json();
+    return data.activationCode;
+  }
+
   //#endregion
 
   //#region Token Methods

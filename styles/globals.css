@@ -26,6 +26,7 @@ body {
   --color-bg-off: #2A2A2A;
   --color-border-primary: #CACACA;
   --color-border-hover: #FFFFFF;
+  --color-border-approved: #00FF00;
   --color-border-changed: #FF9000;
   --color-border-error: #FF2222;
   --color-border-off: #2A2A2A;
@@ -47,6 +48,7 @@ body[data-theme="light"] {
   --color-bg-off: #EAEAEA;
   --color-border-primary: #151515;
   --color-border-hover: #000000;
+  --color-border-approved: #22FF22;
   --color-border-changed: #FF9000;
   --color-border-error: #FF2222;
   --color-border-off: #EAEAEA;

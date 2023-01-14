@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app'
 import { appWithTranslation } from 'next-i18next'
 import { initializeIcons, ThemeProvider } from '@fluentui/react';
 import { registerIcons } from '@fluentui/react/lib/Styling'
-import { ChevronDownIcon, ChevronRightIcon, AddIcon, DeleteIcon, SyncIcon, TimerIcon, PlayIcon, StopIcon, SendIcon, ContactIcon, LockIcon, MoreSportsIcon } from '@fluentui/react-icons-mdl2'
+import { ChevronDownIcon, ChevronRightIcon, AddIcon, DeleteIcon, SyncIcon, TimerIcon, PlayIcon, StopIcon, SendIcon, ContactIcon, LockIcon, MoreSportsIcon, ContactCardSettingsIcon } from '@fluentui/react-icons-mdl2'
 import getUnicodeFlagIcon from 'country-flag-icons/unicode'
 import { darkTheme, lightTheme } from '../styles/theme';
 import { FrontEndController } from '../controller/frontEndController';
@@ -37,6 +37,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         Contact: <ContactIcon />,
         Lock: <LockIcon />,
         MoreSports: <MoreSportsIcon />,
+        ContactCardSettingsIcon: <ContactCardSettingsIcon />,
         Badminton: <Image src={BadmintonIcon} alt="icon" />,
         Volleyball: <Image src={VolleyballIcon} alt="" />
       }
