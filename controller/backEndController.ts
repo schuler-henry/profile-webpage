@@ -229,32 +229,58 @@ export class BackEndController {
   /**
    * API function to register a user
    */
-  async handleRegisterUser(username: string, password: string, email: string): Promise<boolean> {
+  async handleRegisterUser(username: string, password: string, email: string, activationCode: string): Promise<boolean> {
+    let userExists = false;
+    let user = undefined;
     email = email?.toLowerCase();
-    if (!await this.handleUserAlreadyExists(username)) {
-      const vUsernameValid = this.isUsernameValid(username);
-      const vPasswordValid = this.isPasswordValid(password);
-      const vEmailValid = isEmailValid(email);
-      if (vUsernameValid && vPasswordValid && vEmailValid) {
-        const hashedPassword = await this.hashPassword(password);
-        const activationCode = this.generateActivationCode();
 
-        if (this.databaseModel.evaluateSuccess(await this.databaseModel.addUser({ username: username, password: hashedPassword, email: email, activationCode: activationCode }))) {
-          // send email with activation code
-          const emailClient = new SMTPClient({
-            user: process.env.MAIL,
-            password: process.env.MAIL_PASSWORD,
-            host: process.env.MAIL_HOST,
-            ssl: true
-          })
-  
-          try {
-            await emailClient.sendAsync(
-              {
-                from: process.env.NOREPLY,
-                to: email,
-                subject: "Signup | Verification",
-                text: `Thanks for signing up!
+    if (await this.handleUserAlreadyExists(username)) {
+      user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: username}))[0];
+      if (!user || user.password !== null || user.email !== null || user.unconfirmedEmail !== null) {
+        // user is already registered
+        return false;
+      }
+      if (user.activationCode !== activationCode) {
+        // wrong activation code
+        return false;
+      }
+      userExists = true;
+    }
+
+    const vUsernameValid = this.isUsernameValid(username);
+    const vPasswordValid = this.isPasswordValid(password);
+    const vEmailValid = isEmailValid(email);
+    if (vUsernameValid && vPasswordValid && vEmailValid) {
+      const hashedPassword = await this.hashPassword(password);
+      const newActivationCode = this.generateActivationCode();
+
+      let userRegistered: boolean = false
+      
+      if (userExists) {
+        const updatedUser = {...user, password: hashedPassword, unconfirmedEmail: email, activationCode: newActivationCode}
+        userRegistered = this.databaseModel.evaluateSuccess(await this.databaseModel.updateUser(updatedUser))
+      } else {
+        userRegistered = this.databaseModel.evaluateSuccess(await this.databaseModel.addUser({ username: username, password: hashedPassword, unconfirmedEmail: email, activationCode: newActivationCode }))
+      }
+
+      console.log(userExists, userRegistered)
+
+      if (userRegistered) {
+        // send email with activation code
+        const emailClient = new SMTPClient({
+          user: process.env.MAIL,
+          password: process.env.MAIL_PASSWORD,
+          host: process.env.MAIL_HOST,
+          ssl: true
+        })
+
+        try {
+          await emailClient.sendAsync(
+            {
+              from: process.env.NOREPLY,
+              to: email,
+              subject: "Signup | Verification",
+              text: `Thanks for signing up!
 
 Your account has been created, you can login with your credentials after you have activated your account by pressing the url below.
 
@@ -263,7 +289,7 @@ username: ${username}
 ---------------------------------------------
               
 Please click this link to activate your account:
-https://henryschuler.de/activate?username=${username}&activationCode=${activationCode}
+https://henryschuler.de/activate?username=${username}&activationCode=${newActivationCode}
 
 
 ---------------------------------------------
@@ -271,7 +297,7 @@ https://henryschuler.de/activate?username=${username}&activationCode=${activatio
 If the link does not work, visit https://henryschuler.de/activate and enter the following information:
 
 username: ${username}
-code: ${activationCode}
+code: ${newActivationCode}
 
 
 Thanks,
@@ -281,15 +307,14 @@ Henry Schuler`,
 //   { data: '<html>i <i>hope</i> this works!</html>', alternative: true },
 //   { path: 'path/to/file.zip', type: 'application/zip', name: 'renamed.zip' },
 // ],
-              }
-            )
-          } catch (e) {
-            // TODO: Handle failed email sending, i.e. delete user from DB
-            // console.log("Email send failed !!!!")
-            // console.log(e)
-          }
-          return true
+            }
+          )
+        } catch (e) {
+          // TODO: Handle failed email sending, i.e. delete user from DB
+          // console.log("Email send failed !!!!")
+          // console.log(e)
         }
+        return true
       }
     }
     return false;

@@ -538,12 +538,12 @@ class Profile extends Component<ProfileProps, ProfileState> {
                     this.state.selectedMenu === "admin" &&
                     <div>
                       {
-                        this.context.user.accessLevel >= AccessLevel.ADMIN ?
+                        this.context.user?.accessLevel >= AccessLevel.ADMIN ?
                           <div>
+                            <h2>
+                              {this.props.t("profile:SearchForUser")}
+                            </h2>
                             <div className={styles.inputWrapper}>
-                              <h1>
-                                {this.props.t("profile:SearchForUser")}
-                              </h1>
                               <div className={styles.inlineSubmit}>
                                 <input 
                                   type="text" 
@@ -685,9 +685,12 @@ class Profile extends Component<ProfileProps, ProfileState> {
                                 </div>
                               }
                             </div>
+                            <h2>
+                              {this.props.t("profile:CreateUser")}
+                            </h2>
                             <div className={styles.inputWrapper}>
                               <h1>
-                                {this.props.t("profile:CreateUser")}
+                                {this.props.t("profile:Username")}
                               </h1>
                               <input 
                                 type="text"
@@ -706,7 +709,9 @@ class Profile extends Component<ProfileProps, ProfileState> {
                                     {this.props.t('profile:UsernameTaken')}
                                   </p>
                               }
-                              <h1></h1>
+                              <h1>
+                                {this.props.t("profile:FirstName")}
+                              </h1>
                               <input 
                                 type="text"
                                 className={`${styles.input} ${this.state.createUserFirstName === "" ? styles.inputChanged : styles.inputOk}`}
@@ -717,7 +722,9 @@ class Profile extends Component<ProfileProps, ProfileState> {
                                   this.setState({ createUserFirstName: event.target.value.replaceAll("  ", " ").trimStart() })
                                 }}
                               />
-                              <h1></h1>
+                              <h1>
+                                {this.props.t("profile:LastName")}
+                              </h1>
                               <input 
                                 type="text"
                                 className={`${styles.input} ${this.state.createUserLastName === "" ? styles.inputChanged : styles.inputOk}`}

@@ -39,9 +39,25 @@
   -moz-animation: fadeIn .5s; /* Firefox */
   -webkit-animation: fadeIn .5s; /* Safari and Chrome */
   -o-animation: fadeIn .5s; /* Opera */
-  color: rgb(253, 55, 55);
+  color: var(--color-text-warning);
   text-align: right;
   margin-top: 0;
+}
+
+.activationCodeInput {
+  position: relative;
+  padding: 0;
+  margin: 0;
+}
+
+.activationCodeInput .infoIcon {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 2px;
+  margin: 0;
+  display: flex;
+  align-items: center;
 }
 
 .flexBox {

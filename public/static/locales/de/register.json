@@ -1,6 +1,7 @@
 {
   "Email": "E-Mail",
   "Username": "Benutzername",
+  "ActivationCode": "Aktivierungscode",
   "Password": "Passwort",
   "ConfirmPassword": "Passwort bestätigen",
   "Or": "Stattdessen",
@@ -15,5 +16,15 @@
   "uppercase": "Großbuchstabe",
   "of": "der folgenden Zeichen",
   "onlyNumbersCharactersSpecial": "nur Buchstaben, Zahlen und die oben genannten Sonderzeichen",
-  "RegisterSuccessful": "Ihr account wurde erfolgreich erstellt.\nWir haben Ihnen eine E-Mail mit einem Bestätigungslink geschickt. Bitte bestätigen Sie Ihre E-Mail-Adresse, um sich einzuloggen.\n\nWenn Sie keine E-Mail erhalten haben, überprüfen Sie bitte Ihren Spam-Ordner."
+  "RegisterSuccessful": "Ihr account wurde erfolgreich erstellt.\nWir haben Ihnen eine E-Mail mit einem Bestätigungslink geschickt. Bitte bestätigen Sie Ihre E-Mail-Adresse, um sich einzuloggen.\n\nWenn Sie keine E-Mail erhalten haben, überprüfen Sie bitte Ihren Spam-Ordner.",
+  "RegisterFailedMessage": "Die Registrierung ist fehlgeschlagen. Bitte versuchen Sie es später erneut.",
+  "EMailAlreadyExists": "Die E-Mail-Adresse ist bereits registriert.",
+  "UsernameAlreadyExists": "Der Benutzername ist bereits registriert (Aktivierungscode benötigt).",
+  "PasswordsNotMatch": "Die Passwörter stimmen nicht überein.",
+  "AllFieldsRequired": "Alle Felder sind erforderlich.",
+  "checkUsernameRequirements": "Benutzername entspricht nicht den Anforderungen",
+  "checkPasswordRequirements": "Passwort entspricht nicht den Anforderungen",
+  "noValidEmail": "keine gültige E-Mail-Adresse",
+  "ActivationCodeTitle": "Aktivierungscode",
+  "ActivationCodeInfoMessage": "Der Aktivierungscode ist nur erforderlich, wenn Sie von einem Administrator einen Benutzernamen und Aktivierungscode erhalten haben, um Ihren Account zu erstellen.\n\nWenn Sie keinen Aktivierungscode haben, wählen Sie einen Benutzernamen, der noch nicht vergeben ist, und lassen Sie das Aktivierungscode-Feld leer."
 }

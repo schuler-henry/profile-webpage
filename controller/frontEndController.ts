@@ -161,7 +161,7 @@ export class FrontEndController {
   /**
    * This method registers a user to the database
    */
-  static async registerUser(username: string, password: string, email: string): Promise<boolean> {
+  static async registerUser(username: string, password: string, email: string, activationCode: string): Promise<boolean> {
     const response = await fetch('/api/users/register', {
       method: 'POST',
       headers: {
@@ -171,6 +171,7 @@ export class FrontEndController {
         username: username,
         password: password,
         email: email,
+        activationCode: activationCode,
       })
     });
 
