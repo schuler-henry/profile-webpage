@@ -24,4 +24,5 @@
 .disabled {
   background-color: var(--color-bg-off);
   border-color: var(--color-border-off);
+  cursor: default !important;
 }
