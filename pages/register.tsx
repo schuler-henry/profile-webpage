@@ -13,6 +13,7 @@ import { Button } from '../components/Button/Button'
 import { ConfirmPopUp } from '../components/ConfirmPopUp/ConfirmPopUp'
 import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
 import { ClickableIcon } from '../components/ClickableIcon/ClickableIcon'
+import Link from 'next/link'
 
 export interface RegisterState {
   email: string;
@@ -20,6 +21,7 @@ export interface RegisterState {
   activationCode: string;
   password: string;
   confirmPassword: string;
+  acceptedTerms: boolean;
   emailReqMessage: string;
   usernameReqMessage: string;
   passwordReqMessage: string;
@@ -57,6 +59,7 @@ class Register extends Component<RegisterProps, RegisterState> {
       activationCode: "",
       password: "",
       confirmPassword: "",
+      acceptedTerms: false,
       emailReqMessage: "",
       usernameReqMessage: "",
       passwordReqMessage: "",
@@ -88,6 +91,7 @@ class Register extends Component<RegisterProps, RegisterState> {
         && this.state.username !== "" 
         && this.state.password !== ""
         && !(this.state.doesUserExist && this.state.activationCode === "")
+        && this.state.acceptedTerms;
   }
 
   /**
@@ -291,6 +295,29 @@ class Register extends Component<RegisterProps, RegisterState> {
                     readOnly={this.state.readOnlyInput} />
                   <div hidden={this.state.feedbackMessage === ""} className={styles.error} >
                     {this.state.feedbackMessage}
+                  </div>
+                  <div>
+                    <div className={styles.checkbox}>
+                      <input 
+                        type="checkbox" 
+                        name="terms" 
+                        checked={this.state.acceptedTerms} 
+                        onChange={(event) => {
+                          this.setState({ acceptedTerms: event.target.checked })
+                        }}
+                      />
+                      <label htmlFor="terms">
+                        {this.props.t('register:AcceptTermsText')}
+                      </label>
+                    </div>
+                    <div className={styles.terms}>
+                      <Link href={"/terms"}>
+                        {this.props.t('common:Terms')}
+                      </Link>
+                      <Link href={"/dsgvo"}>
+                        {this.props.t('common:DSGVO')}
+                      </Link>
+                    </div>
                   </div>
                   <Button 
                     width="100%" 

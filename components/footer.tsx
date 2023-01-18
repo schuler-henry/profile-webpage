@@ -159,6 +159,18 @@ export class Footer extends Component<FooterProps, FooterState> {
                       {LanguageContext.t('common:Impressum')}
                     </Link>
                   </div>
+                  <div>
+                    <Link
+                      href={"/dsgvo"}>
+                      {LanguageContext.t('common:DSGVO')}
+                    </Link>
+                  </div>
+                  <div>
+                    <Link
+                      href={"/terms"}>
+                      {LanguageContext.t('common:Terms')}
+                    </Link>
+                  </div>
                 </div>
               </div>
               <div className={styles.footerElement}>
