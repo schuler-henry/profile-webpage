@@ -22,7 +22,7 @@ export interface DSGVOProps extends WithTranslation, WithRouterProps {
 export async function getStaticProps({ locale }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common', 'dsgvo'])),
+      ...(await serverSideTranslations(locale, ['common'])),
     }
   }
 }
@@ -90,7 +90,7 @@ class DSGVO extends Component<DSGVOProps, DSGVOState> {
             <div className='scrollBody'>
               <main className={styles.main}>
                 <div className={styles.box}>
-                  <h1 className={styles.adsimple}>Datenschutzerklärung</h1>
+                  <h1 className={styles.adsimple}>{this.props.t('common:DSGVO')}</h1>
                   <h2 id="einleitung-ueberblick" className={styles.adsimple}>Einleitung und Überblick</h2>
                   <p>Wir haben diese Datenschutzerklärung (Fassung 16.01.2023-312394688) verfasst, um Ihnen gemäß der Vorgaben der <a className={styles.adsimple} href="https://eur-lex.europa.eu/legal-content/DE/TXT/HTML/?uri=CELEX:32016R0679&amp;from=DE&amp;tid=312394688#d1e2269-1-1" target="_blank" rel="noreferrer">Datenschutz-Grundverordnung (EU) 2016/679</a> und anwendbaren nationalen Gesetzen zu erklären, welche personenbezogenen Daten (kurz Daten) wir als Verantwortliche &#8211; und die von uns beauftragten Auftragsverarbeiter (z. B. Provider) &#8211; verarbeiten, zukünftig verarbeiten werden und welche rechtmäßigen Möglichkeiten Sie haben. Die verwendeten Begriffe sind geschlechtsneutral zu verstehen.<br />
                     <strong className={styles.adsimple}>Kurz gesagt:</strong> Wir informieren Sie umfassend über Daten, die wir über Sie verarbeiten.</p>
@@ -347,7 +347,7 @@ class DSGVO extends Component<DSGVOProps, DSGVOState> {
                   </p>
                   <h3 className={styles.adsimple}>Rechtsgrundlage</h3>
                   <p>
-                    <span className={styles.adsimple} style={{ fontWeight: "400" }}>Mit Durchführung des Registrierungsvorgangs treten Sie vorvertraglich an uns heran, um einen Nutzungsvertrag über unsere Plattform zu schließen (wenn auch nicht automatisch eine Zahlungspflicht entsteht). S</span>ie investieren Zeit, um Daten einzugeben und sich zu registrieren und wir bieten Ihnen unsere Dienstleistungen nach Anmeldung in unserem System und die Einsicht in Ihr Kundenkonto. Außerdem kommen wir unseren vertraglichen Verpflichtungen nach. Schließlich müssen wir registrierte Nutzer bei wichtigen Änderungen per E-Mail am Laufenden halten. Damit trifft Art. 6 Abs. 1 lit. b DSGVO (Durchführung vorvertraglicher Maßnahmen, Erfüllung eines Vertrags) zu.</p>
+                    <span className={styles.adsimple} style={{ fontWeight: "400" }}>Mit Durchführung des Registrierungsvorgangs treten Sie vorvertraglich an uns heran, um einen Nutzungsvertrag über unsere Plattform zu schließen (wenn auch nicht automatisch eine Zahlungspflicht entsteht).</span> Sie investieren Zeit, um Daten einzugeben und sich zu registrieren und wir bieten Ihnen unsere Dienstleistungen nach Anmeldung in unserem System und die Einsicht in Ihr Kundenkonto. Außerdem kommen wir unseren vertraglichen Verpflichtungen nach. Schließlich müssen wir registrierte Nutzer bei wichtigen Änderungen per E-Mail am Laufenden halten. Damit trifft Art. 6 Abs. 1 lit. b DSGVO (Durchführung vorvertraglicher Maßnahmen, Erfüllung eines Vertrags) zu.</p>
                   <p>Gegebenenfalls holen darüber hinaus auch Ihre Einwilligung ein, z.B. wenn Sie freiwillig mehr als die unbedingt notwendigen Daten angeben oder wir Ihnen Werbung senden dürfen. Art. 6 Abs. 1 lit. a DSGVO (Einwilligung) trifft somit zu.</p>
                   <p>Wir haben außerdem ein berechtigtes Interesse, zu wissen, mit wem wir es zu tun haben, um in bestimmten Fällen in Kontakt zu treten. Außerdem müssen wir wissen wer unsere Dienstleistungen in Anspruch nimmt und ob sie so verwendet werden, wie es unsere Nutzungsbedingungen vorgeben, es trifft also Art. 6 Abs. 1 lit. f DSGVO (Berechtigte Interessen) zu.</p>
                   <p>
@@ -595,12 +595,21 @@ class DSGVO extends Component<DSGVOProps, DSGVOState> {
                   <h3 className={styles.adsimple}>Dauer der Datenverarbeitung</h3>
                   <p>Über die Dauer der Datenverarbeitung informieren wir Sie weiter unten, sofern wir weitere Informationen dazu haben. Im Allgemeinen speichern Cloud-Dienste Daten, bis Sie oder wir die Datenspeicherung widerrufen bzw. die Daten wieder löschen. Generell werden personenbezogene Daten nur so lange gespeichert, wie es für die Bereitstellung der Dienstleistungen unbedingt notwendig ist. Ein endgültiges Datenlöschen aus der Cloud kann allerdings einige Monate dauern. Das ist der Fall, weil die Daten meist nicht nur auf einem Server gespeichert sind, sondern auf verschiedenen Servern aufgeteilt werden.</p>
                   <h3 className={styles.adsimple}>Widerspruchsrecht</h3>
-                  <p>Sie haben auch jederzeit das Recht und die Möglichkeit Ihre Einwilligung zur Datenspeicherung in einer Cloud zu widerrufen. Falls Cookies verwendet werden, haben Sie auch hier ein Widerrufsrecht. Das funktioniert entweder über unser Cookie-Management-Tool oder über andere Opt-Out-Funktionen. Zum Bespiel können Sie auch die Datenerfassung durch Cookies verhindern, indem Sie in Ihrem Browser die Cookies verwalten, deaktivieren oder löschen. Wir empfehlen Ihnen auch unsere allgemeine Datenschutzerklärung über Cookies. Um zu erfahren, welche Daten von Ihnen genau gespeichert und verarbeitet werden, sollten Sie die Datenschutzerklärungen der jeweiligen Cloud-Anbieter durchlesen.</p>
+                  <p>Sie haben auch jederzeit das Recht und die Möglichkeit Ihre Einwilligung zur Datenspeicherung in einer Cloud zu widerrufen. Falls Cookies verwendet werden, haben Sie auch hier ein Widerrufsrecht. Das funktioniert entweder über unser Cookie-Management-Tool oder über andere Opt-Out-Funktionen. Zum Beispiel können Sie auch die Datenerfassung durch Cookies verhindern, indem Sie in Ihrem Browser die Cookies verwalten, deaktivieren oder löschen. Wir empfehlen Ihnen auch unsere allgemeine Datenschutzerklärung über Cookies. Um zu erfahren, welche Daten von Ihnen genau gespeichert und verarbeitet werden, sollten Sie die Datenschutzerklärungen der jeweiligen Cloud-Anbieter durchlesen.</p>
                   <h3 className={styles.adsimple}>Rechtsgrundlage</h3>
                   <p>Wir setzen Cloud-Dienste hauptsächlich auf Grundlage unserer berechtigten Interessen (Art. 6 Abs. 1 lit. f DSGVO) an einem guten Sicherheits- und Speichersystem ein.</p>
                   <p>Bestimmte Verarbeitungen, insbesondere der Einsatz von Cookies sowie die Nutzung von Speicherfunktionen bedürfen Ihrer Einwilligung. Wenn Sie eingewilligt haben, dass Daten von Ihnen bei Cloud-Diensten verarbeitet und gespeichert werden können, gilt diese Einwilligung als Rechtsgrundlage der Datenverarbeitung (Art. 6 Abs. 1 lit. a DSGVO). Die meisten von uns verwendeten Dienste setzen Cookies in Ihrem Browser, um Daten zu speichern. Darum empfehlen wir Ihnen, unseren Datenschutztext über Cookies genau durchzulesen und die Datenschutzerklärung oder die Cookie-Richtlinien des jeweiligen Dienstanbieters anzusehen.</p>
                   <p>Informationen zu speziellen Tools erfahren Sie &#8211; sofern vorhanden &#8211; in den folgenden Abschnitten.</p>
-                  {/* TODO: Vercel und Supabase markieren */}
+                  <h2 id="vercel-datenschutz" className={styles.adsimple}>Vercel Datenschutzerklärung</h2>
+                  <h3 className={styles.adsimple}>Was ist Vercel?</h3>
+                  <p>Für die Bereitstellung unserer Website setzen wir auf die Cloud-Deployment-Firma Vercel Inc., 340 S Lemon Ave #4133 Walnut, CA 91789. Alle Aufrufe unserer Website werden somit von den Servern von Vercel Inc. verarbeitet.</p>
+                  <h3 className={styles.adsimple}>Rechtsgrundlage</h3>
+                  <p>Genauere Informationen zu der Datenschutzerklärung von Vercel Inc. finden Sie hier: <a className={styles.adsimple} href="https://vercel.com/legal/privacy-policy">https://vercel.com/legal/privacy-policy</a>.</p>
+                  <h2 id="supabase-datenschutz" className={styles.adsimple}>Supabase Datenschutzerklärung</h2>
+                  <h3 className={styles.adsimple}>Was ist Supabase?</h3>
+                  <p>Als Datenbankprovider setzen wir auf Supabase Inc., 3500 S. DuPont Highway, Kent 19901, Dover, Delaware, USA.</p>
+                  <h3 className={styles.adsimple}>Rechtsgrundlage</h3>
+                  <p>Genauere Informationen zu der Datenschutzerklärung von Supabase Inc. finden Sie hier: <a className={styles.adsimple} href="https://supabase.com/privacy">https://supabase.com/privacy</a>.</p>
                   <h2 id="audio-video-einleitung" className={styles.adsimple}>Audio &amp; Video Einleitung</h2>
                   <table style={{ border: "1" }}>
                     <tbody>

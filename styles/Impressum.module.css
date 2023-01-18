@@ -5,3 +5,13 @@
 .content p {
   color: #AAAAAA;
 }
+
+.list {
+  list-style: none;
+  padding: 0;
+}
+
+.list * {
+  text-decoration: none;
+  margin: 0;
+}

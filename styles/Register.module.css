@@ -88,6 +88,29 @@
   border-color: var(--color-bg-secondary);
 }
 
+.checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.checkbox * {
+  width: auto;
+  margin: 6px;
+}
+
+.terms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: 31px;
+}
+
+.terms * {
+  text-decoration: none;
+  margin: 0;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

@@ -26,5 +26,6 @@
   "checkPasswordRequirements": "Passwort entspricht nicht den Anforderungen",
   "noValidEmail": "keine gültige E-Mail-Adresse",
   "ActivationCodeTitle": "Aktivierungscode",
-  "ActivationCodeInfoMessage": "Der Aktivierungscode ist nur erforderlich, wenn Sie von einem Administrator einen Benutzernamen und Aktivierungscode erhalten haben, um Ihren Account zu erstellen.\n\nWenn Sie keinen Aktivierungscode haben, wählen Sie einen Benutzernamen, der noch nicht vergeben ist, und lassen Sie das Aktivierungscode-Feld leer."
+  "ActivationCodeInfoMessage": "Der Aktivierungscode ist nur erforderlich, wenn Sie von einem Administrator einen Benutzernamen und Aktivierungscode erhalten haben, um Ihren Account zu erstellen.\n\nWenn Sie keinen Aktivierungscode haben, wählen Sie einen Benutzernamen, der noch nicht vergeben ist, und lassen Sie das Aktivierungscode-Feld leer.",
+  "AcceptTermsText": "Ich habe die Nutzungsbedingungen und Datenschutzerklärung gelesen und akzeptiert."
 }

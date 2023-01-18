@@ -26,5 +26,6 @@
   "checkPasswordRequirements": "check password requirements",
   "noValidEmail": "no valid e-mail address",
   "ActivationCodeTitle": "Activation Code",
-  "ActivationCodeInfoMessage": "The activation code is only required if you were given a username and activation code by an administrator to create your account.\n\nIf you do not have an activation code, choose a username that is not already taken and leave the activation code field empty."
+  "ActivationCodeInfoMessage": "The activation code is only required if you were given a username and activation code by an administrator to create your account.\n\nIf you do not have an activation code, choose a username that is not already taken and leave the activation code field empty.",
+  "AcceptTermsText": "I have read and accept the terms of service and privacy policy."
 }

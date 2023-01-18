@@ -9,6 +9,7 @@ import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
 import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLanguageProvider'
 import { PageLoadingScreen } from '../components/PageLoadingScreen/PageLoadingScreen'
 import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
+import Link from 'next/link'
 
 export interface ImpressumState {
 }
@@ -98,17 +99,33 @@ class Impressum extends Component<ImpressumProps, ImpressumState> {
                     Kastellstra&#223;e 69/1 <br />
                     88316 Isny im Allg&auml;u <br />
                     <br />
-                    {this.props.t('impressum:Phone')}: &#43;49 1590 8481493 <br />
+                    {this.props.t('impressum:Phone')}: &#43;49 163 7292914 <br />
                     E-Mail: contact&#64;henryschuler.de <br />
                   </p>
                 </div>
                 <div className={styles.content}>
-                  <h2>Legal information</h2>
-                  <h3>Used Icons</h3>
-                  <p style={{ display: "flex", flexDirection: "column" }}>
-                    <a href="https://www.flaticon.com/free-icons/badminton" title="badminton icons">Badminton icons created by rismaars - Flaticon</a>
-                    <a href="https://www.flaticon.com/free-icons/ball" title="ball icons">Ball icons created by Freepik - Flaticon</a>
-                  </p>
+                  <h2>{this.props.t('impressum:LegalInformation')}</h2>
+                    <ul className={styles.list}>
+                      <li>
+                        <Link href={"/terms"}>
+                          {this.props.t('common:Terms')}
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href={"/dsgvo"}>
+                          {this.props.t('common:DSGVO')}
+                        </Link>
+                      </li>
+                    </ul>
+                  <h3>{this.props.t('impressum:UsedIcons')}</h3>
+                    <ul className={styles.list}>
+                      <li>
+                        <a href="https://www.flaticon.com/free-icons/badminton" title="badminton icons">Badminton icons created by rismaars - Flaticon</a>
+                      </li>
+                      <li>
+                        <a href="https://www.flaticon.com/free-icons/ball" title="ball icons">Ball icons created by Freepik - Flaticon</a>
+                      </li>
+                    </ul>
                 </div>
               </main>
 
