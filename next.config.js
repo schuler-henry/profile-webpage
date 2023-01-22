@@ -13,7 +13,7 @@ const nextConfig = {
     return config
   },
   images: {
-    domains: ['web-notes.me', 'dev-chat.me', 'henry-schuler.vercel.app', 'henryschuler.de', 'avatars.githubusercontent.com', 'www.adsimple.at'],
+    domains: ['web-notes.me', 'dev-chat.me', 'henry-schuler.vercel.app', 'henryschuler.de', 'avatars.githubusercontent.com', 'www.adsimple.at', 'github.com'],
   },
   optimizeFonts: false,
 }
