@@ -41,6 +41,7 @@ body[data-theme="light"] {
   --color-text-warning: #ff0000;
   --color-text-approved: #22ff22;
   --color-bg-primary: #FFFFFF;
+  --color-bg-second: #F2F2F2;
   --color-bg-secondary: #00C0FF;
   --color-bg-hover: #EAEAEA;
   --color-bg-selected: #DADADA;
