@@ -280,23 +280,23 @@ class Home extends Component<HomeProps, HomeState> {
                           {({ inView, ref, entry }) => (
                             <div className={`${styles.text} ${styles.hidden} ${inView && styles.show}`} ref={ref}>
                               <h2>Wikipedia</h2>
-                              <p>Informationen zum ausgewählten Standort</p>
-                              <h2>Aktuelle Position</h2>
-                              <p>Aktueller Standort mit Hilfe von <a href="https://www.openstreetmap.de">OpenStreetMap</a></p>
-                              <h2>Navigation</h2>
-                              <p>Routen anzeigen und in <a href="https://www.google.com/maps">Google Maps</a> öffnen</p>
-                              <h2>App + Offline Nutzung</h2>
-                              <p>Kann auf jedem Endgerät installiert werden</p>
-                              <p>Sieh deine letzten Inhalte auch offline</p>
-                              <h2>Eigenes Hosting</h2>
-                              <p>Hoste die Anwendung dank <b>open source</b> auf deinem eigenem Server mit Docker</p>
+                              <p>{this.props.t('home:KWYGWikipediaText1')}</p>
+                              <h2>{this.props.t('home:KWYGCurrentPosition')}</h2>
+                              <p>{this.props.t('home:KWYGCurrentPositionText1')}<a href="https://www.openstreetmap.de">OpenStreetMap</a></p>
+                              <h2>{this.props.t('home:KWYGNavigation')}</h2>
+                              <p>{this.props.t('home:KWYGNavigationText1')}<a href="https://www.google.com/maps">Google Maps</a>{this.props.t('home:KWYGNavigationText1_1')}</p>
+                              <h2>{this.props.t('home:KWYGAppOffline')}</h2>
+                              <p>{this.props.t('home:KWYGAppOfflineText1')}</p>
+                              <p>{this.props.t('home:KWYGAppOfflineText2')}</p>
+                              <h2>{this.props.t('home:KWYGOwnHosting')}</h2>
+                              <p>{this.props.t('home:KWYGOwnHostingText1')}<b>{this.props.t('home:KWYGOwnHostingText1_1')}</b>{this.props.t('home:KWYGOwnHostingText1_2')}</p>
                             </div>
                           )}
                         </InView>
                         <InView>
                           {({ inView, ref, entry }) => (
                             <div ref={ref} className={`${styles.phoneWrapper} ${styles.hidden} ${inView && styles.show}`}>
-                              <h2>Demonstration</h2>
+                              <h2>{this.props.t('home:KWYGDemonstration')}</h2>
                               <div className={`${styles.phone}`} id="phone">
                                 <div className={styles.ios} id="ios" onLoad={this.updatePhoneSize}>
                                   <div className={styles.border}>
@@ -317,7 +317,7 @@ class Home extends Component<HomeProps, HomeState> {
                             ref={ref}
                           >
                             <h2 className={`${styles.hidden} ${inView && styles.show}`}>
-                              Entwickler
+                              {this.props.t('home:Developer')}
                             </h2>
                             <div className={styles.developerShields}>
                               {
@@ -387,22 +387,30 @@ class Home extends Component<HomeProps, HomeState> {
                         <InView>
                           {({ inView, ref, entry }) => (
                             <div className={`${styles.text} ${styles.hidden} ${inView && styles.show}`} ref={ref}>
-                              <h2>3D Flugzeugsteuerung</h2>
-                              <p>Steuere dein Flugzeug durch die Ringe und erhalte Punkte. Entscheide ob du mit klassischer oder invertierter Steuerung spielst.</p>
-                              <h2>Als App installierbar</h2>
-                              <p>Spiele immer und überall auf deinem Smartphone oder Tablet. Installiere das Spiel um auch offline deinen Highscore zu knacken.</p>
+                              <h2>{this.props.t('home:FS3DControls')}</h2>
+                              <p>{this.props.t('home:FS3DControlsText1')}</p>
+                              <p>{this.props.t('home:FS3DControlsText2')}</p>
+                              <h2>{this.props.t('home:FSInstallable')}</h2>
+                              <p>{this.props.t('home:FSInstallableText1')}</p>
+                              <p>{this.props.t('home:FSInstallableText2')}</p>
                             </div>
                           )}
                         </InView>
                         <InView>
                           {({ inView, ref, entry }) => (
                             <div className={`${styles.imageWrapper} ${styles.hidden} ${inView && styles.show}`} ref={ref}>
-                              <Image 
-                                alt="FlightSimulatorDemo"
-                                src={FlightSimulatorDemo}
-                                layout="fill"
-                                objectFit="contain"
-                              />
+                              <a 
+                                href="https://flight-sim.brandenburger.dev"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Image 
+                                  alt="FlightSimulatorDemo"
+                                  src={FlightSimulatorDemo}
+                                  layout="fill"
+                                  objectFit="contain"
+                                />
+                              </a>
                             </div>
                           )}
                         </InView>
@@ -414,7 +422,7 @@ class Home extends Component<HomeProps, HomeState> {
                             ref={ref}
                           >
                             <h2 className={`${styles.hidden} ${inView && styles.show}`}>
-                              Entwickler
+                              {this.props.t('home:Developer')}
                             </h2>
                             <div className={styles.developerShields}>
                               {

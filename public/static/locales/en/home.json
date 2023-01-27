@@ -1,4 +1,25 @@
 {
   "Welcome": "Welcome",
-  "slogan": "Studies Coding Music"
+  "slogan": "Studies Coding Music",
+  "Developer": "Developer",
+  "KWYGWikipediaText1": "Information on the selected destination",
+  "KWYGCurrentPosition": "Current Position",
+  "KWYGCurrentPositionText1": "View your current position thanks to ",
+  "KWYGNavigation": "Navigation",
+  "KWYGNavigationText1": "Open your route in ",
+  "KWYGNavigationText1_1": "",
+  "KWYGAppOffline": "App + Offline Usage",
+  "KWYGAppOfflineText1": "Install the app on your mobile device",
+  "KWYGAppOfflineText2": "View your last locations offline",
+  "KWYGOwnHosting": "Personal Hosting",
+  "KWYGOwnHostingText1": "Host the app on your own server with Docker thanks to ",
+  "KWYGOwnHostingText1_1": "open source", 
+  "KWYGOwnHostingText1_2": "",
+  "KWYGDemonstration": "Demonstration",
+  "FS3DControls": "3D Flight Controls",
+  "FS3DControlsText1": "Navigate your plane through the rings and collect as many points as possible",
+  "FS3DControlsText2": "Switch easily between classical and inverted controls",
+  "FSInstallable": "Installable App",
+  "FSInstallableText1": "Play anytime, anywhere on your mobile device",
+  "FSInstallableText2": "Install the game on your device to beat your highscore offline"
 }
