@@ -6,11 +6,12 @@ import { FrontEndController } from '../controller/frontEndController'
 import InstagramIcon from '../public/logos/Instagram.png'
 import YoutubeIcon from '../public/logos/Youtube.png'
 import GitHubIcon from '../public/logos/GitHub.png'
+import FlightSimIcon from '../public/logos/FlightSim.png'
 import { PWPLanguageContext } from './PWPLanguageProvider/PWPLanguageProvider'
 
 export interface FooterState {
-  showWebNotes: boolean;
-  showDevChat: boolean;
+  showKWYG: boolean;
+  showFlightSim: boolean;
 }
 
 export interface FooterProps {
@@ -25,8 +26,8 @@ export class Footer extends Component<FooterProps, FooterState> {
   constructor(props: FooterProps) {
     super(props);
     this.state = {
-      showWebNotes: true,
-      showDevChat: true,
+      showKWYG: true,
+      showFlightSim: true,
     }
   }
 
@@ -111,41 +112,41 @@ export class Footer extends Component<FooterProps, FooterState> {
                 </h4>
                 <div className={styles.projects}>
                   {
-                    this.state.showWebNotes &&
+                    this.state.showKWYG &&
                       <Link
-                        href={'https://web-notes.me'}
+                        href={'https://know-where-you-go.de/'}
                         passHref>
                         <div className={styles.icon}>
                           <Image
-                            title='WebNotes'
-                            src={'https://web-notes.me/Logo.png'}
+                            title='Know Where You Go'
+                            src={'https://know-where-you-go.de/icons/512x512.png'}
                             objectFit='contain'
                             height={40}
                             width={40}
-                            alt='WebNotes Icon'
-                            onError={() => this.setState({ showWebNotes: false })}
+                            alt='KWYG Icon'
+                            onError={() => this.setState({ showKWYG: false })}
                           />
                         </div>
                       </Link>
                   }
-                  {/* {
-                    this.state.showDevChat &&
+                  {
+                    this.state.showFlightSim &&
                       <Link
-                        href={'https://dev-chat.me'}
+                        href={'https://flight-sim.brandenburger.dev/'}
                         passHref>
                         <div className={styles.icon}>
                           <Image
-                            title='DEV-CHAT'
-                            src={'https://dev-chat.me/logo.png'}
+                            title='Flight School'
+                            src={FlightSimIcon}
                             objectFit='contain'
                             height={40}
                             width={40}
-                            alt='DEV-CHAT Icon'
-                            onError={() => {this.setState({ showDevChat: false })}}
+                            alt='Flight School Icon'
+                            onError={() => {this.setState({ showFlightSim: false })}}
                           />
                         </div>
                       </Link>
-                  } */}
+                  }
                 </div>
               </div>
               <div className={styles.footerElement}>
