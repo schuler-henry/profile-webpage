@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import { Component } from 'react'
-import { FrontEndController } from '../../controller/frontEndController';
 import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
 import styles from '../../styles/Studies.module.css'
@@ -92,18 +91,6 @@ class Studies extends Component<StudiesProps, StudiesState> {
                     <h1>
                       {this.props.t('common:Studies')}
                     </h1>
-                    <Link
-                      href={'https://www.ravensburg.dhbw.de/startseite'}
-                      passHref>
-                      <div className={styles.dhbw}>
-                        <Image
-                          title='DHBW Logo'
-                          src={DHBWLogo}
-                          objectFit='contain'
-                          alt='DHBW Logo'
-                        />
-                      </div>
-                    </Link>
                   </span>
                   <span className={styles.element}>
                     <div className={styles.icon}>

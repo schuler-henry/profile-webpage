@@ -56,8 +56,6 @@ class Home extends Component<HomeProps, HomeState> {
   componentDidMount() {
     this.typeWriter(this.props.t('home:slogan'));
     window.addEventListener('resize', this.updatePhoneSize)
-    const hiddenElements = document.querySelectorAll(styles.hidden);
-    console.log(hiddenElements)
   }
 
   componentWillUnmount() {
