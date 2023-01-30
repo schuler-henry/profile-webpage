@@ -8,6 +8,7 @@ import { randomStringGenerator } from '../shared/randomStringGenerator';
 import { SMTPClient } from 'emailjs';
 import { isEmailValid } from '../pages/api/users/requirements';
 import { SportEventVisibility } from '../enums/sportEventVisibility';
+import { AccessLevel } from '../enums/accessLevel';
 
 /**
  * Backend Controller of PersonalWebPage
@@ -221,35 +222,65 @@ export class BackEndController {
     return "";
   }
 
+  generateActivationCode(): string {
+    return randomStringGenerator(10);
+  }
+
   /**
    * API function to register a user
    */
-  async handleRegisterUser(username: string, password: string, email: string): Promise<boolean> {
+  async handleRegisterUser(username: string, password: string, email: string, activationCode: string): Promise<boolean> {
+    let userExists = false;
+    let user = undefined;
     email = email?.toLowerCase();
-    if (!await this.handleUserAlreadyExists(username)) {
-      const vUsernameValid = this.isUsernameValid(username);
-      const vPasswordValid = this.isPasswordValid(password);
-      const vEmailValid = isEmailValid(email);
-      if (vUsernameValid && vPasswordValid && vEmailValid) {
-        const hashedPassword = await this.hashPassword(password);
-        const activationCode = randomStringGenerator(10);
 
-        if (this.databaseModel.evaluateSuccess(await this.databaseModel.addUser(username, hashedPassword, email, activationCode))) {
-          // send email with activation code
-          const emailClient = new SMTPClient({
-            user: process.env.MAIL,
-            password: process.env.MAIL_PASSWORD,
-            host: process.env.MAIL_HOST,
-            ssl: true
-          })
-  
-          try {
-            await emailClient.sendAsync(
-              {
-                from: process.env.NOREPLY,
-                to: email,
-                subject: "Signup | Verification",
-                text: `Thanks for signing up!
+    if (await this.handleUserAlreadyExists(username)) {
+      user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({username: username}))[0];
+      if (!user || user.password !== null || user.email !== null || user.unconfirmedEmail !== null) {
+        // user is already registered
+        return false;
+      }
+      if (user.activationCode !== activationCode) {
+        // wrong activation code
+        return false;
+      }
+      userExists = true;
+    }
+
+    const vUsernameValid = this.isUsernameValid(username);
+    const vPasswordValid = this.isPasswordValid(password);
+    const vEmailValid = isEmailValid(email);
+    if (vUsernameValid && vPasswordValid && vEmailValid) {
+      const hashedPassword = await this.hashPassword(password);
+      const newActivationCode = this.generateActivationCode();
+
+      let userRegistered: boolean = false
+      
+      if (userExists) {
+        const updatedUser = {...user, password: hashedPassword, unconfirmedEmail: email, activationCode: newActivationCode}
+        userRegistered = this.databaseModel.evaluateSuccess(await this.databaseModel.updateUser(updatedUser))
+      } else {
+        userRegistered = this.databaseModel.evaluateSuccess(await this.databaseModel.addUser({ username: username, password: hashedPassword, unconfirmedEmail: email, activationCode: newActivationCode }))
+      }
+
+      console.log(userExists, userRegistered)
+
+      if (userRegistered) {
+        // send email with activation code
+        const emailClient = new SMTPClient({
+          user: process.env.MAIL,
+          password: process.env.MAIL_PASSWORD,
+          host: process.env.MAIL_HOST,
+          ssl: true
+        })
+
+        try {
+          await emailClient.sendAsync(
+            {
+              from: process.env.NOREPLY,
+              to: email,
+              subject: "Signup | Verification",
+              text: `Thanks for signing up!
 
 Your account has been created, you can login with your credentials after you have activated your account by pressing the url below.
 
@@ -258,7 +289,7 @@ username: ${username}
 ---------------------------------------------
               
 Please click this link to activate your account:
-https://henryschuler.de/activate?username=${username}&activationCode=${activationCode}
+https://henryschuler.de/activate?username=${username}&activationCode=${newActivationCode}
 
 
 ---------------------------------------------
@@ -266,7 +297,7 @@ https://henryschuler.de/activate?username=${username}&activationCode=${activatio
 If the link does not work, visit https://henryschuler.de/activate and enter the following information:
 
 username: ${username}
-code: ${activationCode}
+code: ${newActivationCode}
 
 
 Thanks,
@@ -276,15 +307,14 @@ Henry Schuler`,
 //   { data: '<html>i <i>hope</i> this works!</html>', alternative: true },
 //   { path: 'path/to/file.zip', type: 'application/zip', name: 'renamed.zip' },
 // ],
-              }
-            )
-          } catch (e) {
-            // TODO: Handle failed email sending, i.e. delete user from DB
-            // console.log("Email send failed !!!!")
-            // console.log(e)
-          }
-          return true
+            }
+          )
+        } catch (e) {
+          // TODO: Handle failed email sending, i.e. delete user from DB
+          // console.log("Email send failed !!!!")
+          // console.log(e)
         }
+        return true
       }
     }
     return false;
@@ -335,10 +365,10 @@ Henry Schuler`,
       user.username = newUser.username;
     }
     if (user.firstName !== newUser.firstName) {
-      user.firstName = newUser.firstName.replace(/ /g, "");
+      user.firstName = newUser.firstName.replace(/  /g, " ").trim();
     }
     if (user.lastName !== newUser.lastName) {
-      user.lastName = newUser.lastName.replace(/  /g, " ").trim();
+      user.lastName = newUser.lastName.replace(/ /g, "");
     }
 
     return this.databaseModel.evaluateSuccess(await this.databaseModel.updateUser(user));
@@ -574,6 +604,135 @@ Henry Schuler`,
       })
     }
     return [];
+  }
+
+  async handleSearchUsers(userToken: string, searchString: string): Promise<IUser[]> {
+    if (!this.isTokenValid(userToken)) {
+      return [];
+    }
+    
+    const allUsers = await this.handleGetAllUsers(userToken);
+    let selectedUsers: IUser[] = [];
+
+    // check content of searchString
+    searchString = searchString.trim().toLowerCase();
+    const searchItems = searchString.split(" ");
+
+    if (searchItems.length === 2) {
+      // check if searchItems are firstName and lastName
+      const matchingUsers = allUsers.filter((user) => {
+        return user.firstName.toLowerCase() === searchItems[0] && user.lastName.toLowerCase() === searchItems[1] ||
+          user.firstName.toLowerCase() === searchItems[1] && user.lastName.toLowerCase() === searchItems[0]
+      })
+      const matchingStartUsers = allUsers.filter((user) => {
+        return user.firstName.toLowerCase().startsWith(searchItems[0]) && user.lastName.toLowerCase().startsWith(searchItems[1]) ||
+          user.firstName.toLowerCase().startsWith(searchItems[1]) && user.lastName.toLowerCase().startsWith(searchItems[0])
+      })
+      // add matchingUsers to selectedUsers if not already in selectedUsers
+      for (const matchingUser of matchingUsers) {
+        if (!selectedUsers.find((user) => user.id === matchingUser.id)) {
+          selectedUsers.push(matchingUser);
+        }
+      }
+      // add matchingStartUsers to selectedUsers if not already in selectedUsers
+      for (const matchingStartUser of matchingStartUsers) {
+        if (!selectedUsers.find((user) => user.id === matchingStartUser.id)) {
+          selectedUsers.push(matchingStartUser);
+        }
+      }
+    }
+
+    // exact match
+    for (const searchItem of searchItems) {
+      // get all items matching the searchItem in the username, firstName or lastName exactly
+      const matchingUsers = allUsers.filter((user) => {
+        return user.username.toLowerCase() === searchItem || user.firstName.toLowerCase() === searchItem || user.lastName.toLowerCase() === searchItem
+      })
+      // add matchingUsers to selectedUsers if not already in selectedUsers
+      for (const matchingUser of matchingUsers) {
+        if (!selectedUsers.find((user) => user.id === matchingUser.id)) {
+          selectedUsers.push(matchingUser);
+        }
+      }
+    }
+
+    // starts with
+    for (const searchItem of searchItems) {
+      // get all items starting with the searchItem in the username, firstName or lastName
+      const matchingUsers = allUsers.filter((user) => {
+        return user.username.toLowerCase().startsWith(searchItem) || user.firstName.toLowerCase().startsWith(searchItem) || user.lastName.toLowerCase().startsWith(searchItem)
+      })
+      // add matchingUsers to selectedUsers if not already in selectedUsers
+      for (const matchingUser of matchingUsers) {
+        if (!selectedUsers.find((user) => user.id === matchingUser.id)) {
+          selectedUsers.push(matchingUser);
+        }
+      }
+    }
+
+    // includes
+    for (const searchItem of searchItems) {
+      // get all items matching the searchItem in the username, firstName or lastName
+      const matchingUsers = allUsers.filter((user) => {
+        return user.username.toLowerCase().includes(searchItem) || user.firstName.toLowerCase().includes(searchItem) || user.lastName.toLowerCase().includes(searchItem)
+      })
+      // add matchingUsers to selectedUsers if not already in selectedUsers
+      for (const matchingUser of matchingUsers) {
+        if (!selectedUsers.find((user) => user.id === matchingUser.id)) {
+          selectedUsers.push(matchingUser);
+        }
+      }
+    }
+
+    return selectedUsers;
+  }
+
+  async handleGetActivationCode(userToken: string, userID: number): Promise<string> {
+    if (!this.isTokenValid(userToken)) {
+      return "empty";
+    }
+
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({ userID: this.getIdFromToken(userToken) }))[0];
+
+    if (!user || user.accessLevel < AccessLevel.ADMIN) {
+      return "empty";
+    }
+
+    const targetUser = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({ userID: userID }))[0];
+
+    if (!targetUser || targetUser.password !== null || targetUser.email !== null || targetUser.unconfirmedEmail !== null) {
+      return "empty";
+    }
+
+    // targetUser was found + targetUser was created by an admin
+    return targetUser.activationCode;
+  }
+
+  async handleCreateUserAsAdmin(userToken: string, username: string, firstName: string, lastName: string): Promise<string> {
+    if (!this.isTokenValid(userToken)) {
+      return "";
+    }
+
+    const user = this.databaseModel.getUserFromResponse(await this.databaseModel.selectUserTable({ userID: this.getIdFromToken(userToken) }))[0];
+
+    if (!user || user.accessLevel < AccessLevel.ADMIN) {
+      return "";
+    }
+
+    if (await this.handleUserAlreadyExists(username)) {
+      return "";
+    }
+
+    // user does not already exist -> create user
+    const activationCode = this.generateActivationCode();
+    const newUser = this.databaseModel.getUserFromResponse(await this.databaseModel.addUser({ username: username, activationCode: activationCode, firstName: firstName.replace(/  /g, " ").trim(), lastName: lastName.replace(/ /g, "") }))[0];
+
+    // check if user was created
+    if (!newUser) {
+      return "";
+    }
+
+    return newUser.activationCode;
   }
 
   //#endregion

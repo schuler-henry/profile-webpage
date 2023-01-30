@@ -12,12 +12,16 @@ import { PWPLanguageProvider } from '../components/PWPLanguageProvider/PWPLangua
 import { Button } from '../components/Button/Button'
 import { ConfirmPopUp } from '../components/ConfirmPopUp/ConfirmPopUp'
 import { PWPAuthContext } from '../components/PWPAuthProvider/PWPAuthProvider'
+import { ClickableIcon } from '../components/ClickableIcon/ClickableIcon'
+import Link from 'next/link'
 
 export interface RegisterState {
   email: string;
   username: string;
+  activationCode: string;
   password: string;
   confirmPassword: string;
+  acceptedTerms: boolean;
   emailReqMessage: string;
   usernameReqMessage: string;
   passwordReqMessage: string;
@@ -25,6 +29,7 @@ export interface RegisterState {
   doesUserExist: boolean;
   feedbackMessage: string;
   showRequirements: boolean;
+  showActivationCodeInfo: boolean;
   readOnlyInput: boolean;
   registerSuccessful: boolean;
 }
@@ -51,8 +56,10 @@ class Register extends Component<RegisterProps, RegisterState> {
     this.state = {
       email: "",
       username: "",
+      activationCode: "",
       password: "",
       confirmPassword: "",
+      acceptedTerms: false,
       emailReqMessage: "",
       usernameReqMessage: "",
       passwordReqMessage: "",
@@ -60,6 +67,7 @@ class Register extends Component<RegisterProps, RegisterState> {
       doesUserExist: false,
       feedbackMessage: "",
       showRequirements: false,
+      showActivationCodeInfo: false,
       readOnlyInput: false,
       registerSuccessful: false,
     }
@@ -71,6 +79,19 @@ class Register extends Component<RegisterProps, RegisterState> {
   }
 
   componentWillUnmount() {
+  }
+
+  private allowRegister(): boolean {
+    return this.state.password === this.state.confirmPassword 
+        && this.state.emailReqMessage === "" 
+        && this.state.usernameReqMessage === "" 
+        && this.state.passwordReqMessage === "" 
+        && this.state.feedbackMessage === ""
+        && this.state.email !== "" 
+        && this.state.username !== "" 
+        && this.state.password !== ""
+        && !(this.state.doesUserExist && this.state.activationCode === "")
+        && this.state.acceptedTerms;
   }
 
   /**
@@ -99,21 +120,23 @@ class Register extends Component<RegisterProps, RegisterState> {
     }
 
     /**
-     * This method registers the user with the currently entered credentials. If the registration was successfull, it routes to root, else all fields are cleared.
+     * This method registers the user with the currently entered credentials. If the registration was successful, it routes to root, else all fields are cleared.
      */
     const registerVerification = async () => {
-      if (this.state.password === this.state.confirmPassword && this.state.emailReqMessage === "" && this.state.usernameReqMessage === "" && this.state.passwordReqMessage === "" && this.state.email !== "" && this.state.username !== "" && this.state.password !== "") {
+      if (this.allowRegister()) {
         this.setState({ readOnlyInput: true });
-        if (await FrontEndController.registerUser(this.state.username, this.state.password, this.state.email)) {
+
+        if (await FrontEndController.registerUser(this.state.username, this.state.password, this.state.email, this.state.activationCode)) {
           this.setState({ registerSuccessful: true });
         } else {
-          this.setState({ username: "", password: "", confirmPassword: "", email: "" });
+          this.setState({ username: "", password: "", confirmPassword: "", email: "", activationCode: "" });
           document.getElementById("emailInput")?.focus();
-          this.setState({ feedbackMessage: "Registration failed, try again later!" })
+          this.setState({ feedbackMessage: this.props.t("register:RegisterFailedMessage") })
         }
+
         this.setState({ readOnlyInput: false });
       } else {
-        this.setState({ feedbackMessage: "All fields need to be filled!" })
+        this.setState({ feedbackMessage: this.props.t("register:AllFieldsRequired") })
       }
     }
 
@@ -121,10 +144,10 @@ class Register extends Component<RegisterProps, RegisterState> {
      * This method checks whether the entered username meets the needed requirements and sets the usernameReqMessage state accordingly.
      */
     const updateUsernameValid = async () => {
-      if (await FrontEndController.isUsernameValid(this.state.username)) {
+      if (this.state.username === "" || await FrontEndController.isUsernameValid(this.state.username)) {
         this.setState({ usernameReqMessage: "" })
       } else {
-        this.setState({ usernameReqMessage: "check username requirements" })
+        this.setState({ usernameReqMessage: this.props.t("register:checkUsernameRequirements") })
       }
     }
 
@@ -132,10 +155,10 @@ class Register extends Component<RegisterProps, RegisterState> {
      * This method checks whether the entered password meets the needed requirements and sets the passwordReqMessage state accordingly.
      */
     const updatePasswordValid = async () => {
-      if (await FrontEndController.isPasswordValid(this.state.password)) {
+      if (this.state.password === "" || await FrontEndController.isPasswordValid(this.state.password)) {
         this.setState({ passwordReqMessage: "" })
       } else {
-        this.setState({ passwordReqMessage: "check password requirements" })
+        this.setState({ passwordReqMessage: this.props.t("register:checkPasswordRequirements") })
       }
     }
 
@@ -144,11 +167,11 @@ class Register extends Component<RegisterProps, RegisterState> {
      */
     const updateFeedbackMessage = async () => {
       if (this.state.doesEmailExist) {
-        this.setState({ feedbackMessage: "E-Mail already exists." })
-      } else if (this.state.doesUserExist) {
-        this.setState({ feedbackMessage: "Username not available." })
+        this.setState({ feedbackMessage: this.props.t("register:EMailAlreadyExists") })
+      } else if (this.state.doesUserExist && this.state.activationCode === "") {
+        this.setState({ feedbackMessage: this.props.t("register:UsernameAlreadyExists") })
       } else if (this.state.password !== this.state.confirmPassword) {
-        this.setState({ feedbackMessage: "Passwords do not match." })
+        this.setState({ feedbackMessage: this.props.t("register:PasswordsNotMatch") })
       } else if (this.state.email === "" || this.state.username === "" || this.state.password === "" || this.state.confirmPassword === "") {
         this.setState({ feedbackMessage: "" })
       } else {
@@ -186,7 +209,7 @@ class Register extends Component<RegisterProps, RegisterState> {
                     autoFocus
                     onChange={async (e) => {
                       this.setState({ email: e.target.value });
-                      this.setState({ emailReqMessage: await FrontEndController.isEmailValid(e.target.value) ? "" : "no valid email" });
+                      this.setState({ emailReqMessage: await FrontEndController.isEmailValid(e.target.value) ? "" : this.props.t("register:noValidEmail") });
                       this.state.emailReqMessage === "" ? this.setState({ doesEmailExist: await FrontEndController.doesEmailExist(e.target.value) }) : undefined;
                       updateFeedbackMessage();
                     }}
@@ -202,8 +225,9 @@ class Register extends Component<RegisterProps, RegisterState> {
                     placeholder={this.props.t('register:Username') + "..."}
                     id='userInput'
                     onChange={async (e) => {
-                      this.setState({ username: e.target.value });
-                      this.setState({ doesUserExist: await FrontEndController.doesUserExist(e.target.value) });
+                      await this.setState({ username: e.target.value });
+                      const userExists = await FrontEndController.doesUserExist(e.target.value);
+                      await this.setState({ activationCode: !userExists ? "" : this.state.activationCode, doesUserExist: userExists });
                       updateFeedbackMessage();
                       updateUsernameValid();
                     }}
@@ -212,6 +236,38 @@ class Register extends Component<RegisterProps, RegisterState> {
                     readOnly={this.state.readOnlyInput} />
                   <div hidden={this.state.usernameReqMessage === ""} className={styles.inputRequirements}>
                     {this.state.usernameReqMessage}
+                  </div>
+                  <div className={styles.activationCodeInput}>
+                    <input 
+                      type="text"
+                      placeholder={this.props.t('register:ActivationCode') + "..."} 
+                      value={this.state.activationCode}
+                      onChange={async (e) => {
+                        await this.setState({ activationCode: e.target.value.replaceAll(" ", "") })
+                        updateFeedbackMessage();
+                      }}
+                      onKeyDown={registerEnter}
+                      readOnly={this.state.readOnlyInput || !this.state.doesUserExist}
+                      disabled={this.state.readOnlyInput || !this.state.doesUserExist}
+                    />
+                    <div className={styles.infoIcon}>
+                      <ClickableIcon 
+                        iconName="Info"
+                        onClick={() => {
+                          this.setState({ showActivationCodeInfo: true });
+                        }}
+                      />
+                    </div>
+                    {
+                      this.state.showActivationCodeInfo && 
+                        <ConfirmPopUp
+                          title={this.props.t('register:ActivationCodeTitle')}
+                          message={this.props.t('register:ActivationCodeInfoMessage')}
+                          onConfirm={() => {
+                            this.setState({ showActivationCodeInfo: false });
+                          }}
+                        />
+                    }
                   </div>
                   <input
                     type="password"
@@ -240,9 +296,36 @@ class Register extends Component<RegisterProps, RegisterState> {
                   <div hidden={this.state.feedbackMessage === ""} className={styles.error} >
                     {this.state.feedbackMessage}
                   </div>
-                  <Button width="100%" onClick={async () => {
-                    registerVerification()
-                  }}>
+                  <div>
+                    <div className={styles.checkbox}>
+                      <input 
+                        type="checkbox" 
+                        name="terms" 
+                        checked={this.state.acceptedTerms} 
+                        onChange={(event) => {
+                          this.setState({ acceptedTerms: event.target.checked })
+                        }}
+                      />
+                      <label htmlFor="terms">
+                        {this.props.t('register:AcceptTermsText')}
+                      </label>
+                    </div>
+                    <div className={styles.terms}>
+                      <Link href={"/terms"}>
+                        {this.props.t('common:Terms')}
+                      </Link>
+                      <Link href={"/dsgvo"}>
+                        {this.props.t('common:DSGVO')}
+                      </Link>
+                    </div>
+                  </div>
+                  <Button 
+                    width="100%" 
+                    onClick={async () => {
+                      registerVerification()
+                    }}
+                    disabled={!this.allowRegister()}
+                  >
                     {this.props.t('common:Register')}
                   </Button>
                   <div className={styles.flexBox}>

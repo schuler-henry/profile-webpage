@@ -161,7 +161,7 @@ export class FrontEndController {
   /**
    * This method registers a user to the database
    */
-  static async registerUser(username: string, password: string, email: string): Promise<boolean> {
+  static async registerUser(username: string, password: string, email: string, activationCode: string): Promise<boolean> {
     const response = await fetch('/api/users/register', {
       method: 'POST',
       headers: {
@@ -171,6 +171,7 @@ export class FrontEndController {
         username: username,
         password: password,
         email: email,
+        activationCode: activationCode,
       })
     });
 
@@ -367,6 +368,56 @@ export class FrontEndController {
 
     const data = await response.json();
     return data.users;
+  }
+
+  static async findUsers(userToken: string, searchString: string): Promise<IUser[]> {
+    const response = await fetch('/api/users/find_users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        searchString: searchString
+      })
+    });
+
+    const data = await response.json();
+    return data.users;
+  }
+
+  static async getActivationCode(userToken: string, userID: number): Promise<string> {
+    const response = await fetch('/api/users/get_activation_code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        userID: userID
+      })
+    });
+
+    const data = await response.json();
+    return data.activationCode;
+  }
+
+  static async createUserAsAdmin(userToken: string, username: string, firstName: string, lastName: string): Promise<string> {
+    const response = await fetch('/api/users/create_user_as_admin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userToken: userToken,
+        username: username,
+        firstName: firstName,
+        lastName: lastName
+      })
+    });
+
+    const data = await response.json();
+    return data.activationCode;
   }
 
   //#endregion

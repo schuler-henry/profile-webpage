@@ -29,7 +29,7 @@ export class DatabaseModel {
    */
   evaluateSuccess(dbResponse: PostgrestResponse<any>): boolean {
     if (dbResponse.data === null || dbResponse.error !== null || dbResponse.data.length === 0) {
-      // console.log("ERROR", dbResponse.error)
+      console.log("ERROR", dbResponse.error)
       return false;
     }
     return true;
@@ -136,11 +136,32 @@ export class DatabaseModel {
   /**
    * This method adds a user to the db
    */
-  async addUser(username: string, hashedPassword: string, email: string, activationCode: string): Promise<PostgrestResponse<IUser>> {
+  async addUser(
+    user: {
+      username: string, 
+      password?: string, 
+      accessLevel?: AccessLevel, 
+      firstName?: string, 
+      lastName?: string, 
+      email?: string, 
+      unconfirmedEmail?: string, 
+      activationCode?: string, 
+      active?: boolean
+    }): Promise<PostgrestResponse<IUser>> {
     const addedUser = await DatabaseModel.CLIENT
       .from('User')
       .insert([
-        { username: username, password: hashedPassword, accessLevel: AccessLevel.USER, unconfirmedEmail: email?.toLowerCase(), activationCode: activationCode, active: false },
+        { 
+          username: user.username, 
+          password: user.password || null, 
+          accessLevel: user.accessLevel || AccessLevel.USER,
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          email: user.email?.toLowerCase() || null,
+          unconfirmedEmail: user.unconfirmedEmail?.toLowerCase() || null, 
+          activationCode: user.activationCode || null, 
+          active: user.active || false 
+        },
       ]);
 
     return addedUser;
