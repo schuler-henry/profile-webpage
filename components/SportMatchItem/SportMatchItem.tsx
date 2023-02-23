@@ -105,9 +105,9 @@ export class SportMatchItem extends Component<SportMatchItemProps, SportMatchIte
                           {
                             this.props.sportMatch.sportMatchSet.sort((a, b) => a.setNumber > b.setNumber ? 1 : -1).map((sportMatchSet, sportMatchSetIndex) => {
                               return (
-                                <td key={"sportMatchSet" + sportMatchSetIndex} style={ sportMatchSet.sportScore.reduce((a, b) => a.score > b.score ? a : b).teamNumber === sportTeam.teamNumber ? { color: "red" } : {}}>
+                                <td key={"sportMatchSet" + sportMatchSetIndex} style={ sportMatchSet.sportScore?.reduce((a, b) => a.score > b.score ? a : b).teamNumber === sportTeam.teamNumber ? { color: "red" } : {}}>
                                   {
-                                    sportMatchSet.sportScore.find((item) => item.teamNumber === sportTeam.teamNumber)?.score
+                                    sportMatchSet.sportScore?.find((item) => item.teamNumber === sportTeam.teamNumber)?.score
                                   }
                                 </td>
                               )

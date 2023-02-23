@@ -161,12 +161,12 @@ class SportEvent extends Component<SportEventProps, SportEventState> {
                     }
                     {
                       this.state.updating &&
-                        <div style={{ position: "absolute", top: "0", left: "0", bottom: "0", right: "0", zIndex: "10", backgroundColor: "rgba(0,0,0,0.6)" }}>
+                        <div style={{ position: "absolute", top: "0", left: "0", bottom: "0", right: "0", zIndex: "50000", backgroundColor: "rgba(0,0,0,0.6)" }}>
                           <PageLoadingScreen />
                         </div>
                     }
                     {
-                      // compare two date objects a and b : 
+                      // list existing sport events sorted by start time
                       this.state.sportEvents.sort((a, b) => a.startTime < b.startTime ? 1 : -1).map((sportEvent, index) => {
                         return(
                           <SportEventItem 

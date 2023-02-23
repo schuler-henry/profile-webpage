@@ -106,9 +106,9 @@ export class SportMatchItemEdit extends Component<SportMatchItemEditProps, Sport
                             {
                               this.state.sportMatch.sportMatchSet.sort((a, b) => a.setNumber > b.setNumber ? 1 : -1).map((sportMatchSet, sportMatchSetIndex) => {
                                 return (
-                                  <td key={"sportMatchSet" + sportMatchSetIndex} style={ sportMatchSet.sportScore.reduce((a, b) => a.score > b.score ? a : b).teamNumber === sportTeam.teamNumber ? { color: "red" } : {}}>
+                                  <td key={"sportMatchSet" + sportMatchSetIndex} style={ sportMatchSet.sportScore?.reduce((a, b) => a.score > b.score ? a : b).teamNumber === sportTeam.teamNumber ? { color: "red" } : {}}>
                                     {
-                                      sportMatchSet.sportScore.find((item) => item.teamNumber === sportTeam.teamNumber)?.score
+                                      sportMatchSet.sportScore?.find((item) => item.teamNumber === sportTeam.teamNumber)?.score
                                     }
                                   </td>
                                 )
@@ -214,7 +214,7 @@ export class SportMatchItemEdit extends Component<SportMatchItemEditProps, Sport
                                 {LanguageContext.t("sport:Set")} {sportMatchSetIndex + 1}
                               </td>
                               {
-                                sportMatchSet.sportScore.sort((a, b) => a.teamNumber > b.teamNumber ? 1 : -1).map((sportScore, sportScoreIndex) => {
+                                sportMatchSet.sportScore?.sort((a, b) => a.teamNumber > b.teamNumber ? 1 : -1).map((sportScore, sportScoreIndex) => {
                                   return (
                                     <td key={sportScoreIndex.toString()}>
                                       <input 

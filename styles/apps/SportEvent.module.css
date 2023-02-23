@@ -11,7 +11,7 @@
 
 .gridView {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: 100%;
   grid-gap: 20px;
   margin: 0 0 20px 0;
 }
@@ -31,4 +31,23 @@
 
 .addSportEventIcon {
   padding: 20px;
+}
+
+/* Small devices (portrait tablets and large phones, 350px and up) */
+@media only screen and (min-width: 350px) {
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+  .gridView {
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
 }
