@@ -5,9 +5,12 @@ import { Icon } from "@fluentui/react";
 import { PWPLanguageContext } from "../PWPLanguageProvider/PWPLanguageProvider";
 import { SportEventCardItem } from "./CardItem/SportEventCardItem";
 import { SportEventContent } from "./Content/SportEventContent";
+import { ClickableIcon } from "../ClickableIcon/ClickableIcon";
+import { SportEventEditMenu } from "./EditMenu/SportEventEditMenu";
 
 
 export interface SportEventItemState {
+  sportEvent: ISportEvent;
   expand: boolean;
   decrease: boolean;
   positionValues: DOMRect;
@@ -25,6 +28,7 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
   constructor(props) {
     super(props);
     this.state = {
+      sportEvent: this.props.sportEvent,
       expand: false,
       decrease: false,
       positionValues: undefined, // saves the current position of the card on the screen: undefined = card view, else = extended view
@@ -65,9 +69,9 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
   private minimize() {
     if (this.state.expand) {
       setTimeout(() => {
-        this.setState({ decrease: false, positionValues: undefined, cardHidden: false })
+        this.setState({ decrease: false, positionValues: undefined })
       }, 800)
-      this.setState({ expand: false, decrease: true })
+      this.setState({ expand: false, decrease: true, cardHidden: false })
     }
   }
 
@@ -94,24 +98,62 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
               >
                 {/* Card-View */}
                 <SportEventCardItem 
-                  sportEvent={this.props.sportEvent}
+                  sportEvent={this.state.sportEvent}
                   className={`${styles.sportEventCard} ${this.state.cardHidden && styles.hideCard}`}
                 />
-                  <div className={`${styles.hideCardBox} ${this.state.cardHidden && styles.showCardBox}`} hidden={this.state.positionValues === undefined}>
-                    <div 
-                      className={styles.hideCardWrapper}
-                      onClick={() => {
-                        this.setState({ cardHidden: !this.state.cardHidden })
-                      }}
-                    >
-                      <Icon iconName="ChevronUp" />
-                    </div>
-                  </div>
                 {/* Extended View */}
                 {/* This view can only be seen in extended mode (this.state.positionValues !== undefined) */}
+                {/* Clickable icon to hide/show Card-View */}
+                <div className={`${styles.hideCardBox} ${this.state.cardHidden && styles.showCardBox}`} hidden={this.state.positionValues === undefined}>
+                  <div 
+                    className={styles.hideCardWrapper}
+                    onClick={() => {
+                      this.setState({ cardHidden: !this.state.cardHidden })
+                    }}
+                  >
+                    <Icon iconName="ChevronUp" />
+                  </div>
+                </div>
+                {/* Control icons */}
+                {
+                  this.props.isCreator && this.state.positionValues !== undefined &&
+                  <div
+                    className={styles.controlButtonWrapper}
+                  >
+                    {
+                      !this.state.edit &&
+                        <ClickableIcon 
+                          iconName="Edit"
+                          onClick={() => {
+                            this.setState({ edit: true });
+                          }}
+                        />
+                    }
+                    <ClickableIcon 
+                      iconName="Delete"
+                    />
+                  </div>
+                }
+                {/* Content body */}
                 <SportEventContent
                   sportEvent={this.props.sportEvent}
-                  hidden={this.state.positionValues === undefined}
+                  hidden={this.state.positionValues === undefined || this.state.edit}
+                />
+                {/* TODO: Add edit UI */}
+                <SportEventEditMenu 
+                  hidden={this.state.positionValues === undefined || !this.state.edit}
+                  sportEvent={this.props.sportEvent}
+                  onSave={(sportEvent) => {
+                    // TODO: Save changes
+                    // this.props.onChange && this.props.onChange();
+                    this.setState({ edit: false })
+                  }}
+                  onChange={(sportEvent) => {
+                    this.setState({ sportEvent: sportEvent })
+                  }}
+                  onCancel={() => {
+                    this.setState({ edit: false, sportEvent: this.props.sportEvent })
+                  }}
                 />
               </div>
             </div>

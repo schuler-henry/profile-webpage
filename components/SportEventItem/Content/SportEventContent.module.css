@@ -6,4 +6,5 @@
   padding: 20px;
   overflow-y: auto;
   gap: 20px;
+  background-color: var(--color-bg-second);
 }
