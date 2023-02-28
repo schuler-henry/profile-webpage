@@ -8,8 +8,8 @@ import { FrontEndController } from "../../../controller/frontEndController";
 import { Icon } from "@fluentui/react";
 import { TagPicker } from "../../TagPicker/TagPicker";
 import { SportEventVisibility } from "../../../enums/sportEventVisibility";
-import { Button } from "../../Button/Button";
 import { ClickableIcon } from "../../ClickableIcon/ClickableIcon";
+import { ConfirmPopUp } from "../../ConfirmPopUp/ConfirmPopUp";
 
 const onRenderOption = (option: DropdownOption, LanguageContext?: PWPLanguageContextType): JSX.Element => {
   return(
@@ -44,6 +44,8 @@ export interface SportEventEditMenuState {
   availableSportEventTypes: ISportEventType[];
   availableSportClubs: ISportClub[];
   availableSportLocations: ISportLocation[];
+  confirmCancel: boolean;
+  confirmSave: boolean;
 }
 
 export interface SportEventEditMenuProps {
@@ -64,6 +66,8 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
       availableSportEventTypes: [],
       availableSportClubs: [],
       availableSportLocations: [],
+      confirmCancel: false,
+      confirmSave: false,
     };
   }
 
@@ -88,6 +92,10 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
   componentWillUnmount(): void {
   }
 
+  private didSportEventChange(): boolean {
+    return JSON.stringify(this.props.sportEvent) !== JSON.stringify(this.state.sportEvent);
+  }
+
   private visibilityOptions: DropdownOption[] = [
     { key: SportEventVisibility.creatorOnly.toString(), text: "0 Creator (Private)"},
     { key: SportEventVisibility.creatorMembers.toString(), text: "1 Creator + Member"},
@@ -102,7 +110,7 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
         { LanguageContext => (
           <div
             className={`${styles.wrapper} ${this.props.className}`}
-            style={{ display: this.props.hidden && "none", borderColor: JSON.stringify(this.props.sportEvent) === JSON.stringify(this.state.sportEvent) ? "var(--color-border-approved)" : "var(--color-border-changed)" }}
+            style={{ display: this.props.hidden && "none", borderColor: this.didSportEventChange() ? "var(--color-border-changed)" : "var(--color-border-approved)" }}
             hidden={this.props.hidden}
           >
             <h2>
@@ -241,13 +249,48 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
             <div className={styles.controlButtonWrapper}>
               <ClickableIcon
                 iconName="Cancel"
-                onClick={this.props.onCancel}
+                onClick={() => {
+                  this.didSportEventChange() ? this.setState({ confirmCancel: true }) : this.props.onCancel();
+                }}
               />
-              <ClickableIcon
-                iconName="Save"
-                onClick={() => this.props.onSave(this.state.sportEvent)}
-              />
+              {
+                this.didSportEventChange() &&
+                <ClickableIcon
+                  iconName="Save"
+                  onClick={() => {
+                    this.setState({ confirmSave: true })
+                  }}
+                />
+              }
             </div>
+            {
+              this.state.confirmSave &&
+              <ConfirmPopUp 
+                title={LanguageContext.t("sport:SaveSportEvent")}
+                message={LanguageContext.t("sport:SaveSportEventMessage")}
+                onConfirm={() => {
+                  this.props.onSave(this.state.sportEvent);
+                  this.setState({ confirmSave: false });
+                }}
+                onCancel={() => {
+                  this.setState({ confirmSave: false });
+                }}
+              />
+            }
+            {
+              this.state.confirmCancel &&
+              <ConfirmPopUp
+                title={LanguageContext.t("sport:CancelSportEvent")}
+                message={LanguageContext.t("sport:CancelSportEventMessage")}
+                onConfirm={() => {
+                  this.props.onCancel();
+                  this.setState({ confirmCancel: false });
+                }}
+                onCancel={() => {
+                  this.setState({ confirmCancel: false });
+                }}
+              />
+            }
           </div>
         )}
         </PWPLanguageContext.Consumer>

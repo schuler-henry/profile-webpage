@@ -66,15 +66,15 @@ export class ConfirmPopUp extends Component<ConfirmPopUpProps, ConfirmPopUpState
               </div>
               <div className={styles.buttonContainer}>
                 {
-                  this.props.onConfirm &&
-                    <Button onClick={this.props.onConfirm}>
-                      {LanguageContext.t('common:Confirm')}
+                  this.props.onCancel &&
+                  <Button onClick={this.props.onCancel}>
+                      {LanguageContext.t('common:Cancel')}
                     </Button>
                 }
                 {
-                  this.props.onCancel &&
-                    <Button onClick={this.props.onCancel}>
-                      {LanguageContext.t('common:Cancel')}
+                  this.props.onConfirm &&
+                    <Button onClick={this.props.onConfirm}>
+                      {LanguageContext.t('common:Confirm')}
                     </Button>
                 }
               </div>
