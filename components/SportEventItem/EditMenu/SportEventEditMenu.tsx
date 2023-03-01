@@ -39,7 +39,6 @@ const onRenderCaretDown = (): JSX.Element => {
 }
 
 export interface SportEventEditMenuState {
-  sportEvent: ISportEvent;
   availableSports: ISport[];
   availableSportEventTypes: ISportEventType[];
   availableSportClubs: ISportClub[];
@@ -52,16 +51,14 @@ export interface SportEventEditMenuProps {
   sportEvent: ISportEvent;
   hidden?: boolean;
   className?: string;
-  onSave?: (sportEvent: ISportEvent) => void;
-  onChange?: (sportEvent: ISportEvent) => void;
-  onCancel?: () => void;
+  onChange: (sportEvent: ISportEvent) => void;
+  onClose: () => void;
 }
 
 export class SportEventEditMenu extends Component<SportEventEditMenuProps, SportEventEditMenuState> {
   constructor(props: SportEventEditMenuProps) {
     super(props);
     this.state = {
-      sportEvent: this.props.sportEvent,
       availableSports: [],
       availableSportEventTypes: [],
       availableSportClubs: [],
@@ -81,19 +78,15 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
   }
 
   componentDidUpdate(prevProps: Readonly<SportEventEditMenuProps>, prevState: Readonly<SportEventEditMenuState>, snapshot?: any): void {
-    if (this.state.sportEvent !== prevState.sportEvent) {
-      this.props.onChange(this.state.sportEvent);
-    }
-    if (this.props.hidden !== prevProps.hidden) {
-      this.setState({ sportEvent: this.props.sportEvent });
-    }
+    // if (this.props.sportEvent !== prevProps.sportEvent) {
+    //   this.setState({ sportEvent: this.props.sportEvent });
+    // }
+    // if (this.state.sportEvent !== prevState.sportEvent) {
+    //   // this.props.onChange(this.state.sportEvent);
+    // }
   }
 
   componentWillUnmount(): void {
-  }
-
-  private didSportEventChange(): boolean {
-    return JSON.stringify(this.props.sportEvent) !== JSON.stringify(this.state.sportEvent);
   }
 
   private visibilityOptions: DropdownOption[] = [
@@ -110,7 +103,7 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
         { LanguageContext => (
           <div
             className={`${styles.wrapper} ${this.props.className}`}
-            style={{ display: this.props.hidden && "none", borderColor: this.didSportEventChange() ? "var(--color-border-changed)" : "var(--color-border-approved)" }}
+            style={{ display: this.props.hidden && "none" }}
             hidden={this.props.hidden}
           >
             <h2>
@@ -123,9 +116,9 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
               placeholder={{ key: "", text: "undefined" }}
               onRenderOption={onRenderOption}
               onRenderCaretDown={onRenderCaretDown}
-              selectedKey={this.state.sportEvent?.sport?.id?.toString()}
+              selectedKey={this.props.sportEvent?.sport?.id?.toString()}
               onChange={(event, option) => {
-                this.setState({ sportEvent: { ...this.state.sportEvent, sport: this.state.availableSports.find(item => item.id.toString() === option.key)} });
+                this.props.onChange({ ...this.props.sportEvent, sport: this.state.availableSports.find(item => item.id.toString() === option.key)});
               }}
               width="100%"
             />
@@ -140,9 +133,9 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
               placeholder={{ key: "", text: LanguageContext.t("sport:SportEventType") }}
               onRenderOption={onRenderOption}
               onRenderCaretDown={onRenderCaretDown}
-              selectedKey={this.state.sportEvent?.sportEventType?.id?.toString()}
+              selectedKey={this.props.sportEvent?.sportEventType?.id?.toString()}
               onChange={(event, option) => {
-                this.setState({ sportEvent: {...this.state.sportEvent, sportEventType: this.state.availableSportEventTypes?.find(item => item.id.toString() === option.key)} })
+                this.props.onChange({...this.props.sportEvent, sportEventType: this.state.availableSportEventTypes?.find(item => item.id.toString() === option.key)})
               }}
               width="100%"
             />
@@ -153,7 +146,7 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
             <input 
               type="datetime-local"  
               className={styles.timeInput}
-              value={this.state.sportEvent.startTime && new Date(new Date(this.state.sportEvent.startTime).getTime() - new Date(this.state.sportEvent.startTime).getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
+              value={this.props.sportEvent.startTime && new Date(new Date(this.props.sportEvent.startTime).getTime() - new Date(this.props.sportEvent.startTime).getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
               onChange={(event) => {
                 const year = parseInt(event.target.value.slice(0, 4))
                 const month = parseInt(event.target.value.slice(5, 7))
@@ -161,7 +154,7 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
                 const hour = parseInt(event.target.value.slice(11, 13))
                 const minute = parseInt(event.target.value.slice(14, 16))
                 const date = new Date(year, month - 1, day, hour, minute)
-                  this.setState({ sportEvent: {...this.state.sportEvent, startTime: date} })
+                  this.props.onChange({...this.props.sportEvent, startTime: date})
               }}
             />
 
@@ -171,7 +164,7 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
             <input 
               type="datetime-local" 
               className={styles.timeInput}
-              value={this.state.sportEvent.endTime && new Date(new Date(this.state.sportEvent.endTime).getTime() - new Date(this.state.sportEvent.endTime).getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
+              value={this.props.sportEvent.endTime && new Date(new Date(this.props.sportEvent.endTime).getTime() - new Date(this.props.sportEvent.endTime).getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
               onChange={(event) => {
                 const year = parseInt(event.target.value.slice(0, 4))
                 const month = parseInt(event.target.value.slice(5, 7))
@@ -179,7 +172,7 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
                 const hour = parseInt(event.target.value.slice(11, 13))
                 const minute = parseInt(event.target.value.slice(14, 16))
                 const date = new Date(year, month - 1, day, hour, minute)
-                this.setState({ sportEvent: {...this.state.sportEvent, endTime: date} })
+                this.props.onChange({...this.props.sportEvent, endTime: date})
               }}
             />
 
@@ -187,9 +180,9 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
               {LanguageContext.t("sport:SportClubs")}
             </h2>
             <TagPicker
-              selectedKeys={this.state.sportEvent?.sportClubs?.reduce((returnValue: [], item, index) => returnValue.concat(Object.assign({ key: item.sportClub.id.toString(), text: item.sportClub?.name })), []) || []}
+              selectedKeys={this.props.sportEvent?.sportClubs?.reduce((returnValue: [], item, index) => returnValue.concat(Object.assign({ key: item.sportClub.id.toString(), text: item.sportClub?.name })), []) || []}
               onChange={(event, options) => {
-                this.setState({ sportEvent: {...this.state.sportEvent, sportClubs: options.map((option, index) => ({ sportClub: this.state.availableSportClubs.find(item => item.id.toString() === option.key), host: index === 0 }))} })
+                this.props.onChange({...this.props.sportEvent, sportClubs: options.map((option, index) => ({ sportClub: this.state.availableSportClubs.find(item => item.id.toString() === option.key), host: index === 0 }))})
               }}
               options={
                 this.state.availableSportClubs.reduce((returnValue: [], item, index) => returnValue.concat(Object.assign({ key: item.id.toString(), text: item.name })), []) || []
@@ -202,9 +195,9 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
             </h2>
             <textarea 
               className={styles.description}
-              value={this.state.sportEvent?.description}
+              value={this.props.sportEvent?.description}
               onChange={(event) => {
-                this.setState({ sportEvent: {...this.state.sportEvent, description: event.target.value} })
+                this.props.onChange({...this.props.sportEvent, description: event.target.value})
               }}
             />
 
@@ -216,7 +209,7 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
                 this.state.availableSportLocations?.sort(
                   (a) => { 
                     // if a is in this.state.sportEvent.sportClubs[0].sportClub.sportLocation then set a to top
-                    return this.state.sportEvent?.sportClubs[0]?.sportClub?.sportLocation?.find(item => item.id === a.id) ? -1 : 1
+                    return this.props.sportEvent?.sportClubs[0]?.sportClub?.sportLocation?.find(item => item.id === a.id) ? -1 : 1
                     }
                 ).reduce(
                   (returnValue: [], item, index) => returnValue.concat(Object.assign({ key: item.id.toString(), text: item?.name + " " + item?.address })), []
@@ -225,9 +218,9 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
               placeholder={{ key: "", text: LanguageContext.t("sport:SportLocation") }}
               onRenderOption={onRenderOption}
               onRenderCaretDown={onRenderCaretDown}
-              selectedKey={this.state.sportEvent?.sportLocation?.id?.toString()}
+              selectedKey={this.props.sportEvent?.sportLocation?.id?.toString()}
               onChange={(event, option) => {
-                this.setState({ sportEvent: {...this.state.sportEvent, sportLocation: this.state.availableSportLocations.find(item => item.id.toString() === option.key)} })
+                this.props.onChange({...this.props.sportEvent, sportLocation: this.state.availableSportLocations.find(item => item.id.toString() === option.key)})
               }}
               width="100%"
             />
@@ -239,58 +232,21 @@ export class SportEventEditMenu extends Component<SportEventEditMenuProps, Sport
               options={ this.visibilityOptions }
               onRenderOption={option => onRenderOption(option, LanguageContext)}
               onRenderCaretDown={onRenderCaretDown}
-              selectedKey={this.state.sportEvent.visibility.toString()}
+              selectedKey={this.props.sportEvent.visibility.toString()}
               onChange={(event, option) => {
-                this.setState({ sportEvent: {...this.state.sportEvent, visibility: parseInt(option.key)} })
+                this.props.onChange({...this.props.sportEvent, visibility: parseInt(option.key)})
               }}
               width="100%"
             />
 
             <div className={styles.controlButtonWrapper}>
               <ClickableIcon
-                iconName="Cancel"
+                iconName="CheckMark"
                 onClick={() => {
-                  this.didSportEventChange() ? this.setState({ confirmCancel: true }) : this.props.onCancel();
+                  this.props.onClose();
                 }}
               />
-              {
-                this.didSportEventChange() &&
-                <ClickableIcon
-                  iconName="Save"
-                  onClick={() => {
-                    this.setState({ confirmSave: true })
-                  }}
-                />
-              }
             </div>
-            {
-              this.state.confirmSave &&
-              <ConfirmPopUp 
-                title={LanguageContext.t("sport:SaveSportEvent")}
-                message={LanguageContext.t("sport:SaveSportEventMessage")}
-                onConfirm={() => {
-                  this.props.onSave(this.state.sportEvent);
-                  this.setState({ confirmSave: false });
-                }}
-                onCancel={() => {
-                  this.setState({ confirmSave: false });
-                }}
-              />
-            }
-            {
-              this.state.confirmCancel &&
-              <ConfirmPopUp
-                title={LanguageContext.t("sport:CancelSportEvent")}
-                message={LanguageContext.t("sport:CancelSportEventMessage")}
-                onConfirm={() => {
-                  this.props.onCancel();
-                  this.setState({ confirmCancel: false });
-                }}
-                onCancel={() => {
-                  this.setState({ confirmCancel: false });
-                }}
-              />
-            }
           </div>
         )}
         </PWPLanguageContext.Consumer>

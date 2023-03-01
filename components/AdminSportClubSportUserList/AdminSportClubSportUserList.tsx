@@ -6,7 +6,7 @@ import { FrontEndController } from "../../controller/frontEndController";
 import { DropdownOption } from "../Dropdown/Dropdown";
 import { WithTranslation } from "next-i18next";
 import { ConfirmPopUp } from "../ConfirmPopUp/ConfirmPopUp";
-import { IUserSelector } from "../IUserSelector/IUserSelector";
+import { UserSelector } from "../UserSelector/UserSelector";
 import { Icon } from "@fluentui/react";
 import { getSportClubPositionText } from "../../shared/getSportClubPositionText";
 
@@ -337,7 +337,7 @@ export class AdminSportClubSportUserList extends Component<AdminSportClubSportUs
           }
           {
             this.state.addUser !== undefined &&
-            <IUserSelector 
+            <UserSelector 
               userList={this.state.addUser?.list}
               onConfirm={async (userList) => {
                 if (userList.length !== 0) {
