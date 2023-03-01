@@ -107,4 +107,5 @@
   border-radius: 5px; 
   display: flex;
   flex-direction: row;
+  z-index: 100;
 }

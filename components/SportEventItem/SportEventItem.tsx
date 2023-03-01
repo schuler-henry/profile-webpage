@@ -83,6 +83,9 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
     if (this.state.positionValues === undefined) {
       // set process variables and save current position of card on screen
       this.setState({ expand: true, decrease: false, positionValues: event.currentTarget.getBoundingClientRect() })
+      setTimeout(() => {
+        this.setMenuDirection();
+      }, 800)
     }
   }
 
@@ -90,6 +93,7 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
     if (this.state.expand) {
       setTimeout(() => {
         this.setState({ decrease: false, positionValues: undefined })
+        this.setMenuDirection();
       }, 800)
       this.setState({ expand: false, decrease: true, cardHidden: false })
     }
@@ -128,6 +132,7 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
                 {/* Card-View */}
                 <SportEventCardItem 
                   sportEvent={this.props.sportEvent}
+                  changed={this.props.changed}
                   className={`${styles.sportEventCard} ${this.state.cardHidden && styles.hideCard}`}
                 />
                 {/* Extended View */}

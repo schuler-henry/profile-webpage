@@ -1,5 +1,6 @@
 .wrapper {
   height: 100%;
+  position: relative;
   display: flex;
   flex-direction: column;
   background-color: var(--color-bg-off);
@@ -76,4 +77,14 @@
 
 .info .locationDetails {
   font-size: 12px;
+}
+
+.changedDot {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  height: 14px;
+  width: 14px;
 }

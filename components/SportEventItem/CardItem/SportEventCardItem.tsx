@@ -13,6 +13,7 @@ export interface SportEventCardItemState {
 
 export interface SportEventCardItemProps {
   sportEvent: ISportEvent;
+  changed: boolean;
   className?: string;
 }
 
@@ -116,6 +117,14 @@ export class SportEventCardItem extends Component<SportEventCardItemProps, Sport
                   </p>
                 </div>
               </div>
+            </div>
+            <div 
+              className={styles.changedDot}
+              style={{ color: this.props.changed ? "var(--color-border-changed)" : "var(--color-border-approved)" }}
+            >
+              <Icon 
+                iconName="LocationDot"
+              />
             </div>
           </div>
         )}
