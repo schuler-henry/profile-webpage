@@ -882,9 +882,9 @@ Henry Schuler`,
    * This method checks whether the given user is participant of the given sport event
    */
   isSportEventMember(sportEvent: ISportEvent, userId: number): boolean {
-    for (const sportMatch of sportEvent.sportMatch) {
-      for (const sportTeam of sportMatch.sportTeam) {
-        for (const user of sportTeam.user) {
+    for (const sportMatch of sportEvent?.sportMatch) {
+      for (const sportTeam of sportMatch?.sportTeam) {
+        for (const user of sportTeam?.user) {
           if (user.id === userId) {
             return true
           }

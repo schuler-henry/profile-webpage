@@ -9,7 +9,7 @@ export interface PageLoadingScreenState {
 }
 
 export interface PageLoadingScreenProps {
-
+  instant?: boolean;
 }
 
 export class PageLoadingScreen extends Component<PageLoadingScreenProps, PageLoadingScreenState> {
@@ -23,7 +23,11 @@ export class PageLoadingScreen extends Component<PageLoadingScreenProps, PageLoa
   private timeout;
   
   componentDidMount(): void {
-    this.timeout = setTimeout(() => {this.setState({visibility: true})}, 1000)
+    let delay = 1000;
+    if (this.props.instant) {
+      delay = 0;
+    }
+    this.timeout = setTimeout(() => {this.setState({visibility: true})}, delay)
   }
 
   componentWillUnmount(): void {

@@ -21,7 +21,7 @@ export interface SportMatchItemEditProps {
 }
 
 export class SportMatchItemEdit extends Component<SportMatchItemEditProps, SportMatchItemEditState> {
-  constructor(props) {
+  constructor(props: SportMatchItemEditProps) {
     super(props);
     this.state = {
       winnerTeamNumber: undefined,

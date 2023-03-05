@@ -44,7 +44,7 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
       positionValues: undefined, // saves the current position of the card on the screen: undefined = card view, else = extended view
       verticalMenu: false,
       cardHidden: false,
-      edit: false, // TODO: Redo edit feature
+      edit: false,
       confirmDelete: false,
       confirmDiscard: false,
       confirmSave: false,
@@ -239,9 +239,12 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
                 {/* Content body */}
                 <SportEventContent
                   sportEvent={this.props.sportEvent}
+                  isCreator={this.props.isCreator}
                   hidden={this.state.positionValues === undefined || this.state.edit}
+                  onChange={(sportEvent) => {
+                    this.props.onChange(sportEvent);
+                  }}
                 />
-                {/* TODO: Add edit UI */}
                 <SportEventEditMenu 
                   hidden={this.state.positionValues === undefined || !this.state.edit}
                   sportEvent={this.props.sportEvent}

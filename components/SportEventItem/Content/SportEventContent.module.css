@@ -8,3 +8,9 @@
   gap: 20px;
   background-color: var(--color-bg-second);
 }
+
+.buttonGroup {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
