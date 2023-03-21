@@ -1031,6 +1031,7 @@ Henry Schuler`,
     const sportEventFromDB = (await this.databaseModel.getSportEventsFromResponse(await this.databaseModel.selectSportEventTable())).find(item => item.id === sportEvent.id);
     
     if (sportEventFromDB === undefined || !this.isCreator(sportEventFromDB, this.getIdFromToken(token))) {
+      console.log("Sport event does not exist or user has no rights to update it.")
       return false;
     }
 

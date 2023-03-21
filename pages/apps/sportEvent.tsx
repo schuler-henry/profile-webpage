@@ -107,7 +107,9 @@ class SportEvent extends Component<SportEventProps, SportEventState> {
           this.sportEventCache.splice(this.getSportEventCacheIndex(sportEvent.id), 1);
           // add empty sport event to newSportEventCache
           this.addNewSportEvent();
-          const changedSportEvent = this.state.sportEvents[this.getSportEventStateIndex(sportEvent.id)];
+          const changedSportEvent = structuredClone(this.state.sportEvents[this.getSportEventStateIndex(sportEvent.id)]);
+          // remove id since its no longer in the database
+          changedSportEvent.id = undefined;
           // remove changedSportEvent from sportEvents and set to newSportEvents
           this.setState({ 
             sportEvents: [ ...this.state.sportEvents.slice(0, this.getSportEventStateIndex(sportEvent.id)), ...this.state.sportEvents.slice(this.getSportEventStateIndex(sportEvent.id) + 1)], 
@@ -278,9 +280,13 @@ class SportEvent extends Component<SportEventProps, SportEventState> {
                             onDiscard={() => {
                               this.setState({ newSportEvents: [ ...this.state.newSportEvents.slice(0, index), this.newSportEventCache[index], ...this.state.newSportEvents.slice(index + 1) ] });
                             }}
-                            onSave={() => {
-                              // TODO:
-                              // create sportEvent -> fetch sport events -> update function that compares fetched sport events with cached sport events
+                            onSave={async () => {
+                              this.setState({ updating: true });
+                              if (await FrontEndController.updateSportEvent(FrontEndController.getUserToken(), sportEvent)) {
+                                await this.syncDataFromServer();
+                                this.setState({ newSportEvents: [ ...this.state.newSportEvents.slice(0, index), ...this.state.newSportEvents.slice(index + 1) ] });
+                              }
+                              this.setState({ updating: false });
                             }}
                           />
                         )
@@ -302,8 +308,11 @@ class SportEvent extends Component<SportEventProps, SportEventState> {
                                 sportEvents: [ ...this.state.sportEvents.slice(0, index), sportEvent, ...this.state.sportEvents.slice(index + 1) ]
                               })
                             }}
-                            onDelete={() => {
-                              // TODO: Delete in databank and update sport events
+                            onDelete={async () => {
+                              this.setState({ updating: true });
+                              await FrontEndController.deleteSportEvent(FrontEndController.getUserToken(), sportEvent.id);
+                              await this.syncDataFromServer();
+                              this.setState({ updating: false });
                             }}
                             onDiscard={() => {
                               // evaluate index (due to sorting)
@@ -311,8 +320,12 @@ class SportEvent extends Component<SportEventProps, SportEventState> {
                               // restore sport event from cache
                               this.setState({ sportEvents: [ ...this.state.sportEvents.slice(0, index), this.getSportEventFromCache(sportEvent.id), ...this.state.sportEvents.slice(index + 1) ] });
                             }}
-                            onSave={() => {
-                              // TODO: Save to databank and update sport events
+                            onSave={async () => {
+                              this.setState({ updating: true });
+                              if (await FrontEndController.updateSportEvent(FrontEndController.getUserToken(), sportEvent)) {
+                                await this.syncDataFromServer();
+                              }
+                              this.setState({ updating: false });
                             }}
                           />
                         )
