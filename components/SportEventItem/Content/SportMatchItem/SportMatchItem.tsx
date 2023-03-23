@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import styles from "./SportMatchItem.module.css";
 import { ISportMatch } from '../../../../interfaces/database'
 import { PWPAuthContext } from "../../../PWPAuthProvider/PWPAuthProvider";
-import { SportMatchItemEdit } from "../../../SportMatchItemEdit/SportMatchItemEdit";
 import { ClickableIcon } from "../../../ClickableIcon/ClickableIcon";
 import { ConfirmPopUp } from "../../../ConfirmPopUp/ConfirmPopUp";
 import { getWinnerTeamNumber } from "../../../../shared/getWinnerTeamNumber";
