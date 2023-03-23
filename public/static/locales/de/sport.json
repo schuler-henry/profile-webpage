@@ -1,6 +1,13 @@
 {
+  "ConfirmPull": "Daten holen",
+  "ConfirmPullMessage": "Möchten Sie die aktuellen Daten vom Server holen?",
+  "ConfirmPullWarning": "Alle lokalen Änderungen gehen verloren. Diese Aktion kann nicht rückgängig gemacht werden. (Neue Sportveranstaltungen die noch nicht auf dem Server gespeichert sind gehen nicht verloren)",
+  "ConfirmSync": "Daten synchronisieren",
+  "ConfirmSyncMessage": "Möchten Sie die Daten mit den Serverdaten synchronisieren? Es werden ausschließlich die aktuellen Daten vom Server heruntergeladen. Deine lokalen Änderungen werden nicht hochgeladen und gehen nicht verloren.",
+
   "DeleteSportEvent": "Sportveranstaltung löschen",
   "DeleteSportEventMessage": "Sind Sie sicher, dass Sie diese Sportveranstaltung löschen möchten?",
+  "DeleteSportEventWarning": "Diese Aktion kann nicht rückgängig gemacht werden.",
   "Badminton": "Badminton",
   "Volleyball": "Volleyball",
   "Training": "Training",
@@ -9,8 +16,8 @@
 
   "SaveSportEvent": "Sportveranstaltung speichern",
   "SaveSportEventMessage": "Möchten Sie die Sportveranstaltung speichern?",
-  "CancelSportEvent": "Änderung verwerfen",
-  "CancelSportEventMessage": "Möchten Sie die Änderung verwerfen?",
+  "DiscardChangesSportEvent": "Änderung verwerfen",
+  "DiscardChangesSportEventMessage": "Möchten Sie die Änderung verwerfen?",
   "Error": "Fehler",
   "ErrorWarning": "Beim Speichern der Sportveranstaltung ist ein Fehler aufgetreten.",
   "TabSportEvent": "Sportveranstaltung",

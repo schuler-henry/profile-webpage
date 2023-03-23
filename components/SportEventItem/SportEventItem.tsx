@@ -1,47 +1,60 @@
-import React, { Component } from "react";
+import React, { Component, createRef, RefObject } from "react";
 import styles from "./SportEventItem.module.css";
 import { ISportEvent } from '../../interfaces/database'
-import { dateStringToFormattedDateString } from "../../shared/dateStringToFormattedDateString";
-import { dateStringToFormattedTimeString } from "../../shared/dateStringToFormattedTimeString";
 import { Icon } from "@fluentui/react";
-import { SportMatchItem } from "../SportMatchItem/SportMatchItem";
-import { SportEventItemEdit } from "../SportEventItemEdit/SportEventItemEdit";
-import { ClickableIcon } from "../ClickableIcon/ClickableIcon";
-import { FrontEndController } from "../../controller/frontEndController";
-import { ConfirmPopUp } from "../ConfirmPopUp/ConfirmPopUp";
 import { PWPLanguageContext } from "../PWPLanguageProvider/PWPLanguageProvider";
+import { SportEventCardItem } from "./CardItem/SportEventCardItem";
+import { SportEventContent } from "./Content/SportEventContent";
+import { ClickableIcon } from "../ClickableIcon/ClickableIcon";
+import { SportEventEditMenu } from "./EditMenu/SportEventEditMenu";
+import { ConfirmPopUp } from "../ConfirmPopUp/ConfirmPopUp";
+import { FrontEndController } from "../../controller/frontEndController";
 
 
 export interface SportEventItemState {
   expand: boolean;
   decrease: boolean;
   positionValues: DOMRect;
+  verticalMenu: boolean;
+  cardHidden: boolean;
   edit: boolean;
   confirmDelete: boolean;
-  updating: boolean;
+  confirmDiscard: boolean;
+  confirmSave: boolean;
 }
 
 export interface SportEventItemProps {
   sportEvent: ISportEvent;
-  onChange?: () => void;
+  changed: boolean;
+  onChange: (sportEvent: ISportEvent) => void;
+  onDelete: () => void;
+  onDiscard: () => void;
+  onSave: () => void;
   isCreator?: boolean;
 }
 
 export class SportEventItem extends Component<SportEventItemProps, SportEventItemState> {
+  private WRAPPER: RefObject<HTMLDivElement>;
   constructor(props) {
     super(props);
+    this.WRAPPER = createRef();
     this.state = {
       expand: false,
       decrease: false,
-      positionValues: undefined,
+      positionValues: undefined, // saves the current position of the card on the screen: undefined = card view, else = extended view
+      verticalMenu: false,
+      cardHidden: false,
       edit: false,
       confirmDelete: false,
-      updating: false,
+      confirmDiscard: false,
+      confirmSave: false,
     }
   }
 
   componentDidMount(): void {
-      this.setState({ edit: this.props.sportEvent.id === undefined })
+    window.addEventListener("resize", this.setMenuDirection.bind(this));
+    this.setMenuDirection();
+    this.setState({ edit: this.props.sportEvent.id === undefined })
   }
 
   componentDidUpdate(prevProps: Readonly<SportEventItemProps>, prevState: Readonly<SportEventItemState>, snapshot?: any): void {
@@ -53,12 +66,44 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
     }
   }
 
+  componentWillUnmount(): void {
+    window.removeEventListener("resize", this.setMenuDirection.bind(this));
+  }
+
+  private toggleView(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    if (this.state.positionValues === undefined) {
+      this.maximize(event);
+    } else if (event.target === event.currentTarget) {
+      this.minimize();
+    }
+  }
+
+  private maximize(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    // check if in card view (this.state.positionValues === undefined)
+    if (this.state.positionValues === undefined) {
+      // set process variables and save current position of card on screen
+      this.setState({ expand: true, decrease: false, positionValues: event.currentTarget.getBoundingClientRect() })
+      setTimeout(() => {
+        this.setMenuDirection();
+      }, 800)
+    }
+  }
+
   private minimize() {
     if (this.state.expand) {
       setTimeout(() => {
         this.setState({ decrease: false, positionValues: undefined })
+        this.setMenuDirection();
       }, 800)
-      this.setState({ expand: false, decrease: true })
+      this.setState({ expand: false, decrease: true, cardHidden: false })
+    }
+  }
+
+  private setMenuDirection() {
+    if (this.WRAPPER.current?.clientWidth < 520 && !this.state.verticalMenu) {
+      this.setState({ verticalMenu: true });
+    } else if (this.WRAPPER.current?.clientWidth >= 520 && this.state.verticalMenu) {
+      this.setState({ verticalMenu: false });
     }
   }
 
@@ -66,175 +111,150 @@ export class SportEventItem extends Component<SportEventItemProps, SportEventIte
     return (
       <PWPLanguageContext.Consumer>
         { LanguageContext => (
+          // container that keeps the card proportions in the grid view.
           <div
             style={ this.state.positionValues ? { height: this.state.positionValues.height, width: this.state.positionValues.width } : {} }
           >
-            <div 
-              className={`${(this.state.positionValues !== undefined) && styles.elementBackground}`}
-              style={{ height: "100%" }}
-              onClick={(e) => {
-                if (this.state.expand && e.target === e.currentTarget) {
-                  this.minimize();
-                }
+            {/* clickable wrapper for maximizing and minimizing */}
+            <div
+              className={this.state.positionValues ? styles.minimizeClickWrapper : styles.maximizeClickWrapper}
+              onClick={(event) => {
+                this.toggleView(event);
               }}
             >
-              <div 
+              {/* Choose view based on this.state.positionValues */}
+              {/* container that can extend from card view to extended view */}
+              <div
                 className={`${styles.elementWrapper} ${this.state.expand && styles.expand} ${this.state.decrease && styles.decrease}`}
                 style={ this.state.positionValues ? { position: "absolute", height: this.state.positionValues.height, width: this.state.positionValues.width, left: this.state.positionValues.x, top: this.state.positionValues.y } : {  height: "100%" }}
-                onClick={(e) => {
-                  if (!this.state.expand) {
-                    this.setState({ expand: true, decrease: false, positionValues: e.currentTarget.getBoundingClientRect() })
-                  }
-                }}
-              > 
-                {
-                  this.state.edit ?
-                  <div style={{ height: "100%", position: "relative" }}>
-                    <div className={this.state.positionValues ? "" : styles.addPreview} hidden={this.state.positionValues !== undefined}>
-                      <Icon 
-                        iconName={"Edit"}
-                        style={{ fontSize: "30px" }}
-                      />
-                    </div>
-                    <div style={{ height: "100%" }} >
-                      <SportEventItemEdit 
-                        sportEvent={this.props.sportEvent}
-                        preview={!this.state.positionValues}
-                        onSave={(sportEvent) => {
-                          this.props.onChange && this.props.onChange();
-                          this.setState({ edit: false })
-                          this.minimize()
-                        }}
-                        onCancel={() => {
-                          this.setState({ edit: false })
-                        }}
-                      />
-                    </div>
+                ref={this.WRAPPER}
+              >
+                {/* Card-View */}
+                <SportEventCardItem 
+                  sportEvent={this.props.sportEvent}
+                  changed={this.props.changed}
+                  className={`${styles.sportEventCard} ${this.state.cardHidden && styles.hideCard}`}
+                />
+                {/* Extended View */}
+                {/* This view can only be seen in extended mode (this.state.positionValues !== undefined) */}
+                {/* Clickable icon to hide/show Card-View */}
+                <div className={`${styles.hideCardBox} ${this.state.cardHidden && styles.showCardBox}`} hidden={this.state.positionValues === undefined}>
+                  <div 
+                    className={styles.hideCardWrapper}
+                    onClick={() => {
+                      this.setState({ cardHidden: !this.state.cardHidden })
+                    }}
+                  >
+                    <Icon iconName="ChevronUp" />
                   </div>
-                  :
-                  <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                </div>
+                {/* Control icons */}
+                {
+                  this.props.isCreator && this.state.positionValues !== undefined &&
+                  <div
+                    className={styles.controlButtonWrapper}
+                    style={{ flexDirection: this.state.verticalMenu ? "column-reverse" : "row" }}
+                  >
                     {
-                      this.state.positionValues && this.props.isCreator &&
-                      <div className={styles.controlButtons}>
+                      !this.state.edit &&
                         <ClickableIcon 
                           iconName="Edit"
                           onClick={() => {
-                            this.setState({ edit: true })
+                            this.setState({ edit: true });
                           }}
                         />
-                        <ClickableIcon
-                          iconName="Delete"
-                          onClick={async () => {
-                            this.setState({ confirmDelete: true })
-                          }}
-                        />
-                        {
-                          this.state.confirmDelete &&
-                            <ConfirmPopUp 
-                              title={LanguageContext.t('sport:DeleteSportEvent')}
-                              message={LanguageContext.t('sport:DeleteSportEventMessage')}
-                              onConfirm={this.state.updating ? () => {} : async () => {
-                                this.setState({ updating: true })
-                                await FrontEndController.deleteSportEvent(FrontEndController.getUserToken(), this.props.sportEvent.id);
-                                this.props.onChange && this.props.onChange();
-                                this.setState({ confirmDelete: false, updating: false })
-                                this.minimize();
-                              }}
-                              onCancel={this.state.updating ? () => {} : () => {
-                                this.setState({ confirmDelete: false }) 
-                              }}
-                              sync={this.state.updating}
-                            />
-                        }
-                      </div>
                     }
-                    <div className={styles.preview}>
-                      <div className={styles.left}>
-                        <div className={styles.sportHeading}>
-                          <h1 className={styles.sport}>
-                            { LanguageContext.t("sport:" + this.props.sportEvent.sport?.name) }
-                          </h1>
-                          <p>
-                            { LanguageContext.t("sport:" + this.props.sportEvent.sportEventType?.name) }
-                          </p>
-                        </div>
-                        <p className={styles.sportIcon}>
-                          <Icon 
-                            iconName={ this.props.sportEvent.sport?.name } 
-                            style={{ height: "40px", width: "40px" }}
-                          />
-                        </p>
-                        <p>
-                          { dateStringToFormattedDateString(this.props.sportEvent.startTime) }
-                          <br />
-                          { dateStringToFormattedTimeString(this.props.sportEvent.startTime) }
-                          &nbsp;-&nbsp;
-                          { new Date(this.props.sportEvent.endTime).getDate() === new Date(this.props.sportEvent.startTime).getDate() ? "" : dateStringToFormattedDateString(this.props.sportEvent.endTime) + '\u00A0' }
-                          { dateStringToFormattedTimeString(this.props.sportEvent.endTime) }
-                        </p>
-                      </div>
-                      <div className={styles.right}>
-                        <div className={styles.clubs}>
-                          {
-                            this.props.sportEvent.sportClubs?.map((sportClub, index) => {
-                              return (
-                                <React.Fragment key={index}>
-                                  { 
-                                    index !== 0 && 
-                                    <>
-                                      vs.&nbsp;
-                                    </>
-                                  }
-                                  <p className={styles.sportClub}>
-                                    { sportClub.sportClub?.name }
-                                    &nbsp;
-                                    {
-                                      sportClub.host &&
-                                      <span style={{ fontWeight: "normal" }}>
-                                        (H)&nbsp;
-                                      </span>
-                                    }
-                                  </p>
-                                </React.Fragment>
-                              )
-                            })
-                          }
-                        </div>
-                        <div>
-                          {
-                            (this.props.sportEvent?.description.trim().length !== 0) &&
-                              <div className={styles.description}>
-                                { this.props.sportEvent?.description }
-                              </div>
-                          }
-                          <div className={styles.locationDetails}>
-                            <p>
-                              { this.props.sportEvent.sportLocation?.name }
-                            </p>
-                            <p>
-                              { this.props.sportEvent.sportLocation?.address }
-                            </p>
-                          </div>
-                        </div>
-                        <div className={styles.visibilityLevel}>
-                          { this.props.sportEvent.visibility }
-                        </div>
-                      </div>
-                    </div>
-                    <div className={this.state.positionValues ? styles.content : ""} hidden={!this.state.positionValues}>
-                      {
-                        this.props.sportEvent.sportMatch?.map((sportMatch, index) => {
-                          return (
-                            <SportMatchItem 
-                              key={"sportMatch" + index} 
-                              sportMatch={ sportMatch }
-                            />
-                          )
-                        })
-                      }
-                    </div>
+                    <ClickableIcon 
+                      iconName="Delete"
+                      onClick={() => {
+                        this.setState({ confirmDelete: true })
+                      }}
+                    />
+                    {
+                      this.props.changed &&
+                      <ClickableIcon 
+                        iconName="Cancel"
+                        onClick={() => {
+                          this.setState({ confirmDiscard: true })
+                        }}
+                      />
+                    }
+                    {
+                      this.props.changed &&
+                      <ClickableIcon 
+                        iconName="Save"
+                        onClick={() => {
+                          this.setState({ confirmSave: true })
+                        }}
+                      />
+                    }
                   </div>
                 }
+                {
+                  this.state.confirmDelete &&
+                  <ConfirmPopUp 
+                    title={LanguageContext.t('sport:DeleteSportEvent')}
+                    message={LanguageContext.t('sport:DeleteSportEventMessage')}
+                    warning={LanguageContext.t('sport:DeleteSportEventWarning')}
+                    onConfirm={() => {
+                      this.minimize();
+                      this.setState({ confirmDelete: false })
+                      setTimeout(() => {
+                        this.props.onDelete();
+                      }, 1000)
+                    }}
+                    onCancel={() => {
+                      this.setState({ confirmDelete: false }) 
+                    }}
+                  />
+                }
+                {
+                  this.state.confirmDiscard &&
+                  <ConfirmPopUp 
+                    title={LanguageContext.t('sport:DiscardChangesSportEvent')}
+                    message={LanguageContext.t('sport:DiscardChangesSportEventMessage')}
+                    onConfirm={() => {
+                      this.setState({ confirmDiscard: false })
+                      this.props.onDiscard();
+                    }}
+                    onCancel={() => {
+                      this.setState({ confirmDiscard: false }) 
+                    }}
+                  />
+                }
+                {
+                  this.state.confirmSave &&
+                  <ConfirmPopUp 
+                    title={LanguageContext.t('sport:SaveSportEvent')}
+                    message={LanguageContext.t('sport:SaveSportEventMessage')}
+                    onConfirm={() => {
+                      this.setState({ confirmSave: false })
+                      this.props.onSave();
+                    }}
+                    onCancel={() => {
+                      this.setState({ confirmSave: false })
+                    }}
+                  />
+                }
+                {/* Content body */}
+                <SportEventContent
+                  sportEvent={this.props.sportEvent}
+                  isCreator={this.props.isCreator}
+                  hidden={this.state.positionValues === undefined || this.state.edit}
+                  onChange={(sportEvent) => {
+                    this.props.onChange(sportEvent);
+                  }}
+                />
+                <SportEventEditMenu 
+                  hidden={this.state.positionValues === undefined || !this.state.edit}
+                  sportEvent={this.props.sportEvent}
+                  onChange={(sportEvent: ISportEvent) => {
+                    this.props.onChange(sportEvent)
+                  }}
+                  onClose={() => {
+                    this.setState({ edit: false })
+                  }}
+                />
               </div>
             </div>
           </div>
