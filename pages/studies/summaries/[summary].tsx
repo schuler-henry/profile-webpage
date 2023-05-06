@@ -22,6 +22,7 @@ import PDFObject from 'pdfobject';
 import { Icon } from '@fluentui/react';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeSlug from 'rehype-slug';
 
 import 'katex/dist/katex.min.css' // `rehype-katex` does not import the CSS for you
 
@@ -109,7 +110,7 @@ class Summary extends Component<SummaryProps, SummaryState> {
                 <div className={styles.content}>
                   <ReactMarkdown
                     components={{ table: ({ node }) => <div className={styles.tableScroll} dangerouslySetInnerHTML={{ __html: toHtml(node) }}></div> }}
-                    rehypePlugins={[rehypeRaw, rehypeKatex]}
+                    rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
                     remarkPlugins={[remarkGfm, remarkMath]}
                     className={`${FrontEndController.getTheme() === ColorTheme.darkTheme ? stylesDark.markdown : stylesLight.markdown}`}>
                     {this.state.summary.content}

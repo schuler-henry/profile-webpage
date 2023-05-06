@@ -4,22 +4,22 @@ import { IUser } from "../../interfaces/database";
 import { ClickableIcon } from "../ClickableIcon/ClickableIcon";
 import { ConfirmPopUp } from "../ConfirmPopUp/ConfirmPopUp";
 import { PWPLanguageContext } from "../PWPLanguageProvider/PWPLanguageProvider";
-import styles from "./IUserSelector.module.css";
+import styles from "./UserSelector.module.css";
 
-export interface IUserSelectorState {
+export interface UserSelectorState {
   selectableUsers: IUser[];
   selectedUsers: IUser[];
   selected: number[];
 }
 
-export interface IUserSelectorProps {
+export interface UserSelectorProps {
   userList: IUser[];
   onConfirm: (selectedUser: IUser[]) => void;
   onCancel?: () => void;
   sync?: boolean;
 }
 
-export class IUserSelector extends Component<IUserSelectorProps, IUserSelectorState> {
+export class UserSelector extends Component<UserSelectorProps, UserSelectorState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -33,7 +33,7 @@ export class IUserSelector extends Component<IUserSelectorProps, IUserSelectorSt
     this.props.userList !== undefined && this.setState({ selectableUsers: this.props.userList });
   }
 
-  componentDidUpdate(prevProps: Readonly<IUserSelectorProps>, prevState: Readonly<IUserSelectorState>, snapshot?: any): void {
+  componentDidUpdate(prevProps: Readonly<UserSelectorProps>, prevState: Readonly<UserSelectorState>, snapshot?: any): void {
     // if this.props.userList changes from undefined to array set this.state.selectableUsers to this.props.userList
     if (prevProps.userList === undefined && this.props.userList !== undefined) {
       this.setState({ selectableUsers: structuredClone(this.props.userList), selectedUsers: [] });

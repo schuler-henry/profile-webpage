@@ -882,9 +882,9 @@ Henry Schuler`,
    * This method checks whether the given user is participant of the given sport event
    */
   isSportEventMember(sportEvent: ISportEvent, userId: number): boolean {
-    for (const sportMatch of sportEvent.sportMatch) {
-      for (const sportTeam of sportMatch.sportTeam) {
-        for (const user of sportTeam.user) {
+    for (const sportMatch of sportEvent?.sportMatch) {
+      for (const sportTeam of sportMatch?.sportTeam) {
+        for (const user of sportTeam?.user) {
           if (user.id === userId) {
             return true
           }
@@ -1031,12 +1031,14 @@ Henry Schuler`,
     const sportEventFromDB = (await this.databaseModel.getSportEventsFromResponse(await this.databaseModel.selectSportEventTable())).find(item => item.id === sportEvent.id);
     
     if (sportEventFromDB === undefined || !this.isCreator(sportEventFromDB, this.getIdFromToken(token))) {
+      console.log("Sport event does not exist or user has no rights to update it.")
       return false;
     }
 
     // sport event is valid and user has the rights to update it
 
     // update sport event
+    console.log("update sport event")
     const sportEventUpdate = await this.databaseModel.updateSportEventTable(sportEventFromDB.id, {
       startTime: sportEvent.startTime,
       endTime: sportEvent.endTime,
@@ -1053,7 +1055,7 @@ Henry Schuler`,
     }
 
     // update sport clubs
-
+    console.log("update sport clubs")
     let newSportClubRelations = structuredClone(sportEvent.sportClubs);
     for (const sportClubRelation of sportEventFromDB?.sportClubs || []) {
       const index = newSportClubRelations.findIndex(item => item.sportClub.id === sportClubRelation.sportClub.id);
@@ -1076,7 +1078,7 @@ Henry Schuler`,
     }
 
     // add new sport club relations
-
+    console.log("add new sport club relations")
     for (const sportClubRelation of newSportClubRelations) {
       const addSportClubRelation = await this.databaseModel.addSportEventSportClubRelationTable({
         sportEvent: sportEventFromDB.id,
@@ -1089,7 +1091,7 @@ Henry Schuler`,
     }
 
     // update sport matches
-
+    console.log("update sport matches")
     let newSportMatchRelations = structuredClone(sportEvent.sportMatch);
     for (const dbSportMatch of sportEventFromDB?.sportMatch || []) {
       const index = newSportMatchRelations.findIndex(item => item.id === dbSportMatch.id);
@@ -1101,6 +1103,7 @@ Henry Schuler`,
         if (dbSportMatch.description !== newSportMatch.description) {
           const updateSportMatch = await this.databaseModel.updateSportMatchTable({id: dbSportMatch.id}, { description: newSportMatch.description });
           if (!this.databaseModel.evaluateSuccess(updateSportMatch)) {
+            console.log("update sport match failed")
             return false;
           }
         }
@@ -1122,6 +1125,7 @@ Henry Schuler`,
                 // user was removed -> delete
                 const deleteSportMatchUserRelation = await this.databaseModel.deleteSportMatchUserRelationTable({ sportMatch: dbSportMatch.id, user: dbUser.id });
                 if (!this.databaseModel.evaluateSuccess(deleteSportMatchUserRelation)) {
+                  console.log("delete sport match user relation failed")
                   return false;
                 }
               }
@@ -1135,6 +1139,7 @@ Henry Schuler`,
                 teamNumber: newSportTeam.teamNumber,
               });
               if (!this.databaseModel.evaluateSuccess(addSportMatchUserRelation)) {
+                console.log("add sport match user relation failed")
                 return false;
               }
             }
@@ -1143,6 +1148,7 @@ Henry Schuler`,
             // team was removed -> delete
             const deleteSportMatchUserRelation = await this.databaseModel.deleteSportMatchUserRelationTable({sportMatch: dbSportMatch.id, teamNumber: dbSportTeam.teamNumber});
             if (!this.databaseModel.evaluateSuccess(deleteSportMatchUserRelation)) {
+              console.log("delete sport match user relation failed")
               return false;
             }
           }
@@ -1158,6 +1164,7 @@ Henry Schuler`,
             if (dbSportMatchSet.setNumber !== newSportMatchSet.setNumber) {
               const updateSportMatchSet = await this.databaseModel.updateSportMatchSetTable({id: dbSportMatchSet.id}, { setNumber: newSportMatchSet.setNumber });
               if (!this.databaseModel.evaluateSuccess(updateSportMatchSet)) {
+                console.log("update sport match set failed")
                 return false;
               }
             }
@@ -1173,6 +1180,7 @@ Henry Schuler`,
                     { sportMatchSet: dbSportMatchSet.id, teamNumber: dbSportMatchSetScore.teamNumber}, 
                     { score: newSportMatchSetScores[index].score });
                   if (!this.databaseModel.evaluateSuccess(updateSportMatchSetScore)) {
+                    console.log("update sport match set score failed")
                     return false;
                   }
                 }
@@ -1181,6 +1189,7 @@ Henry Schuler`,
                 // score was removed -> delete
                 const deleteSportMatchSetScore = await this.databaseModel.deleteSportSetScoreTable({sportMatchSet: dbSportMatchSet.id, teamNumber: dbSportMatchSetScore.teamNumber});
                 if (!this.databaseModel.evaluateSuccess(deleteSportMatchSetScore)) {
+                  console.log("delete sport match set score failed")
                   return false;
                 }
               }
@@ -1194,6 +1203,7 @@ Henry Schuler`,
                 score: newSportMatchSetScore.score,
               });
               if (!this.databaseModel.evaluateSuccess(addSportMatchSetScore)) {
+                console.log("add sport match set score failed")
                 return false;
               }
             }
@@ -1204,11 +1214,13 @@ Henry Schuler`,
             // delete sport match set scores
             const deleteSportMatchSetScore = await this.databaseModel.deleteSportSetScoreTable({sportMatchSet: dbSportMatchSet.id});
             if (!this.databaseModel.evaluateSuccess(deleteSportMatchSetScore)) {
+              console.log("delete sport match set score failed")
               return false;
             }
             // delete sport match set
             const deleteSportMatchSet = await this.databaseModel.deleteSportMatchSetTable({id: dbSportMatchSet.id});
             if (!this.databaseModel.evaluateSuccess(deleteSportMatchSet)) {
+              console.log("delete sport match set failed")
               return false;
             }
           }
@@ -1221,6 +1233,7 @@ Henry Schuler`,
             setNumber: newSportMatchSet.setNumber,
           });
           if (!this.databaseModel.evaluateSuccess(addSportMatchSet)) {
+            console.log("add sport match set failed")
             return false;
           }
 
@@ -1234,6 +1247,7 @@ Henry Schuler`,
               score: newSportMatchSetScore.score,
             });
             if (!this.databaseModel.evaluateSuccess(addSportMatchSetScore)) {
+              console.log("add sport match set score failed")
               return false;
             }
           }
@@ -1274,7 +1288,7 @@ Henry Schuler`,
     }
 
     // add new sport match relations
-
+    console.log("add new sport match relations")
     for (const sportMatchRelation of newSportMatchRelations) {
       // add sport match
       const addSportMatch = await this.databaseModel.addSportMatchTable({

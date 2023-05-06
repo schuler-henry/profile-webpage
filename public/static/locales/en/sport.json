@@ -1,6 +1,13 @@
 {
+  "ConfirmPull": "Confirm Pull Sport Events from Server",
+  "ConfirmPullMessage": "Do you want to pull the sport events from the server?",
+  "ConfirmPullWarning": "This will overwrite your local sport event changes with the sport events from the server. This action cannot be undone. (This action will not affect new sport events that are not saved to the server yet.)",
+  "ConfirmSync": "Confirm Sync Sport Events with the Server",
+  "ConfirmSyncMessage": "Do you want to sync the sport events with the server? This will not push any changes. It will only pull the latest sport events from the server. Your changes will not be overwritten.",
+
   "DeleteSportEvent": "Delete Sport Event",
   "DeleteSportEventMessage": "Are you sure you want to delete this sport event?",
+  "DeleteSportEventWarning": "This action cannot be undone.",
   "Badminton": "Badminton",
   "Volleyball": "Volleyball",
   "Training": "Training",
@@ -9,8 +16,8 @@
 
   "SaveSportEvent": "Save Sport Event",
   "SaveSportEventMessage": "Do you want to save the sport event?",
-  "CancelSportEvent": "Cancel Sport Event",
-  "CancelSportEventMessage": "Do you want to cancel your changes?",
+  "DiscardChangesSportEvent": "Discard Sport Event Changes",
+  "DiscardChangesSportEventMessage": "Do you want to discard your changes?",
   "Error": "Error",
   "ErrorWarning": "Something went wrong while saving the sport event.",
   "TabSportEvent": "Sport Event",

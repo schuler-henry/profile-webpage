@@ -1,0 +1,40 @@
+.wrapper {
+  background-color: var(--color-bg-second);
+  height: 100%;
+  border-top: 2px solid;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.wrapper h2:first-of-type {
+  margin-top: 0;
+}
+
+.wrapper h2 {
+  margin-bottom: 5px;
+}
+
+.timeInput {
+  background-color: var(--color-bg-primary);
+  font-size: 14px;
+  padding: 6px 8px;
+  border: 1px solid var(--color-border-primary);
+  border-radius: 2px;
+}
+
+.description {
+  min-width: 50%;
+  max-width: 100%;
+  width: 100%;
+}
+
+.controlButtonWrapper {
+  background-color: var(--color-bg-primary);
+  width: fit-content;
+  margin: 20px auto 0 auto;
+  border-radius: 5px; 
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  gap: 20px;
+}

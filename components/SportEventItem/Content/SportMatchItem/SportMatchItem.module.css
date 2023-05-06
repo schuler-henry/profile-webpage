@@ -1,7 +1,18 @@
+.wrapper {
+  background-color: var(--color-bg-selected);
+  border-radius: 5px;
+  padding: 0px;
+}
+
 .elementWrapper {
   background-color: var(--color-bg-selected);
   border-radius: 5px;
   padding: 10px;
+}
+
+.editWrapper {
+  background-color: var(--color-bg-off);
+  margin: 10px;
 }
 
 .elementWrapper table tr td:first-of-type {

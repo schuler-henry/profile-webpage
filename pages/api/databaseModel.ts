@@ -457,9 +457,9 @@ export class DatabaseModel {
           }
         }
       }
+      const sportEventIndex = allSportEvents.length - 1;
+      allSportEvents[sportEventIndex].sportMatch = []
       if (sportEvent.sportMatch) {
-        const sportEventIndex = allSportEvents.length - 1;
-        allSportEvents[sportEventIndex].sportMatch = []
         for (const sportMatch of sportEvent.sportMatch) {
           allSportEvents[sportEventIndex].sportMatch.push({ id: sportMatch.id, description: sportMatch.description, sportTeam: undefined, sportMatchSet: undefined })
           if (sportMatch.sportTeam) {
