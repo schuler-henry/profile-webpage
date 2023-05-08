@@ -100,7 +100,7 @@ class Summaries extends Component<SummariesProps, SummariesState> {
                     <PageLoadingScreen />
                   }
                   <div className={styles.container}>
-                    {this.state.listItems.map((summary, i) => (
+                    {this.state.listItems.sort((a, b) => (new Date(b.date)).getTime() - (new Date(a.date)).getTime()).map((summary, i) => (
                       <div key={i} className={styles.summary}>
                         <Summary summary={summary} />
                       </div>
