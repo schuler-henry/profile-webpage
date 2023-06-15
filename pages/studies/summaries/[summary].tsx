@@ -25,6 +25,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 
 import 'katex/dist/katex.min.css' // `rehype-katex` does not import the CSS for you
+import Script from 'next/script';
 
 export interface SummaryState {
   summary: matter.GrayMatterFile<any>;
@@ -115,6 +116,18 @@ class Summary extends Component<SummaryProps, SummaryState> {
                     className={`${FrontEndController.getTheme() === ColorTheme.darkTheme ? stylesDark.markdown : stylesLight.markdown}`}>
                     {this.state.summary.content}
                   </ReactMarkdown>
+                  <Script
+                    id = "mermaid"
+                    type="module"
+                    strategy="afterInteractive"
+                    dangerouslySetInnerHTML={{
+                      __html: `
+                      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@9/dist/mermaid.esm.min.mjs";
+                      mermaid.initialize({startOnLoad: true});
+                      mermaid.contentLoaded();
+                      `,
+                    }}
+                  />
                 </div>
                 <div style={{position: "absolute", bottom: "20px", right: "20px", backgroundColor: "black", width: "50px", height: "50px", display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "25px", cursor: "pointer"}}
                   onClick={() => {
