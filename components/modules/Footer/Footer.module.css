@@ -1,0 +1,22 @@
+.grid {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.grid div {
+  display: flex;
+  flex-direction: column;
+}
+
+.grid div a {
+  margin-top: 5px;
+  display: inline-flex;
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+}
