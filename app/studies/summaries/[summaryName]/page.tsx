@@ -29,7 +29,7 @@ export default async function Summary({ params, searchParams }: SummaryProps) {
 
   return (
     <div className={styles.markdown}>
-      {/* @ts-expect-error Async Server Component */}
+      {/* @ts-ignore */}
       <MDXRemote
         source={content.content}
         options={{
@@ -44,7 +44,7 @@ export default async function Summary({ params, searchParams }: SummaryProps) {
               <table>{props.children}</table>
             </div>
           ),
-          // @ts-expect-error Async Server Component
+          // @ts-ignore
           EmbeddedPDF,
           mermaid: MermaidClient,
           MermaidClient,
