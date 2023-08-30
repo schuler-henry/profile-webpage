@@ -3,6 +3,12 @@ const withPWA = require('next-pwa')({
   dest: 'public',
 });
 
-const nextConfig = {};
+const withMDX = require('@next/mdx')();
 
-module.exports = withPWA(nextConfig);
+const nextConfig = {
+  experimental: {
+    mdxRs: true,
+  },
+};
+
+module.exports = withPWA(withMDX(nextConfig));

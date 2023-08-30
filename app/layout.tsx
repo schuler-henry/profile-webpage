@@ -49,8 +49,9 @@ export default function RootLayout({
               elevation={0}
               square
               sx={{
-                marginTop: '56px',
-                padding: '1rem',
+                marginTop: 'calc(56px + 1rem)',
+                marginBottom: '1rem',
+                padding: '0 1rem',
                 minHeight: 'calc(100vh - 56px)',
               }}
             >

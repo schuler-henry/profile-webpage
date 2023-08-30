@@ -2,9 +2,15 @@
   font-family: 'Roboto', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-  }
+body {
+  --table-border-color: #606060a0;
+  --table-head-bg-color: #60606040;
+  --color-text-secondary: #00b7e0;
+}
+
+body[data-theme='light'] {
+  --table-border-color: #606060a0;
+  --color-text-secondary: #1fc7ff;
 }
 
 * {

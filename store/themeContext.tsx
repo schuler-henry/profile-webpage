@@ -21,6 +21,8 @@ export default function ThemeContextProvider(props: any) {
 
   const themeSwitchHandler = (themeName: 'dark' | 'light') => {
     setCurrentTheme(themeName === 'dark' ? darkTheme : lightTheme);
+    // Set theme property to body html for access in css
+    document.body.dataset.theme = themeName;
   };
 
   return (
