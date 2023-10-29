@@ -21,10 +21,15 @@ export default async function Summaries() {
             {name.split('.')[1] === 'mdx' ? (
               <SummaryListItem
                 title={content.data.title}
+                description={content.data.description}
                 professor={content.data.professor}
                 degree={content.data.degree}
+                degreeName={content.data.degreeName}
                 language={content.data.language}
                 universityName={content.data.universityName}
+                semester={content.data.semester}
+                semesterPeriod={content.data.semesterPeriod}
+                date={content.data.date}
                 href={
                   '/studies/summaries/' +
                   name.split('.')[0] +
