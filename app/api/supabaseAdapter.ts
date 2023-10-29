@@ -13,6 +13,20 @@ export class SupabaseAdapter implements DatabaseAdapter {
     });
   }
 
+  async getSummaryNames(): Promise<string[]> {
+    const result = await SupabaseAdapter.CLIENT.storage
+      .from('studies.summaries')
+      .list('summaries');
+
+    const names = result.data?.map((item) => {
+      return item.name;
+    });
+
+    console.log(names);
+
+    return names || [];
+  }
+
   async getSummary(summaryName: string): Promise<Blob | null> {
     const exists = await SupabaseAdapter.CLIENT.rpc(
       'check_bucket_item_exists',
