@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import React, { useRef } from 'react';
+import React from 'react';
 import styles from './SummaryListItem.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -35,6 +35,7 @@ export interface SummaryListItemProps {
 
 export default function SummaryListItem(props: SummaryListItemProps) {
   const [open, setOpen] = React.useState(false);
+
   const Puller = styled(Box)(({ theme }) => ({
     width: 60,
     height: 6,
@@ -67,17 +68,17 @@ export default function SummaryListItem(props: SummaryListItemProps) {
               </span>
               <span className={styles.attribute}>
                 <FontAwesomeIcon
-                  icon={faGraduationCap}
-                  className={styles.attributeIcon}
-                />
-                <p className={styles.attributeName}>{props.degree}</p>
-              </span>
-              <span className={styles.attribute}>
-                <FontAwesomeIcon
                   icon={faEarthEurope}
                   className={styles.attributeIcon}
                 />
                 <p className={styles.attributeName}>{props.language}</p>
+              </span>
+              <span className={styles.attribute}>
+                <FontAwesomeIcon
+                  icon={faGraduationCap}
+                  className={styles.attributeIcon}
+                />
+                <p className={styles.attributeName}>{props.degree}</p>
               </span>
               <span className={styles.attribute}>
                 <FontAwesomeIcon
@@ -181,23 +182,6 @@ export default function SummaryListItem(props: SummaryListItemProps) {
           </div>
         </Box>
       </SwipeableDrawer>
-
-      {/* <BottomSheet
-        open={open}
-        onDismiss={() => setOpen(false)}
-        expandOnContentDrag={true}
-        ref={sheetRef}
-        defaultSnap={({ minHeight }) => minHeight}
-        snapPoints={({ maxHeight, minHeight }) => [
-          maxHeight - 40,
-          maxHeight * 0.6,
-          minHeight,
-        ]}
-        scrollLocking={true}
-        style={{ zIndex: 1000000 }}
-      >
-        <h3>{props.title}</h3>
-      </BottomSheet> */}
     </>
   );
 }
