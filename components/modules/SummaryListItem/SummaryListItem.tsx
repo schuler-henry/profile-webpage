@@ -170,7 +170,7 @@ export default function SummaryListItem(props: SummaryListItemProps) {
               className={styles.drawerAttribute}
               onClick={async () => {
                 await navigator.clipboard.writeText(
-                  location.href.split('/')[0] + props.href,
+                  location.href + '/' + props.href.split('/summaries/')[1],
                 );
                 setOpen(false);
               }}
