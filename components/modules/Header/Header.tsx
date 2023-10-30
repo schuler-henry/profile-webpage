@@ -131,7 +131,7 @@ export default function Header() {
               {openStudies ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={openStudies} timeout="auto" unmountOnExit>
-              <List component="div">
+              <List component="div" className={styles.subList}>
                 <ListItemButton onClick={() => handleUrl('/studies')}>
                   <ListItemIcon>
                     <FontAwesomeIcon icon={faGraduationCap} width={iconWidth} />
@@ -157,24 +157,18 @@ export default function Header() {
               {openInfo ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={openInfo} timeout="auto" unmountOnExit>
-              <List component="div">
+              <List component="div" className={styles.subList}>
                 <ListItemButton onClick={() => handleUrl('/impressum')}>
                   <ListItemIcon>
                     <FontAwesomeIcon icon={faCircleInfo} width={iconWidth} />
                   </ListItemIcon>
                   <ListItemText primary="Impressum" />
                 </ListItemButton>
-                <ListItemButton onClick={() => handleUrl('/dsgvo')}>
+                <ListItemButton onClick={() => handleUrl('/privacy')}>
                   <ListItemIcon>
                     <FontAwesomeIcon icon={faLock} width={iconWidth} />
                   </ListItemIcon>
                   <ListItemText primary="Privacy Policy" />
-                </ListItemButton>
-                <ListItemButton onClick={() => handleUrl('/terms')}>
-                  <ListItemIcon>
-                    <FontAwesomeIcon icon={faScaleBalanced} width={iconWidth} />
-                  </ListItemIcon>
-                  <ListItemText primary="Terms of Service" />
                 </ListItemButton>
               </List>
             </Collapse>
@@ -189,7 +183,7 @@ export default function Header() {
               {openSettings ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={openSettings} unmountOnExit>
-              <List component="div">
+              <List component="div" className={styles.subList}>
                 <ListItem>
                   <ListItemIcon>
                     {palette.mode === 'dark' ? (

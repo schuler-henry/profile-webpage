@@ -14,3 +14,7 @@
   align-items: center;
   justify-content: center;
 }
+
+.subList {
+  backdrop-filter: brightness(0.8);
+}

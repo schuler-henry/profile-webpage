@@ -23,15 +23,26 @@ export default function Footer() {
     >
       <Box
         sx={{
-          padding: '30px 0',
+          margin: '30px 0',
         }}
       >
         <Box className={styles.grid}>
           <Box>
             <Typography variant="h6">Social</Typography>
-          </Box>
-          <Box>
-            <Typography variant="h6">Projects</Typography>
+            <Typography
+              component={'a'}
+              href="https://github.com/schuler-henry"
+              color="secondary"
+            >
+              GitHub
+            </Typography>
+            <Typography
+              component={'a'}
+              href="https://www.linkedin.com/in/henry-schuler-7bb247235/"
+              color="secondary"
+            >
+              LinkedIn
+            </Typography>
           </Box>
           <Box>
             <Typography variant="h6">Contact</Typography>
@@ -41,16 +52,12 @@ export default function Footer() {
             <Typography component={'a'} href="/privacy" color="secondary">
               Privacy Policy
             </Typography>
-            <Typography component={'a'} href="/terms" color="secondary">
-              Terms of Service
-            </Typography>
-          </Box>
-          <Box>
-            <Typography variant="h6">Account</Typography>
           </Box>
         </Box>
       </Box>
-      <Typography>Copyright © 2023</Typography>
+      <Typography className={styles.copyright}>
+        © 2023 Henry Schuler
+      </Typography>
     </Container>
   );
 }
