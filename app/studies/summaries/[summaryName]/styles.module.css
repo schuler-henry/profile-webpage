@@ -58,6 +58,9 @@
 .markdown pre {
   font-family: monospace;
   width: fit-content;
+  max-width: -webkit-fill-available;
+  overflow-x: auto;
+
   background-color: var(--code-bg-color);
   color: var(--code-text-color);
   padding: 1em 2em;
