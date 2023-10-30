@@ -6,11 +6,15 @@ body {
   --table-border-color: #606060a0;
   --table-head-bg-color: #60606040;
   --color-text-secondary: #00b7e0;
+  --code-bg-color: #222222;
+  --code-text-color: #f5effc;
 }
 
 body[data-theme='light'] {
   --table-border-color: #606060a0;
   --color-text-secondary: #1fc7ff;
+  --code-bg-color: #e4e4e4;
+  --code-text-color: #32363b;
 }
 
 * {

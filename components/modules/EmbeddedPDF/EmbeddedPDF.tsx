@@ -9,7 +9,7 @@ export interface EmbeddedPDFProps {
 
 export default async function EmbeddedPDF(props: EmbeddedPDFProps) {
   const db: DatabaseAdapter = new SupabaseAdapter();
-  const fileURL = await db.getSummaryPDFUrl('mathe2/Klausurzettel2');
+  const fileURL = await db.getSummaryPDFUrl(props.pdfPath);
 
   return (
     <div className={styles.embeddedPDF}>

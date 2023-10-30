@@ -54,3 +54,12 @@
   color: var(--color-text-secondary);
   text-decoration: underline;
 }
+
+.markdown pre {
+  font-family: monospace;
+  width: fit-content;
+  background-color: var(--code-bg-color);
+  color: var(--code-text-color);
+  padding: 1em 2em;
+  border-radius: 0.5em;
+}
