@@ -5,6 +5,8 @@ import matter from 'gray-matter';
 import React from 'react';
 import styles from './styles.module.css';
 
+export const revalidate = 1800;
+
 export default async function Summaries() {
   const db: DatabaseAdapter = new SupabaseAdapter();
   const names = await db.getSummaryNames();
