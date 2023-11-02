@@ -22,8 +22,6 @@ export class SupabaseAdapter implements DatabaseAdapter {
       return item.name;
     });
 
-    console.log(names);
-
     return names || [];
   }
 

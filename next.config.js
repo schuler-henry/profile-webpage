@@ -1,6 +1,20 @@
+const { InjectManifest } = require('workbox-webpack-plugin');
+
 /** @type {import('next').NextConfig} */
-const withPWA = require('next-pwa')({
+const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
+  extendDefaultRuntimeCaching: true,
+  workboxOptions: {
+    runtimeCaching: [
+      {
+        urlPattern: '/**',
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'pages-cache',
+        },
+      },
+    ],
+  },
 });
 
 const withMDX = require('@next/mdx')();
