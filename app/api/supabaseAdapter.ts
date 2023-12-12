@@ -50,9 +50,16 @@ export class SupabaseAdapter implements DatabaseAdapter {
   }
 
   async getSummaryPDFUrl(filePath: string): Promise<string> {
+    return this.getSummaryElementUrl(filePath, 'pdf');
+  }
+
+  async getSummaryElementUrl(
+    filePath: string,
+    fileType: string,
+  ): Promise<string> {
     const exists = await SupabaseAdapter.CLIENT.rpc(
       'check_bucket_item_exists',
-      { bucketId: 'studies.summaries', filePath: `${filePath}.pdf` },
+      { bucketId: 'studies.summaries', filePath: `${filePath}.${fileType}` },
     );
 
     if (
@@ -66,7 +73,7 @@ export class SupabaseAdapter implements DatabaseAdapter {
 
     const result = await SupabaseAdapter.CLIENT.storage
       .from('studies.summaries')
-      .getPublicUrl(`${filePath}.pdf`);
+      .getPublicUrl(`${filePath}.${fileType}`);
 
     return result.data?.publicUrl || '';
   }
