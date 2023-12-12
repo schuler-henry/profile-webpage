@@ -9,6 +9,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import styles from './styles.module.css';
 import EmbeddedPDF from '@/components/modules/EmbeddedPDF/EmbeddedPDF';
+import EmbeddedImage from '@/components/modules/EmbeddedImage/EmbeddedImage';
 
 import 'katex/dist/katex.min.css'; // `rehype-katex` does not import the CSS for you
 import mdxMermaid from 'mdx-mermaid';
@@ -48,6 +49,8 @@ export default async function Summary({ params, searchParams }: SummaryProps) {
           ),
           // @ts-ignore
           EmbeddedPDF,
+          // @ts-ignore
+          EmbeddedImage,
           mermaid: MermaidClient,
           MermaidClient,
         }}
