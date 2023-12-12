@@ -1,0 +1,68 @@
+.markdown :is(h1, h2, h3, h4, h5, h6) {
+  margin: 1em 0;
+}
+
+.markdown :is(h4, h5, h6) {
+  font-style: italic;
+}
+
+.markdown img {
+  max-width: 100%;
+  border-radius: 0.5em;
+  margin: 1em 0;
+}
+
+.markdown ul {
+  list-style-position: outside;
+}
+
+.markdown ul,
+.markdown ol {
+  padding-left: 1.5em;
+}
+
+.markdown .scrollableTable {
+  overflow-x: overlay;
+}
+
+.markdown table {
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.markdown table :is(td, th) {
+  border: 1px solid var(--table-border-color);
+  padding: 1em;
+}
+
+.markdown table thead {
+  background-color: var(--table-head-bg-color);
+}
+
+.markdown blockquote {
+  border-left: 0.25em solid var(--color-text-secondary);
+  padding: 0 1em;
+  margin: 1em 0;
+}
+
+.markdown blockquote p {
+  margin: 1em 0;
+  opacity: 0.7;
+}
+
+.markdown a {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+}
+
+.markdown pre {
+  font-family: monospace;
+  width: fit-content;
+  max-width: -webkit-fill-available;
+  overflow-x: auto;
+
+  background-color: var(--code-bg-color);
+  color: var(--code-text-color);
+  padding: 1em 2em;
+  border-radius: 0.5em;
+}

@@ -1,0 +1,20 @@
+.header {
+  height: 40px;
+  border-bottom: 1px solid #eaeaea;
+
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.menuIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.subList {
+  backdrop-filter: brightness(0.8);
+}

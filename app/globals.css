@@ -1,0 +1,41 @@
+:root {
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  --table-border-color: #606060a0;
+  --table-head-bg-color: #60606040;
+  --color-text-secondary: #00b7e0;
+  --code-bg-color: #222222;
+  --code-text-color: #f5effc;
+}
+
+body[data-theme='light'] {
+  --table-border-color: #606060a0;
+  --color-text-secondary: #1fc7ff;
+  --code-bg-color: #e4e4e4;
+  --code-text-color: #32363b;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}

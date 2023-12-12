@@ -1,0 +1,139 @@
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+
+  height: calc(52px + 32px);
+  width: 100%;
+  padding: 16px 0;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.iconWrapper {
+  display: flex;
+  justify-content: center;
+
+  height: 52px;
+  width: 52px;
+
+  font-size: 52px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
+  height: 100%;
+  width: calc(100% - 52px - 16px);
+  overflow: hidden;
+}
+
+.title {
+  line-height: 1.17em;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attributeList {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+
+  color: #666666;
+
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.attribute {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+
+  white-space: nowrap;
+}
+
+.attributeName {
+  height: 16px;
+  line-height: 16px;
+}
+
+.attributeIcon {
+  font-size: 16px;
+}
+
+/* With dots */
+.content {
+  width: calc(100% - 52px - 16px - 16px - 21px);
+}
+
+.ellipsisWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 52px;
+  width: 21px;
+
+  font-size: 21px;
+}
+
+/* Drawer */
+.drawerHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+
+  min-height: 52px;
+  margin: 16px 0;
+}
+
+.drawerHeaderIconWrapper {
+  display: flex;
+  justify-content: center;
+
+  height: 52px;
+  width: 52px;
+
+  font-size: 52px;
+}
+
+.drawerDescription {
+  margin: 16px 0;
+  text-align: justify;
+}
+
+.drawerAttributeList {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  margin: 16px 0;
+
+  white-space: nowrap;
+}
+
+.drawerAttribute {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+
+  height: 34px;
+  font-size: 16px;
+
+  border: 1px solid;
+  border-radius: 16px;
+  padding: 8px 8px;
+}
+
+.drawerAttribute p {
+  height: 16px;
+  line-height: 16px;
+}

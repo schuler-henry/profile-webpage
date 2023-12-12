@@ -1,21 +1,24 @@
-const { i18n } = require('./next-i18next.config');
-
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  i18n,
+const withPWA = require('next-pwa')({
+  dest: 'public',
+});
 
-  reactStrictMode: true,
-  webpack: function(config) {
-    config.module.rules.push({
-      test: /\.md$/,
-      use: 'raw-loader',
-    })
-    return config
+const withMDX = require('@next/mdx')();
+
+const nextConfig = {
+  experimental: {
+    mdxRs: true,
   },
   images: {
-    domains: ['web-notes.me', 'dev-chat.me', 'henry-schuler.vercel.app', 'henryschuler.de', 'avatars.githubusercontent.com', 'www.adsimple.at', 'github.com', 'img.shields.io', 'know-where-you-go.de'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'henryschuler.de',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
-  optimizeFonts: false,
-}
+};
 
-module.exports = nextConfig
+module.exports = withPWA(withMDX(nextConfig));
