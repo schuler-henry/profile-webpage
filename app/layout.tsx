@@ -2,7 +2,7 @@
 import Header from '@/components/modules/Header/Header';
 import Footer from '@/components/modules/Footer/Footer';
 import './globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
@@ -14,7 +14,6 @@ export const metadata: Metadata = {
   title: 'Henry Schuler',
   description: "Henry Schuler's personal website",
   manifest: '/manifest.json',
-  viewport: 'width=device-width, initial-scale=1',
   icons: {
     shortcut: '/favicon.ico',
     apple: [
@@ -22,7 +21,6 @@ export const metadata: Metadata = {
       { url: '/logos/logo-192x192.png', sizes: '192x192' },
     ],
   },
-  themeColor: '#000000',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -31,6 +29,12 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#000000',
 };
 
 export default function RootLayout({
