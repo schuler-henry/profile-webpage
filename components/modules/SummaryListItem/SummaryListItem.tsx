@@ -108,6 +108,7 @@ export default function SummaryListItem(props: SummaryListItemProps) {
         onClose={() => setOpen(false)}
         onOpen={() => setOpen(true)}
         disableSwipeToOpen
+        disableScrollLock
         PaperProps={{
           square: false,
           sx: { borderTopLeftRadius: 8, borderTopRightRadius: 8 },
