@@ -1,8 +1,14 @@
+import { SummaryMatter } from '../studies/summaries/[summaryName]/page';
 import { DatabaseAdapter } from './databaseAdapter';
-import { SupabaseClient, createClient } from '@supabase/supabase-js';
+import {
+  PostgrestResponse,
+  SupabaseClient,
+  createClient,
+} from '@supabase/supabase-js';
 
 export class SupabaseAdapter implements DatabaseAdapter {
   private static CLIENT: SupabaseClient;
+  private static STUDIES_CLIENT: SupabaseClient<any, 'studies', any>;
 
   constructor() {
     const supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -11,6 +17,14 @@ export class SupabaseAdapter implements DatabaseAdapter {
     SupabaseAdapter.CLIENT = createClient(supabaseUrl, supabaseAnonKey, {
       auth: { persistSession: false },
     });
+    SupabaseAdapter.STUDIES_CLIENT = createClient(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        auth: { persistSession: false },
+        db: { schema: 'studies' },
+      },
+    );
   }
 
   async getSummaryNames(): Promise<string[]> {
@@ -76,5 +90,78 @@ export class SupabaseAdapter implements DatabaseAdapter {
       .getPublicUrl(`${filePath}.${fileType}`);
 
     return result.data?.publicUrl || '';
+  }
+
+  // REWORK
+  getStudiesSummaryMatterFromResponse(
+    dbResponse: PostgrestResponse<StudiesSummary>,
+  ): SummaryMatter[] {
+    if (
+      dbResponse.data === null ||
+      dbResponse.error !== null ||
+      dbResponse.data.length === 0
+    ) {
+      return [];
+    }
+
+    const allSummaryMatters: SummaryMatter[] = [];
+
+    for (const matter of dbResponse.data) {
+      const summaryMatter: SummaryMatter = {
+        id: matter.id,
+        title: matter.title,
+        description: matter.description,
+        lastModified: new Date(matter.lastModified || ''),
+        fileName: matter.file,
+        semester: matter.semester,
+        degree:
+          typeof matter.degree === 'object' ? matter.degree.degree : undefined,
+        degreeSubject:
+          typeof matter.degree === 'object'
+            ? matter.degree?.subject
+            : undefined,
+        language:
+          typeof matter.language === 'object'
+            ? matter.language?.code
+            : matter.language,
+        university:
+          typeof matter.university === 'object'
+            ? matter.university?.name
+            : matter.university,
+        semesterPeriod:
+          typeof matter.semesterPeriod === 'object'
+            ? matter.semesterPeriod.name
+            : matter.semesterPeriod,
+        professors: matter.professors,
+      };
+
+      allSummaryMatters.push(summaryMatter);
+    }
+
+    return allSummaryMatters;
+  }
+
+  async selectStudiesSummary(): Promise<PostgrestResponse<StudiesSummary>> {
+    const result = await SupabaseAdapter.STUDIES_CLIENT.from('Summary').select(`
+        id,
+        title,
+        description,
+        lastModified,
+        file,
+        semester,
+        degree:Degree(*),
+        language:Language(*),
+        university:University(*),
+        semesterPeriod:Semester(*),
+        professors:Professor(*)
+      `);
+
+    return result as PostgrestResponse<StudiesSummary>;
+  }
+
+  async getSummaryMatters(): Promise<SummaryMatter[]> {
+    return this.getStudiesSummaryMatterFromResponse(
+      await this.selectStudiesSummary(),
+    );
   }
 }

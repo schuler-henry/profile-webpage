@@ -25,9 +25,9 @@ export interface SummaryListItemProps {
   description: string;
   professor: string;
   degree: string;
-  degreeName: string;
+  degreeSubject: string;
   language: string;
-  universityName: string;
+  university: string;
   semester: string;
   semesterPeriod: string;
   date: string;
@@ -85,7 +85,7 @@ export default function SummaryListItem(props: SummaryListItemProps) {
                   icon={faBuildingColumns}
                   className={styles.attributeIcon}
                 />
-                <p className={styles.attributeName}>{props.universityName}</p>
+                <p className={styles.attributeName}>{props.university}</p>
               </span>
             </span>
           </div>
@@ -150,7 +150,7 @@ export default function SummaryListItem(props: SummaryListItemProps) {
             </span>
             <span className={styles.drawerAttribute}>
               <FontAwesomeIcon icon={faWrench} />
-              <p>{props.degreeName}</p>
+              <p>{props.degreeSubject}</p>
             </span>
             <span className={styles.drawerAttribute}>
               <FontAwesomeIcon icon={faCalendarDays} />
@@ -162,14 +162,16 @@ export default function SummaryListItem(props: SummaryListItemProps) {
             </span>
             <span className={styles.drawerAttribute}>
               <FontAwesomeIcon icon={faBuildingColumns} />
-              <p>{props.universityName}</p>
+              <p>{props.university}</p>
             </span>
             <span className={styles.drawerAttribute}>
               <FontAwesomeIcon icon={faPen} />
               <p>{props.date}</p>
             </span>
             <span
-              className={styles.drawerAttribute}
+              className={
+                styles.drawerAttribute + ' ' + styles.drawerAttributeLink
+              }
               onClick={async () => {
                 await navigator.clipboard.writeText(
                   location.href + '/' + props.href.split('/summaries/')[1],
