@@ -256,7 +256,7 @@ export default function SummaryListFilter(props: SummaryListFilterProps) {
               <div key={'Filter key: ' + filterKey}>
                 <FormControl
                   variant="filled"
-                  sx={{ m: 1, minWidth: 120, width: '-webkit-fill-available' }}
+                  sx={{ m: 1, minWidth: 120, width: 'stretch' }}
                 >
                   <InputLabel id={'FilterLabel ' + filterKey}>
                     {filterKey}
