@@ -15,11 +15,32 @@ import 'katex/dist/katex.min.css'; // `rehype-katex` does not import the CSS for
 import mdxMermaid from 'mdx-mermaid';
 import MermaidClient from '@/components/elements/MermaidClient/MermaidClient';
 
-export const revalidate = 1800;
+export const revalidate = 60;
 
 export interface SummaryProps {
   params: { summaryName: string };
   searchParams: { type?: string };
+}
+
+export interface SummaryMatter {
+  id?: number;
+  title?: string;
+  description?: string;
+  professors?: Professor[];
+  degree?: string;
+  degreeSubject?: string;
+  language?: string;
+  university?: string;
+  semester?: number;
+  semesterPeriod?: string;
+  lastModified?: Date;
+  fileName?: string;
+}
+
+export interface Professor {
+  id?: number;
+  firstName?: string;
+  lastName?: string;
 }
 
 export default async function Summary({ params, searchParams }: SummaryProps) {

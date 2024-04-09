@@ -21,6 +21,7 @@ const config = {
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   testPathIgnorePatterns: ['/node_modules/', '/old/'],
 
+  setupFiles: ['<rootDir>/.jest/setEnvVars.ts'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     '^@/components/(.*)$': '<rootDir>/components/$1',
