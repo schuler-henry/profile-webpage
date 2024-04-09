@@ -23,6 +23,7 @@ body[data-theme='light'] {
   margin: 0;
   /* Scroll-margin prevents automatic anchor link scrolling to be hidden behind position:fixed header */
   scroll-margin-top: 64px;
+  overflow-wrap: break-word;
 }
 
 html,
@@ -34,6 +35,13 @@ body {
 a {
   color: inherit;
   text-decoration: none !important;
+}
+
+@media (max-width: 900px) {
+  /* In summaries: enables overflow wrapping of long formulas */
+  .katex .base {
+    display: contents !important;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
