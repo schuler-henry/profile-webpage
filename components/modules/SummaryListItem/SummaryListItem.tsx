@@ -7,16 +7,32 @@ import {
   faBuildingColumns,
   faCalendarDays,
   faClock,
+  faCloud,
+  faCloudArrowDown,
+  faDownload,
   faEarthEurope,
   faEllipsisVertical,
+  faFileArrowDown,
   faFileLines,
   faGraduationCap,
   faLink,
+  faMobileAndroid,
+  faMobilePhone,
+  faMobileScreen,
   faPen,
+  faRotate,
+  faTrash,
+  faTrashCan,
   faUser,
   faWrench,
 } from '@fortawesome/free-solid-svg-icons';
-import { Box, SwipeableDrawer, styled } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  SwipeableDrawer,
+  styled,
+} from '@mui/material';
 import { grey } from '@mui/material/colors';
 
 export interface SummaryListItemProps {
@@ -31,10 +47,12 @@ export interface SummaryListItemProps {
   semester: string;
   semesterPeriod: string;
   date: string;
+  offlineAvailable: boolean;
 }
 
 export default function SummaryListItem(props: SummaryListItemProps) {
   const [open, setOpen] = React.useState(false);
+  const [updateCache, setUpdateCache] = React.useState(false);
 
   const Puller = styled(Box)(({ theme }) => ({
     width: 60,
@@ -54,7 +72,9 @@ export default function SummaryListItem(props: SummaryListItemProps) {
       >
         <div className={styles.wrapper}>
           <div className={styles.iconWrapper}>
-            <FontAwesomeIcon icon={faFileLines} />
+            <FontAwesomeIcon
+              icon={props.offlineAvailable ? faFileLines : faFileArrowDown}
+            />
           </div>
           <div className={styles.content}>
             <h3 className={styles.title}>{props.title}</h3>
@@ -128,7 +148,9 @@ export default function SummaryListItem(props: SummaryListItemProps) {
         >
           <div className={styles.drawerHeader}>
             <div className={styles.drawerHeaderIconWrapper}>
-              <FontAwesomeIcon icon={faFileLines} />
+              <FontAwesomeIcon
+                icon={props.offlineAvailable ? faFileLines : faFileArrowDown}
+              />
             </div>
             <h3>{props.title}</h3>
           </div>
@@ -168,6 +190,14 @@ export default function SummaryListItem(props: SummaryListItemProps) {
               <FontAwesomeIcon icon={faPen} />
               <p>{props.date}</p>
             </span>
+            <span className={styles.drawerAttribute}>
+              <FontAwesomeIcon
+                icon={
+                  props.offlineAvailable ? faMobileScreen : faCloudArrowDown
+                }
+              />
+              <p>{props.offlineAvailable ? 'Cached' : 'Not Cached'}</p>
+            </span>
             <span
               className={
                 styles.drawerAttribute + ' ' + styles.drawerAttributeLink
@@ -181,6 +211,66 @@ export default function SummaryListItem(props: SummaryListItemProps) {
             >
               <FontAwesomeIcon icon={faLink} />
               <p>Copy Link</p>
+            </span>
+          </div>
+          <div>
+            <span>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {props.offlineAvailable ? (
+                  <>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                      <Button
+                        startIcon={<FontAwesomeIcon icon={faTrashCan} />}
+                        variant="contained"
+                        color="secondary"
+                        disabled={updateCache}
+                      >
+                        Delete cache
+                      </Button>
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                      <Button
+                        startIcon={<FontAwesomeIcon icon={faRotate} />}
+                        variant="contained"
+                        color="secondary"
+                        disabled={updateCache}
+                      >
+                        Sync cache
+                      </Button>
+                    </Box>
+                  </>
+                ) : (
+                  <Box sx={{ m: 1, position: 'relative' }}>
+                    <Button
+                      startIcon={<FontAwesomeIcon icon={faDownload} />}
+                      variant="contained"
+                      color="secondary"
+                      disabled={updateCache}
+                    >
+                      Cache file
+                    </Button>
+                    {updateCache && (
+                      <CircularProgress
+                        size={24}
+                        sx={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          marginTop: '-12px',
+                          marginLeft: '-12px',
+                        }}
+                      />
+                    )}
+                  </Box>
+                )}
+              </Box>
             </span>
           </div>
         </Box>

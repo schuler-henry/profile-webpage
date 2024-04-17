@@ -16,9 +16,11 @@ import { IconButton } from '@mui/material';
 import ConfirmationDialog from '@/components/elements/ConfirmationDialog/ConfirmationDialog';
 import SummaryListItem from '@/components/modules/SummaryListItem/SummaryListItem';
 import SummaryListSpeedDial from '@/components/modules/SummaryListSpeedDial/SummaryListSpeedDial';
+import { IndexedDBAdapter } from '@/components/adapters/IndexedDBAdapter/IndexedDBAdapter';
 
 export default function Summaries() {
   const [summaryMatters, setSummaryMatters] = useState<SummaryMatter[]>([]);
+  const [offlineMatters, setOfflineMatters] = useState<SummaryMatter[]>([]);
   const [filterOptions, setFilterOptions] = useState<SummaryFilter>(
     getEmptyFilter(),
   );
@@ -31,7 +33,13 @@ export default function Summaries() {
 
   // Initial Content Load
   useEffect(() => {
-    async function getSummaryMatters() {
+    async function getOfflineMatters() {
+      const idb = await IndexedDBAdapter.createIndexedDBAdapter();
+      const matters = await idb.getSummaryMatters();
+      setOfflineMatters(matters);
+    }
+
+    async function fetchSummaryMatters() {
       const response = await fetch('/api/studies/summaries/getMatters', {
         method: 'GET',
       });
@@ -43,7 +51,11 @@ export default function Summaries() {
     }
 
     async function initialDataLoad() {
-      await Promise.all([getSummaryMatters(), setFilter(getFilter())]);
+      await Promise.all([
+        getOfflineMatters(),
+        fetchSummaryMatters(),
+        setFilter(getFilter()),
+      ]);
     }
 
     initialDataLoad();
@@ -122,55 +134,85 @@ export default function Summaries() {
         )}
       </div>
       <div>
-        {summaryMatters.map((matter) => {
-          if (isAllowedByFilter(matter)) {
-            return (
-              <div key={'Summary ' + matter.id + matter.fileName}>
-                {matter.fileName?.split('.')[1] === 'mdx' ? (
-                  <SummaryListItem
-                    title={matter.title || ''}
-                    description={matter.description || ''}
-                    professor={
-                      matter.professors
-                        ?.map((prof) => {
-                          return prof.firstName + ' ' + prof.lastName;
-                        })
-                        .join(', ') || ''
-                    }
-                    degree={matter.degree || ''}
-                    degreeSubject={matter.degreeSubject || ''}
-                    language={matter.language || ''}
-                    university={matter.university || ''}
-                    semester={matter.semester?.toString() || ''}
-                    semesterPeriod={matter.semesterPeriod || ''}
-                    date={
-                      matter.lastModified
-                        ? new Date(matter.lastModified).toLocaleString(
-                            'default',
-                            {
-                              day: '2-digit',
-                              month: 'long',
-                              year: 'numeric',
-                            },
-                          )
-                        : ''
-                    }
-                    href={
-                      '/studies/summaries/' +
-                      matter.fileName?.split('.')[0] +
-                      '?type=' +
-                      matter.fileName?.split('.')[1]
-                    }
-                  />
-                ) : (
-                  <></>
-                )}
-              </div>
-            );
-          } else {
-            return <></>;
-          }
-        })}
+        {(summaryMatters.length === 0 ? offlineMatters : summaryMatters).map(
+          (matter) => {
+            if (isAllowedByFilter(matter)) {
+              return (
+                <div key={'Summary ' + matter.id + matter.fileName}>
+                  {matter.fileName?.split('.')[1] === 'mdx' ? (
+                    <SummaryListItem
+                      title={matter.title || ''}
+                      description={matter.description || ''}
+                      professor={
+                        matter.professors
+                          ?.map((prof) => {
+                            return prof.firstName + ' ' + prof.lastName;
+                          })
+                          .join(', ') || ''
+                      }
+                      degree={matter.degree || ''}
+                      degreeSubject={matter.degreeSubject || ''}
+                      language={matter.language || ''}
+                      university={matter.university || ''}
+                      semester={matter.semester?.toString() || ''}
+                      semesterPeriod={matter.semesterPeriod || ''}
+                      date={
+                        matter.lastModified
+                          ? new Date(matter.lastModified).toLocaleString(
+                              'default',
+                              {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                              },
+                            )
+                          : ''
+                      }
+                      href={
+                        '/studies/summaries/' +
+                        matter.fileName?.split('.')[0] +
+                        '?type=' +
+                        matter.fileName?.split('.')[1]
+                      }
+                      offlineAvailable={
+                        offlineMatters.find((m) => m.id === matter.id)
+                          ? true
+                          : false
+                      }
+                    />
+                  ) : (
+                    <></>
+                  )}
+                  {/* {offlineMatters.find((m) => m.id === matter.id) ? (
+                    <button
+                      onClick={async () => {
+                        const idb =
+                          await IndexedDBAdapter.createIndexedDBAdapter();
+                        await idb.removeSummaryMatter(matter);
+                        window.alert('Summary removed from your collection');
+                      }}
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        const idb =
+                          await IndexedDBAdapter.createIndexedDBAdapter();
+                        await idb.addSummaryMatter(matter);
+                        window.alert('Summary added to your collection');
+                      }}
+                    >
+                      Add
+                    </button>
+                  )} */}
+                </div>
+              );
+            } else {
+              return <></>;
+            }
+          },
+        )}
       </div>
       <SummaryListSpeedDial
         selectableFilters={filterOptions}

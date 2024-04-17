@@ -30,6 +30,7 @@
     "@types/react-dom": "^18.2.7",
     "encoding": "^0.1.13",
     "gray-matter": "^4.0.3",
+    "idb": "^8.0.0",
     "mdx-mermaid": "^2.0.0",
     "mermaid": "^10.4.0",
     "next": "^14.0.3",
