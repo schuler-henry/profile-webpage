@@ -2,9 +2,11 @@
 import {
   AppBar,
   Box,
+  Button,
   Chip,
   Collapse,
   Divider,
+  Icon,
   IconButton,
   List,
   ListItem,
@@ -40,6 +42,7 @@ import LogoBlack from '@/public/logos/logo_name_black.png';
 import ThemeSwitcher from '../ThemeSwitcher/ThemeSwitcher';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
+import AccountMenu from '../AccountMenu/AccountMenu';
 
 export default function Header() {
   const [open, setOpen] = React.useState(false);
@@ -96,6 +99,9 @@ export default function Header() {
             alt="Logo"
             height={35}
           />
+        </Typography>
+        <Typography style={{ marginRight: '10px' }}>
+          <AccountMenu />
         </Typography>
         <Tooltip title="Menu">
           <IconButton
