@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './ThemeSwitcher.module.css';
 import { FormControlLabel, Switch, Tooltip, styled } from '@mui/material';
-import { useThemeContext } from '@/store/themeContext';
+import { useThemeContext } from '@/store/ThemeContextProvider';
 
 const ThemeSwitch = styled(Switch)(({ theme }) => ({
   width: 58,

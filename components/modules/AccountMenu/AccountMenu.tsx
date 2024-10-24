@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Menu from '@mui/material/Menu';
@@ -7,17 +8,18 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Logout from '@mui/icons-material/Logout';
-import { useUser } from '@auth0/nextjs-auth0/client';
 import { Button } from '@mui/material';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
+import { useUser } from '@/store/UserContextProvider';
 
-export default function AccountMenu() {  
+export default function AccountMenu() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const { user, setUser, isLoading } = useUser();
   const open = Boolean(anchorEl);
-  const { user, error, isLoading } = useUser();
   const router = useRouter();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -28,12 +30,16 @@ export default function AccountMenu() {
   };
 
   const handleLogin = async () => {
-    router.push('/api/auth/login');
+    const client = createClient();
+    client.auth.signInWithOAuth({
+      provider: 'github',
+      options: { redirectTo: `${window.location.origin}/` },
+    });
   };
 
   const handleLogout = () => {
-    router.push('/api/auth/logout');
-    handleClose();
+    const client = createClient();
+    client.auth.signOut();
   };
 
   return (
@@ -59,10 +65,10 @@ export default function AccountMenu() {
               aria-haspopup="true"
               aria-expanded={open ? 'true' : undefined}
             >
-              {user.picture ? (
+              {user.user_metadata?.avatar_url ? (
                 <Image
                   style={{ borderRadius: '50%' }}
-                  src={user.picture}
+                  src={user.user_metadata.avatar_url}
                   alt="Profile Picture"
                   width={32}
                   height={32}
@@ -118,10 +124,10 @@ export default function AccountMenu() {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <MenuItem onClick={handleClose}>
-          {user && user.picture ? (
+          {user && user.user_metadata?.avatar_url ? (
             <Image
               style={{ borderRadius: '50%', marginLeft: -4, marginRight: 8 }}
-              src={user.picture}
+              src={user.user_metadata?.avatar_url}
               alt="Profile Picture"
               width={32}
               height={32}
@@ -137,7 +143,7 @@ export default function AccountMenu() {
               />
             </ListItemIcon>
           )}{' '}
-          {user ? user.name : 'User'}
+          {user && user.user_metadata?.name ? user.user_metadata?.name : 'User'}
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleLogout}>
