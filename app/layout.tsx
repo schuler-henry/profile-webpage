@@ -8,7 +8,8 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { CssBaseline, Divider, Paper } from '@mui/material';
-import ThemeContextProvider from '@/store/themeContext';
+import ThemeContextProvider from '@/store/ThemeContextProvider';
+import UserContextProvider from '@/store/UserContextProvider';
 
 export const metadata: Metadata = {
   title: 'Henry Schuler',
@@ -43,29 +44,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ThemeContextProvider>
-      <CssBaseline />
-      <html lang="en">
-        <body>
-          <Header />
-          <main>
-            <Paper
-              elevation={0}
-              square
-              sx={{
-                marginTop: 'calc(56px + 1rem)',
-                marginBottom: '1rem',
-                padding: '0 1rem',
-                minHeight: 'calc(100vh - 56px)',
-              }}
-            >
-              {children}
-            </Paper>
-            <Divider />
-          </main>
-          <Footer />
-        </body>
-      </html>
-    </ThemeContextProvider>
+    <UserContextProvider user={null}>
+      <ThemeContextProvider>
+        <CssBaseline />
+        <html lang="en">
+          <body>
+            <Header />
+            <main>
+              <Paper
+                elevation={0}
+                square
+                sx={{
+                  marginTop: 'calc(56px + 1rem)',
+                  marginBottom: '1rem',
+                  padding: '0 1rem',
+                  minHeight: 'calc(100vh - 56px - 2rem)',
+                }}
+              >
+                {children}
+              </Paper>
+              <Divider />
+            </main>
+            <Footer />
+          </body>
+        </html>
+      </ThemeContextProvider>
+    </UserContextProvider>
   );
 }
