@@ -22,6 +22,7 @@ import {
 } from '@mui/material';
 import moment from 'moment';
 import React, { useEffect } from 'react';
+import ImportEntriesButton from '@/components/modules/time-tracking/ImportEntriesButton/ImportEntriesButton';
 
 export interface TimeTrackingContentProps {
   project: TimeTrackingProject;
@@ -258,6 +259,10 @@ export default function TimeTrackingContent({
             onSelectEntry={handleSelectEntry}
           />
         </Paper>
+      </Box>
+      <Divider />
+      <Box sx={{ mt: 1, mb: 1 }}>
+        <ImportEntriesButton project={project} setEntries={setEntries} />
       </Box>
     </React.Fragment>
   );

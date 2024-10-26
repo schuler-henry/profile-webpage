@@ -21,6 +21,9 @@ export abstract class DatabaseAdapter {
   abstract insertTimeTrackingEntry(
     timeEntry: TimeTrackingTimeEntry | { project: string; startTime?: string },
   ): Promise<PostgrestSingleResponse<TimeTrackingTimeEntry[]>>;
+  abstract insertTimeTrackingEntries(
+    timeEntries: TimeTrackingTimeEntry[],
+  ): Promise<PostgrestSingleResponse<null>>;
   abstract deleteTimeTrackingEntry(
     id: string,
   ): Promise<PostgrestSingleResponse<null>>;

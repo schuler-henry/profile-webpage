@@ -128,6 +128,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         <Box sx={{ p: 2 }}>
           <Stack
             direction="row"
+            spacing={2}
             sx={{ justifyContent: 'space-between', alignItems: 'center' }}
           >
             <Typography gutterBottom variant="h5" component="div">
@@ -165,8 +166,14 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               </Stack>
             </Box>
           </Stack>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {project.description}
+          <Divider sx={{ mt: 1, mb: 1 }} />
+          <Typography
+            variant="subtitle2"
+            fontStyle="italic"
+            textAlign="justify"
+            sx={{ color: 'text.secondary' }}
+          >
+            "{project.description}"
           </Typography>
         </Box>
       </CardActionArea>

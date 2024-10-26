@@ -193,24 +193,31 @@ export class SupabaseAdapter implements DatabaseAdapter {
   async updateTimeTrackingEntry(
     timeEntry: TimeTrackingTimeEntry,
   ): Promise<PostgrestSingleResponse<null>> {
-    return await SupabaseAdapter.TIME_TRACKING_CLIENT
-      .from('TimeEntry')
+    return await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
       .update([timeEntry])
       .eq('id', timeEntry.id);
   }
 
   async insertTimeTrackingEntry(
-    timeEntry: TimeTrackingTimeEntry | {},
+    timeEntry: TimeTrackingTimeEntry | { project: string; startTime?: string },
   ): Promise<PostgrestSingleResponse<TimeTrackingTimeEntry[]>> {
-    return await SupabaseAdapter.TIME_TRACKING_CLIENT
-      .from('TimeEntry')
+    return await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
       .insert([timeEntry])
       .select();
   }
 
-  async deleteTimeTrackingEntry(id: string): Promise<PostgrestSingleResponse<null>> {
-    return await SupabaseAdapter.TIME_TRACKING_CLIENT
-      .from('TimeEntry')
+  async insertTimeTrackingEntries(
+    timeEntries: TimeTrackingTimeEntry[],
+  ): Promise<PostgrestSingleResponse<null>> {
+    return await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry').insert(
+      timeEntries,
+    );
+  }
+
+  async deleteTimeTrackingEntry(
+    id: string,
+  ): Promise<PostgrestSingleResponse<null>> {
+    return await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
       .delete()
       .eq('id', id);
   }

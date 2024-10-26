@@ -3,12 +3,13 @@ import {
   TimeTrackingTimeEntry,
 } from '@/app/api/supabaseTypes';
 import { createClient } from '@/utils/supabase/server';
-import { Typography } from '@mui/material';
+import { Alert, Link, Stack, Typography } from '@mui/material';
 import { PostgrestSingleResponse } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
 import React from 'react';
 import TimeTrackingContent from './TimeTrackingContent';
 import moment from 'moment';
+import NextLink from 'next/link';
 
 export default async function TimeTrackingProjectPage({
   params,
@@ -58,7 +59,19 @@ export default async function TimeTrackingProjectPage({
     .eq('owner', userData.user.id);
 
   if (projectError || projectResult.length == 0) {
-    return <div>Error loading project</div>;
+    return (
+      <Stack spacing={2} direction="column">
+        <Typography variant="h6">Time Tracking Project Not Found</Typography>
+        <Alert severity="error">
+          The time tracking project with the id {projectId} does not exist.
+          Please{' '}
+          <Link href="/time-tracking" component={NextLink} color="secondary">
+            go back
+          </Link>
+          .
+        </Alert>
+      </Stack>
+    );
   }
 
   const project = projectResult[0];
