@@ -10,6 +10,8 @@ import '@fontsource/roboto/700.css';
 import { CssBaseline, Divider, Paper } from '@mui/material';
 import ThemeContextProvider from '@/store/ThemeContextProvider';
 import UserContextProvider from '@/store/UserContextProvider';
+import SnackbarComponent from '@/components/elements/SnackbarComponent/SnackbarComponent';
+import SnackbarContextProvider from '@/store/SnackbarContextProvider';
 
 export const metadata: Metadata = {
   title: 'Henry Schuler',
@@ -46,28 +48,31 @@ export default function RootLayout({
   return (
     <UserContextProvider user={null}>
       <ThemeContextProvider>
-        <CssBaseline />
-        <html lang="en">
-          <body>
-            <Header />
-            <main>
-              <Paper
-                elevation={0}
-                square
-                sx={{
-                  marginTop: 'calc(56px + 1rem)',
-                  marginBottom: '1rem',
-                  padding: '0 1rem',
-                  minHeight: 'calc(100vh - 56px - 2rem)',
-                }}
-              >
-                {children}
-              </Paper>
-              <Divider />
-            </main>
-            <Footer />
-          </body>
-        </html>
+        <SnackbarContextProvider>
+          <CssBaseline />
+          <html lang="en">
+            <body>
+              <Header />
+              <main>
+                <Paper
+                  elevation={0}
+                  square
+                  sx={{
+                    marginTop: 'calc(56px + 1rem)',
+                    marginBottom: '1rem',
+                    padding: '0 1rem',
+                    minHeight: 'calc(100vh - 56px - 2rem)',
+                  }}
+                >
+                  {children}
+                </Paper>
+                <Divider />
+              </main>
+              <Footer />
+              <SnackbarComponent />
+            </body>
+          </html>
+        </SnackbarContextProvider>
       </ThemeContextProvider>
     </UserContextProvider>
   );

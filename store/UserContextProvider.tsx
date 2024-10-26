@@ -35,7 +35,6 @@ export default function UserContextProvider(props: {
       const client = createClient();
 
       client.auth.onAuthStateChange((event, _) => {
-        console.log('ON AUTH STATE CHANGE EVENT', event);
         if (event === 'SIGNED_OUT') {
           setIsLoading(false);
           setUser(null);

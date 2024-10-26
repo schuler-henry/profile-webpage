@@ -1,4 +1,7 @@
-interface StudiesSummary {
+import { User } from '@supabase/supabase-js';
+import { Moment } from 'moment';
+
+export interface StudiesSummary {
   id?: number;
   title?: string;
   description?: string;
@@ -12,26 +15,43 @@ interface StudiesSummary {
   professors?: StudiesProfessor[];
 }
 
-interface StudiesSemester {
+export interface StudiesSemester {
   name?: string;
 }
 
-interface StudiesDegree {
+export interface StudiesDegree {
   degree?: string;
   subject?: string;
   id?: number;
 }
 
-interface StudiesLanguage {
+export interface StudiesLanguage {
   code?: string;
 }
 
-interface StudiesProfessor {
+export interface StudiesProfessor {
   id?: number;
   firstName?: string;
   lastName?: string;
 }
 
-interface StudiesUniversity {
+export interface StudiesUniversity {
   name?: string;
+}
+
+export interface TimeTrackingProject {
+  id: string;
+  name: string;
+  description: string;
+  owner: string | User;
+  createdAt: string;
+}
+
+export interface TimeTrackingTimeEntry {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string | null;
+  description: string;
+  project: string | TimeTrackingProject;
 }

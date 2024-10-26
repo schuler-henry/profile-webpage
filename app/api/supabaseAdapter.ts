@@ -2,13 +2,20 @@ import { SummaryMatter } from '../studies/summaries/[summaryName]/page';
 import { DatabaseAdapter } from './databaseAdapter';
 import {
   PostgrestResponse,
+  PostgrestSingleResponse,
   SupabaseClient,
   createClient,
 } from '@supabase/supabase-js';
+import { StudiesSummary, TimeTrackingTimeEntry } from './supabaseTypes';
 
 export class SupabaseAdapter implements DatabaseAdapter {
   private static CLIENT: SupabaseClient;
   private static STUDIES_CLIENT: SupabaseClient<any, 'studies', any>;
+  private static TIME_TRACKING_CLIENT: SupabaseClient<
+    any,
+    'time-tracking',
+    any
+  >;
 
   constructor() {
     const supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -23,6 +30,14 @@ export class SupabaseAdapter implements DatabaseAdapter {
       {
         auth: { persistSession: false },
         db: { schema: 'studies' },
+      },
+    );
+    SupabaseAdapter.TIME_TRACKING_CLIENT = createClient(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        auth: { persistSession: false },
+        db: { schema: 'time-tracking' },
       },
     );
   }
@@ -163,5 +178,40 @@ export class SupabaseAdapter implements DatabaseAdapter {
     return this.getStudiesSummaryMatterFromResponse(
       await this.selectStudiesSummary(),
     );
+  }
+
+  async getTimeTrackingEntries(
+    projectId: string,
+  ): Promise<TimeTrackingTimeEntry[]> {
+    const result = await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
+      .select('*')
+      .eq('project', projectId);
+
+    return result.data || [];
+  }
+
+  async updateTimeTrackingEntry(
+    timeEntry: TimeTrackingTimeEntry,
+  ): Promise<PostgrestSingleResponse<null>> {
+    return await SupabaseAdapter.TIME_TRACKING_CLIENT
+      .from('TimeEntry')
+      .update([timeEntry])
+      .eq('id', timeEntry.id);
+  }
+
+  async insertTimeTrackingEntry(
+    timeEntry: TimeTrackingTimeEntry | {},
+  ): Promise<PostgrestSingleResponse<TimeTrackingTimeEntry[]>> {
+    return await SupabaseAdapter.TIME_TRACKING_CLIENT
+      .from('TimeEntry')
+      .insert([timeEntry])
+      .select();
+  }
+
+  async deleteTimeTrackingEntry(id: string): Promise<PostgrestSingleResponse<null>> {
+    return await SupabaseAdapter.TIME_TRACKING_CLIENT
+      .from('TimeEntry')
+      .delete()
+      .eq('id', id);
   }
 }
