@@ -3,11 +3,7 @@ import {
   TimeTrackingProject,
   TimeTrackingTimeEntry,
 } from '@/app/api/supabaseTypes';
-import { createClient } from '@/utils/supabase/client';
-import {
-  getTimeStringFromMinutes,
-  getTimeStringFromSeconds,
-} from '@/utils/time-tracking/timeFormatFunctions';
+import { getTimeStringFromMinutes } from '@/utils/time-tracking/timeFormatFunctions';
 import {
   Box,
   Card,
@@ -23,7 +19,6 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { PostgrestResponse } from '@supabase/supabase-js';
 import moment, { Moment } from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
@@ -173,7 +168,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             textAlign="justify"
             sx={{ color: 'text.secondary' }}
           >
-            "{project.description}"
+            &quot;{project.description}&quot;
           </Typography>
         </Box>
       </CardActionArea>

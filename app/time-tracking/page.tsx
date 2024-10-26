@@ -34,9 +34,7 @@ export default async function TimeTracking() {
         ?.sort((a, b) => moment(b.createdAt).diff(moment(a.createdAt)))
         .map((project: TimeTrackingProject) => {
           return (
-            <React.Fragment>
-              <ProjectCard key={'ProjectCard' + project.id} project={project} />
-            </React.Fragment>
+            <ProjectCard key={'ProjectCard' + project.id} project={project} />
           );
         })}
     </Stack>

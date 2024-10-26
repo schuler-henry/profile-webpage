@@ -96,7 +96,7 @@ export default async function TimeTrackingProjectPage({
     <div>
       <Typography variant="h5">{project.name}</Typography>
       <Typography variant="subtitle2" fontStyle="italic">
-        "{project.description}"
+        &quot;{project.description}&quot;
       </Typography>
       <TimeTrackingContent project={project} timeEntries={timeEntries} />
     </div>
