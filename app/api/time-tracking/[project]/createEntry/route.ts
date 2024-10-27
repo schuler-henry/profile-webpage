@@ -1,11 +1,12 @@
 import { DatabaseAdapter } from '@/app/api/databaseAdapter';
 import { SupabaseAdapter } from '@/app/api/supabaseAdapter';
-import moment from 'moment';
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   const db: DatabaseAdapter = new SupabaseAdapter();
   // Get project id form path
   const project = req.url.split('/')[5];
+
+  const { startTime }: { startTime: string } = await req.json();
 
   const currentTimeEntries = await db.getTimeTrackingEntries(project);
   if (currentTimeEntries.find((entry) => !entry.endTime)) {
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
 
   const { data: timeEntries, error } = await db.insertTimeTrackingEntry({
     project: project,
-    startTime: moment().format('HH:mm:ss'),
+    startTime: startTime,
   });
 
   if (error || timeEntries.length === 0) {

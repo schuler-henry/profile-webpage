@@ -87,7 +87,8 @@ export default function TimeTrackingContent({
     const response = await fetch(
       '/api/time-tracking/' + project.id + '/createEntry',
       {
-        method: 'GET',
+        method: 'POST',
+        body: JSON.stringify({ startTime: moment().format('HH:mm:ss') }),
       },
     );
 
