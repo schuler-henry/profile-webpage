@@ -24,7 +24,7 @@ import {
 } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import moment, { Moment } from 'moment';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export interface EditTimeEntryProps {
   timeEntry: TimeTrackingTimeEntry | null;
@@ -32,37 +32,79 @@ export interface EditTimeEntryProps {
   onDelete: (id: string) => void;
 }
 
-export default function EditTimeEntry({
-  timeEntry,
-  onSave,
-  onDelete,
-}: EditTimeEntryProps) {
-  const [newDate, setNewDate] = React.useState<Moment | null>(
-    timeEntry ? moment(timeEntry.date) : null,
-  );
-  const [newStartTime, setNewStartTime] = React.useState<Moment | null>(
-    timeEntry?.startTime ? moment(timeEntry.startTime, ['hh:mm:ss']) : null,
-  );
-  const [newEndTime, setNewEndTime] = React.useState<Moment | null>(
-    timeEntry?.endTime ? moment(timeEntry.endTime, ['hh:mm:ss']) : null,
-  );
-  const [newDescription, setNewDescription] = React.useState<string>(
-    timeEntry?.description || '',
-  );
+export default function EditTimeEntry(props: EditTimeEntryProps) {
+  const { timeEntry, onSave, onDelete } = props;
+  const prevProps = useRef<EditTimeEntryProps | null>(null);
+
+  const [newDate, setNewDate] = React.useState<Moment | null>(null);
+  const [newStartTime, setNewStartTime] = React.useState<Moment | null>(null);
+  const [newEndTime, setNewEndTime] = React.useState<Moment | null>(null);
+  const [newDescription, setNewDescription] = React.useState<string>('');
   const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] =
     React.useState<boolean>(false);
+
   const { pushMessage } = useSnackbar();
 
   useEffect(() => {
-    setNewDate(timeEntry ? moment(timeEntry.date) : null);
-    setNewStartTime(
-      timeEntry?.startTime ? moment(timeEntry.startTime, ['hh:mm:ss']) : null,
-    );
-    setNewEndTime(
-      timeEntry?.endTime ? moment(timeEntry.endTime, ['hh:mm:ss']) : null,
-    );
-    setNewDescription(timeEntry?.description || '');
-  }, [timeEntry]);
+    console.log(props, prevProps);
+
+    function initialize(timeEntry: TimeTrackingTimeEntry | null) {
+      if (timeEntry == null) {
+        setNewDate(null);
+        setNewStartTime(null);
+        setNewEndTime(null);
+        setNewDescription('');
+      } else {
+        setNewDate(moment(timeEntry.date));
+        setNewStartTime(moment(timeEntry.startTime, ['hh:mm:ss']));
+        setNewEndTime(
+          timeEntry.endTime ? moment(timeEntry.endTime, ['hh:mm:ss']) : null,
+        );
+        setNewDescription(timeEntry.description);
+      }
+    }
+
+    function update(
+      oldTimeEntry: TimeTrackingTimeEntry | null,
+      updatedTimeEntry: TimeTrackingTimeEntry | null,
+    ) {
+      console.log("Update", oldTimeEntry, updatedTimeEntry);
+      if (oldTimeEntry == null) {
+        initialize(updatedTimeEntry);
+        return;
+      }
+      if (updatedTimeEntry == null) {
+        return;
+      }
+
+      if (oldTimeEntry.date != updatedTimeEntry.date) {
+        setNewDate(moment(updatedTimeEntry.date));
+      }
+      if (oldTimeEntry.startTime != updatedTimeEntry.startTime) {
+        setNewStartTime(moment(updatedTimeEntry.startTime, ['hh:mm:ss']));
+      }
+      if (oldTimeEntry.endTime != updatedTimeEntry.endTime) {
+        setNewEndTime(
+          updatedTimeEntry.endTime
+            ? moment(updatedTimeEntry.endTime, ['hh:mm:ss'])
+            : null,
+        );
+      }
+      if (oldTimeEntry.description != updatedTimeEntry.description) {
+        setNewDescription(updatedTimeEntry.description);
+      }
+    }
+
+    if (prevProps.current == null || prevProps.current.timeEntry?.id != timeEntry?.id) {
+      // User selected a different time entry => reset form
+      initialize(timeEntry);
+    } else {
+      // Some event changed the props => update form
+      update(prevProps.current.timeEntry, timeEntry);
+    }
+
+    prevProps.current = props;
+  }, [props.timeEntry]);
 
   const handleDateChange = (date: Moment | null) => {
     setNewDate(date);

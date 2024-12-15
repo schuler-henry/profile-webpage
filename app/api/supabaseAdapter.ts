@@ -199,7 +199,7 @@ export class SupabaseAdapter implements DatabaseAdapter {
   }
 
   async insertTimeTrackingEntry(
-    timeEntry: TimeTrackingTimeEntry | { project: string; startTime?: string },
+    timeEntry: TimeTrackingTimeEntry | { project: string; startTime?: string, date?: string },
   ): Promise<PostgrestSingleResponse<TimeTrackingTimeEntry[]>> {
     return await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
       .insert([timeEntry])

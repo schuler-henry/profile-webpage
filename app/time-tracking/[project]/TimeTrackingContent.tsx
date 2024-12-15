@@ -88,7 +88,7 @@ export default function TimeTrackingContent({
       '/api/time-tracking/' + project.id + '/createEntry',
       {
         method: 'POST',
-        body: JSON.stringify({ startTime: moment().format('HH:mm:ss') }),
+        body: JSON.stringify({ startTime: moment().format('HH:mm:ss'), date: moment().format('yyyy-MM-DD') }),
       },
     );
 
@@ -125,9 +125,12 @@ export default function TimeTrackingContent({
       autoHideDuration: 1000,
     });
 
-    runningEntry.endTime = moment().format('HH:mm:ss');
+    // If the runningEntry is updated directly, the reference in the entry list is updated. 
+    // However, without the setEntries function, the UI is not updated.
+    // Therefore, we create a new object and update the list in the handleSaveEntryChanges function.
+    const updatedEntry: TimeTrackingTimeEntry = { ...runningEntry, endTime: moment().format('HH:mm:ss') };
 
-    handleSaveEntryChanges(runningEntry);
+    handleSaveEntryChanges(updatedEntry);
   };
 
   const handleDeleteEntry = async (id: string) => {

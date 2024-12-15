@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   // Get project id form path
   const project = req.url.split('/')[5];
 
-  const { startTime }: { startTime: string } = await req.json();
+  const { startTime, date }: { startTime: string, date: string } = await req.json();
 
   const currentTimeEntries = await db.getTimeTrackingEntries(project);
   if (currentTimeEntries.find((entry) => !entry.endTime)) {
@@ -23,6 +23,7 @@ export async function POST(req: Request) {
   const { data: timeEntries, error } = await db.insertTimeTrackingEntry({
     project: project,
     startTime: startTime,
+    date: date,
   });
 
   if (error || timeEntries.length === 0) {
