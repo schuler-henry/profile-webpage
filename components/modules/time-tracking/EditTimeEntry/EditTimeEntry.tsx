@@ -32,7 +32,11 @@ export interface EditTimeEntryProps {
   onDelete: (id: string) => void;
 }
 
-export default function EditTimeEntry({ timeEntry, onSave, onDelete }: EditTimeEntryProps) {
+export default function EditTimeEntry({
+  timeEntry,
+  onSave,
+  onDelete,
+}: EditTimeEntryProps) {
   const prevTimeEntry = useRef<TimeTrackingTimeEntry | null>(null);
 
   const [newDate, setNewDate] = React.useState<Moment | null>(null);
@@ -91,7 +95,10 @@ export default function EditTimeEntry({ timeEntry, onSave, onDelete }: EditTimeE
       }
     }
 
-    if (prevTimeEntry.current == null || prevTimeEntry.current.id != timeEntry?.id) {
+    if (
+      prevTimeEntry.current == null ||
+      prevTimeEntry.current.id != timeEntry?.id
+    ) {
       // User selected a different time entry => reset form
       initialize(timeEntry);
     } else {
