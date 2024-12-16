@@ -2,8 +2,11 @@
 import { TimeTrackingTimeEntry } from '@/app/api/supabaseTypes';
 import { useSnackbar } from '@/store/SnackbarContextProvider';
 import { getTimeStringFromSeconds } from '@/utils/time-tracking/timeFormatFunctions';
+import { faCopy } from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Checkbox,
+  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -133,6 +136,35 @@ export default function TimeEntryTable({
                         )}
                   </TableCell>
                   <TableCell>{entry.description}</TableCell>
+                  <TableCell
+                    sx={{
+                      paddingTop: 0,
+                      paddingBottom: 0,
+                    }}
+                    align="center"
+                    width="fit-content"
+                  >
+                    <IconButton
+                      size="medium"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (navigator.clipboard) {
+                          navigator.clipboard.writeText(entry.description);
+                          pushMessage({
+                            message: 'Description copied to clipboard.',
+                            severity: 'success',
+                          });
+                        } else {
+                          pushMessage({
+                            message: 'Could not copy description to clipboard.',
+                            severity: 'error',
+                          });
+                        }
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faCopy} size="sm" />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               );
             })}
