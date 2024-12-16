@@ -32,9 +32,8 @@ export interface EditTimeEntryProps {
   onDelete: (id: string) => void;
 }
 
-export default function EditTimeEntry(props: EditTimeEntryProps) {
-  const { timeEntry, onSave, onDelete } = props;
-  const prevProps = useRef<EditTimeEntryProps | null>(null);
+export default function EditTimeEntry({ timeEntry, onSave, onDelete }: EditTimeEntryProps) {
+  const prevTimeEntry = useRef<TimeTrackingTimeEntry | null>(null);
 
   const [newDate, setNewDate] = React.useState<Moment | null>(null);
   const [newStartTime, setNewStartTime] = React.useState<Moment | null>(null);
@@ -46,8 +45,6 @@ export default function EditTimeEntry(props: EditTimeEntryProps) {
   const { pushMessage } = useSnackbar();
 
   useEffect(() => {
-    console.log(props, prevProps);
-
     function initialize(timeEntry: TimeTrackingTimeEntry | null) {
       if (timeEntry == null) {
         setNewDate(null);
@@ -68,7 +65,6 @@ export default function EditTimeEntry(props: EditTimeEntryProps) {
       oldTimeEntry: TimeTrackingTimeEntry | null,
       updatedTimeEntry: TimeTrackingTimeEntry | null,
     ) {
-      console.log("Update", oldTimeEntry, updatedTimeEntry);
       if (oldTimeEntry == null) {
         initialize(updatedTimeEntry);
         return;
@@ -95,16 +91,16 @@ export default function EditTimeEntry(props: EditTimeEntryProps) {
       }
     }
 
-    if (prevProps.current == null || prevProps.current.timeEntry?.id != timeEntry?.id) {
+    if (prevTimeEntry.current == null || prevTimeEntry.current.id != timeEntry?.id) {
       // User selected a different time entry => reset form
       initialize(timeEntry);
     } else {
       // Some event changed the props => update form
-      update(prevProps.current.timeEntry, timeEntry);
+      update(prevTimeEntry.current, timeEntry);
     }
 
-    prevProps.current = props;
-  }, [props.timeEntry]);
+    prevTimeEntry.current = timeEntry;
+  }, [timeEntry]);
 
   const handleDateChange = (date: Moment | null) => {
     setNewDate(date);
