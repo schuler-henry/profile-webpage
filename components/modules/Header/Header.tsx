@@ -28,13 +28,14 @@ import {
   faSun as faLightbulbSolid,
   faCircleInfo,
   faLock,
-  faScaleBalanced,
-  faBook,
   faSchool,
   faGraduationCap,
   faFileLines,
 } from '@fortawesome/free-solid-svg-icons';
-import { faMoon as faLightbulbRegular } from '@fortawesome/free-regular-svg-icons';
+import {
+  faClock,
+  faMoon as faLightbulbRegular,
+} from '@fortawesome/free-regular-svg-icons';
 import styles from './Header.module.css';
 import Image from 'next/image';
 import LogoWhite from '@/public/logos/logo_name_white.png';
@@ -43,6 +44,7 @@ import ThemeSwitcher from '../ThemeSwitcher/ThemeSwitcher';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import AccountMenu from '../AccountMenu/AccountMenu';
+import { useUser } from '@/store/UserContextProvider';
 
 export default function Header() {
   const [open, setOpen] = React.useState(false);
@@ -50,6 +52,7 @@ export default function Header() {
   const [openInfo, setOpenInfo] = React.useState(false);
   const [openSettings, setOpenSettings] = React.useState(false);
   const { palette, direction } = useTheme();
+  const user = useUser();
   const router = useRouter();
 
   const iconWidth = 20;
@@ -152,6 +155,14 @@ export default function Header() {
                 </ListItemButton>
               </List>
             </Collapse>
+            {user && (
+              <ListItemButton onClick={() => handleUrl('/time-tracking')}>
+                <ListItemIcon>
+                  <FontAwesomeIcon icon={faClock} width={iconWidth} />
+                </ListItemIcon>
+                <ListItemText primary="Time-Tracking" />
+              </ListItemButton>
+            )}
           </List>
           <Divider variant="middle" />
           <List>
