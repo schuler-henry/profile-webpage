@@ -56,7 +56,7 @@ export default function Footer() {
         </Box>
       </Box>
       <Typography className={styles.copyright}>
-        © 2023 Henry Schuler
+        © 2023-2025 Henry Schuler
       </Typography>
     </Container>
   );
