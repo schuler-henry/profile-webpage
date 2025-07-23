@@ -1,9 +1,12 @@
 'use client';
-import { SnackbarMessage, useSnackbar } from '@/src/store/SnackbarContextProvider';
+import {
+  SnackbarMessage,
+  useSnackbar,
+} from '@/src/store/SnackbarContextProvider';
 import { Alert, Badge, Slide, SlideProps } from '@mui/material';
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import { TransitionProps } from '@mui/material/transitions';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 export default function SnackbarComponent() {
   const [state, setState] = useState<{
@@ -22,19 +25,7 @@ export default function SnackbarComponent() {
 
   const { getMessage, hasMessages, messageCount } = useSnackbar();
 
-  useEffect(() => {
-    fetchMessage();
-  }, [hasMessages]);
-
-  useEffect(() => {
-    if (!state.open) {
-      setTimeout(() => {
-        fetchMessage();
-      }, 500);
-    }
-  }, [state]);
-
-  function fetchMessage() {
+  const fetchMessage = useCallback(() => {
     if (hasMessages && !state.open) {
       const message: SnackbarMessage | null = getMessage();
       if (message) {
@@ -45,7 +36,19 @@ export default function SnackbarComponent() {
         });
       }
     }
-  }
+  }, [hasMessages, state, getMessage]);
+
+  useEffect(() => {
+    fetchMessage();
+  }, [hasMessages, fetchMessage]);
+
+  useEffect(() => {
+    if (!state.open) {
+      setTimeout(() => {
+        fetchMessage();
+      }, 500);
+    }
+  }, [state, fetchMessage]);
 
   const handleClose = (
     event: React.SyntheticEvent | Event,

@@ -12,7 +12,6 @@ import {
   DialogTitle,
   Divider,
   TextField,
-  Typography,
 } from '@mui/material';
 import {
   DatePicker,
@@ -21,6 +20,8 @@ import {
   TimePicker,
   renderDateViewCalendar,
   renderTimeViewClock,
+  PickersActionBarProps,
+  usePickerActionsContext,
 } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import moment, { Moment } from 'moment';
@@ -28,14 +29,14 @@ import React, { useEffect, useRef } from 'react';
 
 export interface EditTimeEntryProps {
   timeEntry: TimeTrackingTimeEntry | null;
-  onSave: (timeEntry: TimeTrackingTimeEntry) => void;
-  onDelete: (id: string) => void;
+  onSaveAction: (timeEntry: TimeTrackingTimeEntry) => void;
+  onDeleteAction: (id: string) => void;
 }
 
 export default function EditTimeEntry({
   timeEntry,
-  onSave,
-  onDelete,
+  onSaveAction,
+  onDeleteAction,
 }: EditTimeEntryProps) {
   const prevTimeEntry = useRef<TimeTrackingTimeEntry | null>(null);
 
@@ -177,7 +178,7 @@ export default function EditTimeEntry({
       return;
     }
 
-    onSave({
+    onSaveAction({
       ...timeEntry,
       date: newDate.format('YYYY-MM-DD'),
       startTime: newStartTime.format('HH:mm:ss'),
@@ -212,7 +213,7 @@ export default function EditTimeEntry({
       severity: 'info',
       autoHideDuration: 1000,
     });
-    onDelete(timeEntry.id);
+    onDeleteAction(timeEntry.id);
   };
 
   const handleAbortDelete = () => {
@@ -223,6 +224,64 @@ export default function EditTimeEntry({
       autoHideDuration: 1000,
     });
   };
+
+  function CustomDatePickerActionBar(props: PickersActionBarProps) {
+    const { setValueToToday, acceptValueChanges, cancelValueChanges } =
+      usePickerActionsContext();
+
+    return (
+      <DialogActions sx={{ gridColumn: 2, gridRow: 3 }}>
+        <Button onClick={setValueToToday}>Today</Button>
+        <Divider orientation="vertical" flexItem />
+        <Button onClick={cancelValueChanges}>Cancel</Button>
+        <Button onClick={acceptValueChanges}>Ok</Button>
+      </DialogActions>
+    );
+  }
+
+  function CustomSoDTimePickerActionBar(props: PickersActionBarProps) {
+    const { setValueToToday, acceptValueChanges, cancelValueChanges } =
+      usePickerActionsContext();
+
+    return (
+      <DialogActions sx={{ gridColumn: 2, gridRow: 3 }}>
+        <Button
+          onClick={() => {
+            setNewStartTime(moment().startOf('day'));
+            acceptValueChanges();
+          }}
+        >
+          SoD
+        </Button>
+        <Button onClick={setValueToToday}>Now</Button>
+        <Divider orientation="vertical" flexItem />
+        <Button onClick={cancelValueChanges}>Cancel</Button>
+        <Button onClick={acceptValueChanges}>Ok</Button>
+      </DialogActions>
+    );
+  }
+
+  function CustomEoDTimePickerActionBar(props: PickersActionBarProps) {
+    const { setValueToToday, acceptValueChanges, cancelValueChanges } =
+      usePickerActionsContext();
+
+    return (
+      <DialogActions sx={{ gridColumn: 2, gridRow: 3 }}>
+        <Button onClick={setValueToToday}>Now</Button>
+        <Button
+          onClick={() => {
+            setNewEndTime(moment().endOf('day'));
+            acceptValueChanges();
+          }}
+        >
+          EoD
+        </Button>
+        <Divider orientation="vertical" flexItem />
+        <Button onClick={cancelValueChanges}>Cancel</Button>
+        <Button onClick={acceptValueChanges}>Ok</Button>
+      </DialogActions>
+    );
+  }
 
   return (
     <React.Fragment>
@@ -243,14 +302,7 @@ export default function EditTimeEntry({
                 onChange={handleDateChange}
                 maxDate={moment()}
                 slots={{
-                  actionBar: ({ onAccept, onCancel, onSetToday }) => (
-                    <DialogActions sx={{ gridColumn: 2, gridRow: 3 }}>
-                      <Button onClick={onSetToday}>Today</Button>
-                      <Divider orientation="vertical" flexItem />
-                      <Button onClick={onCancel}>Cancel</Button>
-                      <Button onClick={onAccept}>Ok</Button>
-                    </DialogActions>
-                  ),
+                  actionBar: CustomDatePickerActionBar,
                 }}
                 sx={{ width: '100%' }}
               />
@@ -285,22 +337,7 @@ export default function EditTimeEntry({
                 onChange={handleStartTimeChange}
                 maxTime={newEndTime || undefined}
                 slots={{
-                  actionBar: ({ onAccept, onCancel, onSetToday }) => (
-                    <DialogActions sx={{ gridColumn: 2, gridRow: 3 }}>
-                      <Button
-                        onClick={() => {
-                          setNewStartTime(moment().startOf('day'));
-                          onAccept();
-                        }}
-                      >
-                        SoD
-                      </Button>
-                      <Button onClick={onSetToday}>Now</Button>
-                      <Divider orientation="vertical" flexItem />
-                      <Button onClick={onCancel}>Cancel</Button>
-                      <Button onClick={onAccept}>Ok</Button>
-                    </DialogActions>
-                  ),
+                  actionBar: CustomSoDTimePickerActionBar,
                 }}
                 sx={{ width: '100%' }}
               />
@@ -337,22 +374,7 @@ export default function EditTimeEntry({
                 onChange={handleEndTimeChange}
                 minTime={newStartTime || undefined}
                 slots={{
-                  actionBar: ({ onAccept, onCancel, onSetToday }) => (
-                    <DialogActions sx={{ gridColumn: 2, gridRow: 3 }}>
-                      <Button onClick={onSetToday}>Now</Button>
-                      <Button
-                        onClick={() => {
-                          setNewEndTime(moment().endOf('day'));
-                          onAccept();
-                        }}
-                      >
-                        EoD
-                      </Button>
-                      <Divider orientation="vertical" flexItem />
-                      <Button onClick={onCancel}>Cancel</Button>
-                      <Button onClick={onAccept}>Ok</Button>
-                    </DialogActions>
-                  ),
+                  actionBar: CustomEoDTimePickerActionBar,
                 }}
                 sx={{ width: '100%' }}
               />

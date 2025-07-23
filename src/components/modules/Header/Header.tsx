@@ -103,7 +103,7 @@ export default function Header() {
             height={35}
           />
         </Typography>
-        <Typography style={{ marginRight: '10px' }}>
+        <Typography component="div" style={{ marginRight: '10px' }}>
           <AccountMenu />
         </Typography>
         <Tooltip title="Menu">

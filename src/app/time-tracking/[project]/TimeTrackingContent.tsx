@@ -46,7 +46,7 @@ export default function TimeTrackingContent({
     if (!timeEntries.find((entry) => entry.id === selectedTimeEntry?.id)) {
       setSelectedTimeEntry(timeEntries.find((entry) => !entry.endTime) || null);
     }
-  }, [project, timeEntries]);
+  }, [project, timeEntries, selectedTimeEntry]);
 
   const handleSaveEntryChanges = async (entry: TimeTrackingTimeEntry) => {
     const response = await fetch(
@@ -88,7 +88,10 @@ export default function TimeTrackingContent({
       '/api/time-tracking/' + project.id + '/createEntry',
       {
         method: 'POST',
-        body: JSON.stringify({ startTime: moment().format('HH:mm:ss'), date: moment().format('yyyy-MM-DD') }),
+        body: JSON.stringify({
+          startTime: moment().format('HH:mm:ss'),
+          date: moment().format('yyyy-MM-DD'),
+        }),
       },
     );
 
@@ -125,10 +128,13 @@ export default function TimeTrackingContent({
       autoHideDuration: 1000,
     });
 
-    // If the runningEntry is updated directly, the reference in the entry list is updated. 
+    // If the runningEntry is updated directly, the reference in the entry list is updated.
     // However, without the setEntries function, the UI is not updated.
     // Therefore, we create a new object and update the list in the handleSaveEntryChanges function.
-    const updatedEntry: TimeTrackingTimeEntry = { ...runningEntry, endTime: moment().format('HH:mm:ss') };
+    const updatedEntry: TimeTrackingTimeEntry = {
+      ...runningEntry,
+      endTime: moment().format('HH:mm:ss'),
+    };
 
     handleSaveEntryChanges(updatedEntry);
   };
@@ -246,8 +252,8 @@ export default function TimeTrackingContent({
           <AccordionDetails>
             <EditTimeEntry
               timeEntry={selectedTimeEntry}
-              onSave={handleSaveEntryChanges}
-              onDelete={handleDeleteEntry}
+              onSaveAction={handleSaveEntryChanges}
+              onDeleteAction={handleDeleteEntry}
             />
           </AccordionDetails>
         </Accordion>

@@ -168,7 +168,11 @@ export default function Summaries() {
               </div>
             );
           } else {
-            return <></>;
+            return (
+              <React.Fragment
+                key={'Summary ' + matter.id + matter.fileName}
+              ></React.Fragment>
+            );
           }
         })}
       </div>
