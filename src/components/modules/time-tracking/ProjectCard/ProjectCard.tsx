@@ -74,7 +74,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     };
 
     fetchTimeEntries();
-  }, []);
+  }, [project.id]);
 
   useEffect(() => {
     const totalTimeInMinutes = timeEntries.reduce((acc, entry) => {
