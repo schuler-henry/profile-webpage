@@ -294,6 +294,9 @@ export default function EditTimeEntry({
           >
             <Box gridRow={1} gridColumn={'1 / 3'}>
               <DatePicker
+                // The key is required to force a re-render when the start time changes
+                // => the cancel button will reset to the correct time when the props change.
+                key={`date-picker-${newDate?.toString()}`}
                 label="Date"
                 viewRenderers={{
                   day: renderDateViewCalendar,
@@ -325,6 +328,9 @@ export default function EditTimeEntry({
             </Box>
             <Box gridRow={2} gridColumn={'1 / 3'}>
               <TimePicker
+                // The key is required to force a re-render when the start time changes
+                // => the cancel button will reset to the correct time when the props change.
+                key={`start-time-picker-${newStartTime?.toString()}`}
                 label="Start Time"
                 views={['hours', 'minutes', 'seconds']}
                 ampm={false}
@@ -362,6 +368,9 @@ export default function EditTimeEntry({
             </Box>
             <Box gridRow={3} gridColumn={'1 / 3'}>
               <TimePicker
+                // The key is required to force a re-render when the start time changes
+                // => the cancel button will reset to the correct time when the props change.
+                key={`end-time-picker-${newEndTime?.toString()}`}
                 label="End Time"
                 views={['hours', 'minutes', 'seconds']}
                 ampm={false}
@@ -465,6 +474,7 @@ export default function EditTimeEntry({
                 color="primary"
                 onClick={() => save()}
                 disabled={
+                  newDate?.isSame(moment(timeEntry.date), 'day') &&
                   newStartTime?.isSame(
                     moment(timeEntry?.startTime, ['hh:mm:ss']),
                   ) &&
