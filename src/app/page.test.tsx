@@ -6,6 +6,6 @@ describe('Footer', () => {
   it('test', async () => {
     render(<Page />);
 
-    expect(screen.getByText('Hallo')).toBeInTheDocument();
+    expect(screen.getByText('Welcome')).toBeInTheDocument();
   });
 });

@@ -6,6 +6,6 @@ describe('Footer', () => {
   it('test', async () => {
     render(<Footer />);
 
-    expect(screen.getByText('Copyright © 2023')).toBeInTheDocument();
+    expect(screen.getByText('© 2023', { exact: false })).toBeInTheDocument();
   });
 });

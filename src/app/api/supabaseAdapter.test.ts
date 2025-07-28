@@ -1,5 +1,6 @@
 import { SummaryMatter } from '../studies/summaries/[summaryName]/page';
 import { SupabaseAdapter } from './supabaseAdapter';
+import { StudiesSummary } from './supabaseTypes';
 
 describe('supabaseAdapter', () => {
   it('should be created', () => {
