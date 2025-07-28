@@ -8,7 +8,7 @@ export default function NotFound() {
       <h2>This page was not found.</h2>
       <p>
         Go back to{' '}
-        <Link href="/public" component={NextLink} color="secondary">
+        <Link href="/" component={NextLink} color="secondary">
           home
         </Link>
         .
