@@ -24,7 +24,7 @@
       "@/store/*": ["store/*"],
       "@/*": ["./*"]
     },
-    "types": ["jest", "node", "@testing-library/jest-dom"],
+    "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
     "baseUrl": "."
   },
   "include": [
@@ -34,8 +34,5 @@
     ".next/types/**/*.ts",
     "**/*.test.tsx"
   ],
-  "exclude": ["node_modules", "old"],
-  "typeAcquisition": {
-    "include": ["jest"]
-  }
+  "exclude": ["node_modules"]
 }

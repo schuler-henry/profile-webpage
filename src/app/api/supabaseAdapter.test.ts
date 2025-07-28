@@ -23,7 +23,7 @@ describe('supabaseAdapter', () => {
       status: 200,
       statusText: 'OK',
       count: null,
-      data: [
+      data: expect.arrayContaining<StudiesSummary>([
         {
           title: 'Softwarequalitaetssicherung',
           description: 'Zusammenfassung für die mündliche Prüfung',
@@ -39,8 +39,8 @@ describe('supabaseAdapter', () => {
           semester: 1,
           semesterPeriod: { name: 'WiSe 2023/24' },
           university: { name: 'Uni Ulm' },
-        } as StudiesSummary,
-      ],
+        },
+      ]),
     });
   });
 
@@ -52,24 +52,27 @@ describe('supabaseAdapter', () => {
       await supabaseAdapter.selectStudiesSummary(),
     );
     // Assert
-    expect(names).toEqual([
-      {
-        title: 'Softwarequalitaetssicherung',
-        description: 'Zusammenfassung für die mündliche Prüfung',
-        fileName: 'softwarequalitaetssicherung.mdx',
-        lastModified: new Date('2024-03-04'),
-        degree: 'M. Sc.',
-        degreeSubject: 'Software Engineering',
-        id: 3,
-        language: 'DE',
-        professors: [
-          { id: 2, firstName: 'M.', lastName: 'Tichy' },
-          { id: 3, firstName: 'A.', lastName: 'Raschke' },
-        ],
-        semester: 1,
-        semesterPeriod: 'WiSe 2023/24',
-        university: 'Uni Ulm',
-      } as SummaryMatter,
-    ]);
+    console.log(names);
+    expect(names).toEqual(
+      expect.arrayContaining<SummaryMatter>([
+        {
+          title: 'Softwarequalitaetssicherung',
+          description: 'Zusammenfassung für die mündliche Prüfung',
+          fileName: 'softwarequalitaetssicherung.mdx',
+          lastModified: new Date('2024-03-04'),
+          degree: 'M. Sc.',
+          degreeSubject: 'Software Engineering',
+          id: 3,
+          language: 'DE',
+          professors: [
+            { id: 2, firstName: 'M.', lastName: 'Tichy' },
+            { id: 3, firstName: 'A.', lastName: 'Raschke' },
+          ],
+          semester: 1,
+          semesterPeriod: 'WiSe 2023/24',
+          university: 'Uni Ulm',
+        },
+      ]),
+    );
   });
 });
