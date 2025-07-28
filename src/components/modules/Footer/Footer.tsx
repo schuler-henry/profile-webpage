@@ -1,14 +1,6 @@
 import React from 'react';
 import styles from './Footer.module.css';
-import {
-  Box,
-  Container,
-  Divider,
-  Paper,
-  Typography,
-  Link as MUILink,
-} from '@mui/material';
-import Link from 'next/link';
+import { Box, Container, Typography } from '@mui/material';
 
 export default function Footer() {
   return (
@@ -23,7 +15,7 @@ export default function Footer() {
     >
       <Box
         sx={{
-          margin: '30px 0',
+          margin: '30px 10px',
         }}
       >
         <Box className={styles.grid}>
@@ -55,9 +47,15 @@ export default function Footer() {
           </Box>
         </Box>
       </Box>
-      <Typography className={styles.copyright}>
-        © 2023-2025 Henry Schuler
-      </Typography>
+      <Box
+        sx={{
+          paddingBottom: '20px',
+        }}
+      >
+        <Typography className={styles.copyright}>
+          © 2023-2025 Henry Schuler
+        </Typography>
+      </Box>
     </Container>
   );
 }
