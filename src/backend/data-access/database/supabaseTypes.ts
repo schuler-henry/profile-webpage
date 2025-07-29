@@ -1,5 +1,4 @@
 import { User } from '@supabase/supabase-js';
-import { Moment } from 'moment';
 
 export interface StudiesSummary {
   id?: number;

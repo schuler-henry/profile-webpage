@@ -2,7 +2,7 @@
 import {
   TimeTrackingProject,
   TimeTrackingTimeEntry,
-} from '@/src/app/api/supabaseTypes';
+} from '@/src/backend/data-access/database/supabaseTypes';
 import { useSnackbar } from '@/src/store/SnackbarContextProvider';
 import { faCloudUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -58,7 +58,7 @@ export default function ImportEntriesButton({
       const parsedEntries: TimeTrackingTimeEntry[] = content
         .split('\n')
         .map((line) => {
-          const [id, startDate, endDate, description] = line.split(';');
+          const [_, startDate, endDate, description] = line.split(';');
 
           return {
             id: uuid4(),

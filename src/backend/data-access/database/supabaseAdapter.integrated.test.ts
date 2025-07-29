@@ -1,4 +1,4 @@
-import { SummaryMatter } from '../studies/summaries/[summaryName]/page';
+import { SummaryMatter } from '@/src/app/studies/summaries/[summaryName]/page';
 import { SupabaseAdapter } from './supabaseAdapter';
 import { StudiesSummary } from './supabaseTypes';
 
@@ -52,7 +52,6 @@ describe('supabaseAdapter', () => {
       await supabaseAdapter.selectStudiesSummary(),
     );
     // Assert
-    console.log(names);
     expect(names).toEqual(
       expect.arrayContaining<SummaryMatter>([
         {

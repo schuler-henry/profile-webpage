@@ -1,5 +1,5 @@
 import { PostgrestSingleResponse } from '@supabase/supabase-js';
-import { SummaryMatter } from '../studies/summaries/[summaryName]/page';
+import { SummaryMatter } from '@/src/app/studies/summaries/[summaryName]/page';
 import { TimeTrackingTimeEntry } from './supabaseTypes';
 
 export abstract class DatabaseAdapter {

@@ -1,5 +1,5 @@
-import { DatabaseAdapter } from '@/src/app/api/databaseAdapter';
-import { SupabaseAdapter } from '@/src/app/api/supabaseAdapter';
+import { DatabaseAdapter } from '@/src/backend/data-access/database/databaseAdapter';
+import { SupabaseAdapter } from '@/src/backend/data-access/database/supabaseAdapter';
 import matter from 'gray-matter';
 import { MDXRemote } from 'next-mdx-remote-client/rsc';
 import React, { Suspense } from 'react';

@@ -1,6 +1,6 @@
-import { DatabaseAdapter } from '@/src/app/api/databaseAdapter';
-import { SupabaseAdapter } from '@/src/app/api/supabaseAdapter';
-import { TimeTrackingTimeEntry } from '@/src/app/api/supabaseTypes';
+import { DatabaseAdapter } from '@/src/backend/data-access/database/databaseAdapter';
+import { SupabaseAdapter } from '@/src/backend/data-access/database/supabaseAdapter';
+import { TimeTrackingTimeEntry } from '@/src/backend/data-access/database/supabaseTypes';
 
 // Post endpoint
 export async function POST(req: Request) {

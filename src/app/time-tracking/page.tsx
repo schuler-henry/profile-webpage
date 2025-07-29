@@ -2,7 +2,7 @@ import ProjectCard from '@/src/components/modules/time-tracking/ProjectCard/Proj
 import { createClient } from '@/src/utils/supabase/server';
 import { PostgrestResponse } from '@supabase/supabase-js';
 import React from 'react';
-import { TimeTrackingProject } from '../api/supabaseTypes';
+import { TimeTrackingProject } from '../../backend/data-access/database/supabaseTypes';
 import AddProjectButton from '@/src/components/modules/time-tracking/AddProjectButton/AddProjectButton';
 import { Stack } from '@mui/material';
 import moment from 'moment';
@@ -19,13 +19,8 @@ export default async function TimeTracking() {
     return <div>Not authenticated</div>;
   }
 
-  const {
-    data: projectData,
-    error: projectError,
-  }: PostgrestResponse<TimeTrackingProject> = await client
-    .from('Project')
-    .select('*')
-    .eq('owner', userData.user.id);
+  const { data: projectData }: PostgrestResponse<TimeTrackingProject> =
+    await client.from('Project').select('*').eq('owner', userData.user.id);
 
   return (
     <Stack direction="column" spacing={2}>

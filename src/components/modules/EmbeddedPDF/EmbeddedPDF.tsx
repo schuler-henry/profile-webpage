@@ -1,5 +1,5 @@
-import { DatabaseAdapter } from '@/src/app/api/databaseAdapter';
-import { SupabaseAdapter } from '@/src/app/api/supabaseAdapter';
+import { DatabaseAdapter } from '@/src/backend/data-access/database/databaseAdapter';
+import { SupabaseAdapter } from '@/src/backend/data-access/database/supabaseAdapter';
 import React from 'react';
 import styles from './EmbeddedPDF.module.css';
 

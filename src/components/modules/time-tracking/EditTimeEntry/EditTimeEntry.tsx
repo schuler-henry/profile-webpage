@@ -1,5 +1,5 @@
 'use client';
-import { TimeTrackingTimeEntry } from '@/src/app/api/supabaseTypes';
+import { TimeTrackingTimeEntry } from '@/src/backend/data-access/database/supabaseTypes';
 import { useSnackbar } from '@/src/store/SnackbarContextProvider';
 import {
   Alert,
@@ -16,11 +16,10 @@ import {
 import {
   DatePicker,
   LocalizationProvider,
-  TimeField,
-  TimePicker,
   renderDateViewCalendar,
   renderTimeViewClock,
-  PickersActionBarProps,
+  TimeField,
+  TimePicker,
   usePickerActionsContext,
 } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
@@ -225,7 +224,7 @@ export default function EditTimeEntry({
     });
   };
 
-  function CustomDatePickerActionBar(props: PickersActionBarProps) {
+  function CustomDatePickerActionBar() {
     const { setValueToToday, acceptValueChanges, cancelValueChanges } =
       usePickerActionsContext();
 
@@ -239,7 +238,7 @@ export default function EditTimeEntry({
     );
   }
 
-  function CustomSoDTimePickerActionBar(props: PickersActionBarProps) {
+  function CustomSoDTimePickerActionBar() {
     const { setValueToToday, acceptValueChanges, cancelValueChanges } =
       usePickerActionsContext();
 
@@ -261,7 +260,7 @@ export default function EditTimeEntry({
     );
   }
 
-  function CustomEoDTimePickerActionBar(props: PickersActionBarProps) {
+  function CustomEoDTimePickerActionBar() {
     const { setValueToToday, acceptValueChanges, cancelValueChanges } =
       usePickerActionsContext();
 

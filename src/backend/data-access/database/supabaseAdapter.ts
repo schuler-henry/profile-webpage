@@ -1,4 +1,4 @@
-import { SummaryMatter } from '../studies/summaries/[summaryName]/page';
+import { SummaryMatter } from '@/src/app/studies/summaries/[summaryName]/page';
 import { DatabaseAdapter } from './databaseAdapter';
 import {
   createClient,

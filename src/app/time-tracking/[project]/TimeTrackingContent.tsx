@@ -2,7 +2,7 @@
 import {
   TimeTrackingProject,
   TimeTrackingTimeEntry,
-} from '@/src/app/api/supabaseTypes';
+} from '@/src/backend/data-access/database/supabaseTypes';
 import EditTimeEntry from '@/src/components/modules/time-tracking/EditTimeEntry/EditTimeEntry';
 import TimeEntryTable from '@/src/components/modules/time-tracking/TimeEntryTable/TimeEntryTable';
 import { useSnackbar } from '@/src/store/SnackbarContextProvider';

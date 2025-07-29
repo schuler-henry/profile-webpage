@@ -2,7 +2,7 @@
 import {
   TimeTrackingProject,
   TimeTrackingTimeEntry,
-} from '@/src/app/api/supabaseTypes';
+} from '@/src/backend/data-access/database/supabaseTypes';
 import { getTimeStringFromMinutes } from '@/src/utils/time-tracking/timeFormatFunctions';
 import {
   Box,

@@ -1,7 +1,7 @@
 import {
   TimeTrackingProject,
   TimeTrackingTimeEntry,
-} from '@/src/app/api/supabaseTypes';
+} from '@/src/backend/data-access/database/supabaseTypes';
 import { createClient } from '@/src/utils/supabase/server';
 import { Alert, Link, Stack, Typography } from '@mui/material';
 import { PostgrestSingleResponse } from '@supabase/supabase-js';
@@ -90,15 +90,13 @@ export default async function TimeTrackingProjectPage({
     return <div>Error loading time entries</div>;
   }
 
-  const timeEntries = timeEntriesResult;
-
   return (
     <div>
       <Typography variant="h5">{project.name}</Typography>
       <Typography variant="subtitle2" fontStyle="italic">
         &quot;{project.description}&quot;
       </Typography>
-      <TimeTrackingContent project={project} timeEntries={timeEntries} />
+      <TimeTrackingContent project={project} timeEntries={timeEntriesResult} />
     </div>
   );
 }
