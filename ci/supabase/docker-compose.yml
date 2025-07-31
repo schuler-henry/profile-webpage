@@ -405,8 +405,8 @@ services:
       - ./volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
       # Changes required for Pooler support
       - ./volumes/db/pooler.sql:/docker-entrypoint-initdb.d/migrations/99-pooler.sql:Z
-      - ./volumes/db/init/auth.sql:/docker-entrypoint-initdb.d/migrations/99-auth.sql:Z
-      - ./volumes/db/init/time-tracking.sql:/docker-entrypoint-initdb.d/migrations/99-time-tracking.sql:Z
+      - ./volumes/db/init/auth.sql:/docker-entrypoint-initdb.d/init-scripts/auth.sql:Z
+      - ./volumes/db/init/time-tracking.sql:/docker-entrypoint-initdb.d/init-scripts/time-tracking.sql:Z
       # Use named volume to persist pgsodium decryption key between restarts
       - db-config:/etc/postgresql-custom
     healthcheck:
