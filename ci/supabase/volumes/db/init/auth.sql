@@ -1,0 +1,4 @@
+INSERT INTO auth.users (id, aud, raw_app_meta_data, raw_user_meta_data, created_at)
+VALUES ('c2f0449a-a510-47be-885d-58c18662cdea', 'authenticated', '{"provider": "github", "providers": ["github"]}',
+        '{"iss": "https://api.github.com", "sub": "72646334", "name": "Henry Schuler", "email": "henryschuler@outlook.de", "full_name": "Henry Schuler", "user_name": "schuler-henry", "avatar_url": "https://avatars.githubusercontent.com/u/72646334?v=4", "provider_id": "72646334", "email_verified": true, "phone_verified": false, "preferred_username": "schuler-henry"}',
+        '2024-10-22 19:59:14.834447+00');
