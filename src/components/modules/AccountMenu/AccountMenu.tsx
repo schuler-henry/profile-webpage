@@ -12,15 +12,13 @@ import { Button } from '@mui/material';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faUser } from '@fortawesome/free-solid-svg-icons';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@/src/utils/supabase/client';
 import { useUser } from '@/src/store/UserContextProvider';
 
 export default function AccountMenu() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const { user, setUser, isLoading } = useUser();
+  const { user, isLoading } = useUser();
   const open = Boolean(anchorEl);
-  const router = useRouter();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -31,15 +29,15 @@ export default function AccountMenu() {
 
   const handleLogin = async () => {
     const client = createClient();
-    client.auth.signInWithOAuth({
+    await client.auth.signInWithOAuth({
       provider: 'github',
       options: { redirectTo: `${window.location.origin}/` },
     });
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const client = createClient();
-    client.auth.signOut();
+    await client.auth.signOut();
   };
 
   return (

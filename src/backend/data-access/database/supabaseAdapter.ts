@@ -1,10 +1,10 @@
 import { SummaryMatter } from '@/src/app/studies/summaries/[summaryName]/page';
 import { DatabaseAdapter } from './databaseAdapter';
 import {
-  createClient,
   PostgrestResponse,
   PostgrestSingleResponse,
-  SupabaseClient,
+  User,
+  UserResponse,
 } from '@supabase/supabase-js';
 import { StudiesSummary, TimeTrackingTimeEntry } from './supabaseTypes';
 import { TimeTrackingDatabase } from '@/src/backend/data-access/database/timeTrackingDatabase.interface';
@@ -14,43 +14,28 @@ import { TimeEntry } from '@/src/backend/data-access/database/entities/time-trac
 import moment, { isMoment, Moment } from 'moment';
 import { deepClone } from '@vitest/utils';
 import { v4 as uuidv4 } from 'uuid';
+import { createClient } from '@/src/utils/supabase/server';
+import { AuthDatabase } from '@/src/backend/data-access/database/authDatabase.interface';
 
-export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
-  private static CLIENT: SupabaseClient;
-  private static STUDIES_CLIENT: SupabaseClient<any, 'studies', any>;
-  private static TIME_TRACKING_CLIENT: SupabaseClient<
-    any,
-    'time-tracking',
-    any
-  >;
+export class SupabaseAdapter
+  implements DatabaseAdapter, AuthDatabase, TimeTrackingDatabase
+{
+  constructor() {}
 
-  constructor() {
-    const supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const supabaseAnonKey: string =
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-    SupabaseAdapter.CLIENT = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: { persistSession: false },
-    });
-    SupabaseAdapter.STUDIES_CLIENT = createClient(
-      supabaseUrl,
-      supabaseAnonKey,
-      {
-        auth: { persistSession: false },
-        db: { schema: 'studies' },
-      },
-    );
-    SupabaseAdapter.TIME_TRACKING_CLIENT = createClient(
-      supabaseUrl,
-      supabaseAnonKey,
-      {
-        auth: { persistSession: false },
-        db: { schema: 'time-tracking' },
-      },
-    );
+  async getLoggedInUser(): Promise<User | null> {
+    const client = await createClient();
+    const response: UserResponse = await client.auth.getUser();
+
+    if (response.error || !response.data.user) {
+      return null;
+    }
+
+    return response.data.user;
   }
 
   async getSummaryNames(): Promise<string[]> {
-    const result = await SupabaseAdapter.CLIENT.storage
+    const client = await createClient();
+    const result = await client.storage
       .from('studies.summaries')
       .list('summaries');
 
@@ -64,10 +49,11 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
   }
 
   async getSummary(summaryName: string): Promise<Blob | null> {
-    const exists = await SupabaseAdapter.CLIENT.rpc(
-      'check_bucket_item_exists',
-      { bucketId: 'studies.summaries', filePath: `summaries/${summaryName}` },
-    );
+    const client = await createClient();
+    const exists = await client.rpc('check_bucket_item_exists', {
+      bucketId: 'studies.summaries',
+      filePath: `summaries/${summaryName}`,
+    });
 
     if (
       exists.data === null ||
@@ -78,7 +64,7 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
       return null;
     }
 
-    const result = await SupabaseAdapter.CLIENT.storage
+    const result = await client.storage
       .from('studies.summaries')
       .download(`summaries/${summaryName}`);
 
@@ -93,10 +79,11 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
     filePath: string,
     fileType: string,
   ): Promise<string> {
-    const exists = await SupabaseAdapter.CLIENT.rpc(
-      'check_bucket_item_exists',
-      { bucketId: 'studies.summaries', filePath: `${filePath}.${fileType}` },
-    );
+    const client = await createClient();
+    const exists = await client.rpc('check_bucket_item_exists', {
+      bucketId: 'studies.summaries',
+      filePath: `${filePath}.${fileType}`,
+    });
 
     if (
       exists.data === null ||
@@ -107,7 +94,7 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
       return '';
     }
 
-    const result = await SupabaseAdapter.CLIENT.storage
+    const result = client.storage
       .from('studies.summaries')
       .getPublicUrl(`${filePath}.${fileType}`);
 
@@ -164,7 +151,8 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
   }
 
   async selectStudiesSummary(): Promise<PostgrestResponse<StudiesSummary>> {
-    const result = await SupabaseAdapter.STUDIES_CLIENT.from('Summary').select(`
+    const client = await createClient({ db: { schema: 'studies' } });
+    const result = await client.from('Summary').select(`
         id,
         title,
         description,
@@ -190,7 +178,9 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
   async getTimeTrackingEntries(
     projectId: string,
   ): Promise<TimeTrackingTimeEntry[]> {
-    const result = await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    const result = await client
+      .from('TimeEntry')
       .select('*')
       .eq('project', projectId);
 
@@ -200,9 +190,8 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
   async updateTimeTrackingEntry(
     timeEntry: TimeTrackingTimeEntry,
   ): Promise<PostgrestSingleResponse<null>> {
-    return await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
-      .update([timeEntry])
-      .eq('id', timeEntry.id);
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    return client.from('TimeEntry').update([timeEntry]).eq('id', timeEntry.id);
   }
 
   async insertTimeTrackingEntry(
@@ -210,32 +199,30 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
       | TimeTrackingTimeEntry
       | { project: string; startTime?: string; date?: string },
   ): Promise<PostgrestSingleResponse<TimeTrackingTimeEntry[]>> {
-    return await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
-      .insert([timeEntry])
-      .select();
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    return client.from('TimeEntry').insert([timeEntry]).select();
   }
 
   async insertTimeTrackingEntries(
     timeEntries: TimeTrackingTimeEntry[],
   ): Promise<PostgrestSingleResponse<null>> {
-    return await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry').insert(
-      timeEntries,
-    );
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    return client.from('TimeEntry').insert(timeEntries);
   }
 
   async deleteTimeTrackingEntry(
     id: string,
   ): Promise<PostgrestSingleResponse<null>> {
-    return await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
-      .delete()
-      .eq('id', id);
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    return client.from('TimeEntry').delete().eq('id', id);
   }
 
   public async getProjects(ownerId: string): Promise<Project[]> {
-    const response: PostgrestSingleResponse<Project[]> =
-      await SupabaseAdapter.TIME_TRACKING_CLIENT.from('Project')
-        .select('*')
-        .eq('owner', ownerId);
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    const response: PostgrestSingleResponse<Project[]> = await client
+      .from('Project')
+      .select('*')
+      .eq('owner', ownerId);
 
     if (response.error) {
       throw new DatabaseError(response.error.message);
@@ -307,10 +294,11 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
   }
 
   public async getAllTimeEntries(projectId: string): Promise<TimeEntry[]> {
-    const result: PostgrestSingleResponse<TimeEntry[]> =
-      await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
-        .select('*')
-        .eq('project', projectId);
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    const result: PostgrestSingleResponse<TimeEntry[]> = await client
+      .from('TimeEntry')
+      .select('*')
+      .eq('project', projectId);
 
     if (result.error) {
       throw new DatabaseError(result.error.message);
@@ -344,10 +332,10 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
     const formattedTimeEntries =
       this.formatAndNormalizeTimeEntries(timeEntries);
 
-    const result: PostgrestSingleResponse<null> =
-      await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry').insert(
-        formattedTimeEntries,
-      );
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    const result: PostgrestSingleResponse<null> = await client
+      .from('TimeEntry')
+      .insert(formattedTimeEntries);
 
     if (result.error) {
       let errorMessage: string = 'Could not create time entries.';
@@ -370,10 +358,11 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
     const formattedEntry = this.formatAndNormalizeTimeEntries([timeEntry])[0];
     console.log(formattedEntry);
 
-    const result: PostgrestSingleResponse<null> =
-      await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
-        .update(formattedEntry)
-        .eq('id', formattedEntry.id);
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    const result: PostgrestSingleResponse<null> = await client
+      .from('TimeEntry')
+      .update(formattedEntry)
+      .eq('id', formattedEntry.id);
 
     console.log(result);
     if (result.error) {
@@ -385,10 +374,11 @@ export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
   }
 
   public async deleteTimeEntry(timeEntryId: string): Promise<void> {
-    const result: PostgrestSingleResponse<null> =
-      await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
-        .delete()
-        .eq('id', timeEntryId);
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    const result: PostgrestSingleResponse<null> = await client
+      .from('TimeEntry')
+      .delete()
+      .eq('id', timeEntryId);
 
     if (result.error) {
       throw new DatabaseError(result.error.message);

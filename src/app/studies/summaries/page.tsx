@@ -1,14 +1,14 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import styles from './styles.module.css';
-import { Professor, SummaryMatter } from './[summaryName]/page';
+import { SummaryMatter } from './[summaryName]/page';
 import {
-  SummaryFilter,
   addKeysToFilter,
   getEmptyFilter,
   isFilterEmpty,
   isFilterValid,
   isMatterAllowedByFilter,
+  SummaryFilter,
 } from '@/src/components/modules/SummaryListFilter/SummaryListFilter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilterCircleXmark } from '@fortawesome/free-solid-svg-icons';
@@ -19,12 +19,10 @@ import SummaryListSpeedDial from '@/src/components/modules/SummaryListSpeedDial/
 
 export default function Summaries() {
   const [summaryMatters, setSummaryMatters] = useState<SummaryMatter[]>([]);
-  const [filterOptions, setFilterOptions] = useState<SummaryFilter>(
-    getEmptyFilter(),
-  );
-  const [activeFilter, setActiveFilter] = useState<SummaryFilter>(
-    getEmptyFilter(),
-  );
+  const [filterOptions, setFilterOptions] =
+    useState<SummaryFilter>(getEmptyFilter());
+  const [activeFilter, setActiveFilter] =
+    useState<SummaryFilter>(getEmptyFilter());
 
   const [openDeleteFilterConfirmation, setOpenDeleteFilterConfirmation] =
     useState<boolean>(false);
