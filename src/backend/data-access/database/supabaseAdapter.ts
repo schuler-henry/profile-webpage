@@ -7,8 +7,15 @@ import {
   SupabaseClient,
 } from '@supabase/supabase-js';
 import { StudiesSummary, TimeTrackingTimeEntry } from './supabaseTypes';
+import { TimeTrackingDatabase } from '@/src/backend/data-access/database/timeTrackingDatabase.interface';
+import { Project } from '@/src/backend/data-access/database/entities/time-tracking/project';
+import { DatabaseError } from '@/src/backend/data-access/database/databaseError';
+import { TimeEntry } from '@/src/backend/data-access/database/entities/time-tracking/timeEntry';
+import moment, { isMoment, Moment } from 'moment';
+import { deepClone } from '@vitest/utils';
+import { v4 as uuidv4 } from 'uuid';
 
-export class SupabaseAdapter implements DatabaseAdapter {
+export class SupabaseAdapter implements DatabaseAdapter, TimeTrackingDatabase {
   private static CLIENT: SupabaseClient;
   private static STUDIES_CLIENT: SupabaseClient<any, 'studies', any>;
   private static TIME_TRACKING_CLIENT: SupabaseClient<
@@ -222,5 +229,169 @@ export class SupabaseAdapter implements DatabaseAdapter {
     return await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
       .delete()
       .eq('id', id);
+  }
+
+  public async getProjects(ownerId: string): Promise<Project[]> {
+    const response: PostgrestSingleResponse<Project[]> =
+      await SupabaseAdapter.TIME_TRACKING_CLIENT.from('Project')
+        .select('*')
+        .eq('owner', ownerId);
+
+    if (response.error) {
+      throw new DatabaseError(response.error.message);
+    }
+
+    if (!response.data) {
+      return [];
+    }
+
+    return response.data.map((project) => {
+      return {
+        id: project.id,
+        name: project.name,
+        owner: project.owner,
+        description: project.description || '',
+        createdAt: project.createdAt
+          ? moment(project.createdAt, 'YYYY-MM-DD HH:mm:ss.SSSZ')
+          : moment(),
+      };
+    });
+  }
+
+  private formatAndNormalizeTimeEntries(
+    timeEntries: (
+      | TimeEntry
+      | { project: string; date: Moment; startTime: Moment }
+    )[],
+  ): {
+    id: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    description: string;
+    project: string;
+  }[] {
+    return timeEntries.map((entry) => {
+      const formattedEntry: any = deepClone(entry);
+
+      // Step 1: Format moment to string
+      if (formattedEntry.date && isMoment(formattedEntry.date)) {
+        formattedEntry.date = formattedEntry.date.format('YYYY-MM-DD');
+      }
+      if (formattedEntry.startTime && isMoment(formattedEntry.startTime)) {
+        formattedEntry.startTime = formattedEntry.startTime.format('HH:mm:ss');
+      }
+      if (formattedEntry.endTime && isMoment(formattedEntry.endTime)) {
+        formattedEntry.endTime = formattedEntry.endTime.format('HH:mm:ss');
+      }
+
+      // Step 2: Assure that all entries have a valid uuid
+      if (!formattedEntry.id) {
+        formattedEntry.id = uuidv4();
+      }
+
+      // Step 3: Ensure that the description is a string
+      if (typeof formattedEntry.description !== 'string') {
+        formattedEntry.description = '';
+      }
+
+      return formattedEntry as {
+        id: string;
+        date: string;
+        startTime: string;
+        endTime: string;
+        description: string;
+        project: string;
+      };
+    });
+  }
+
+  public async getAllTimeEntries(projectId: string): Promise<TimeEntry[]> {
+    const result: PostgrestSingleResponse<TimeEntry[]> =
+      await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
+        .select('*')
+        .eq('project', projectId);
+
+    if (result.error) {
+      throw new DatabaseError(result.error.message);
+    }
+
+    if (!result.data) {
+      return [];
+    }
+
+    return result.data.map((entry) => {
+      return {
+        id: entry.id,
+        project: entry.project,
+        date: entry.date ? moment(entry.date, 'YYYY-MM-DD') : moment(),
+        startTime: entry.startTime
+          ? moment(entry.startTime, 'HH:mm:ss')
+          : moment(),
+        endTime: entry.endTime ? moment(entry.endTime, 'HH:mm:ss') : null,
+        description: entry.description || '',
+      } as TimeEntry;
+    });
+  }
+
+  public async createTimeEntries(
+    timeEntries: (
+      | TimeEntry
+      | { project: string; date: Moment; startTime: Moment }
+    )[],
+  ): Promise<void> {
+    // Assure that all moment elements are correctly formatted as strings in TimeEntry
+    const formattedTimeEntries =
+      this.formatAndNormalizeTimeEntries(timeEntries);
+
+    const result: PostgrestSingleResponse<null> =
+      await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry').insert(
+        formattedTimeEntries,
+      );
+
+    if (result.error) {
+      let errorMessage: string = 'Could not create time entries.';
+
+      if (result.error.message.includes('duplicate key value')) {
+        errorMessage = 'The time entry already exists and can only be updated.';
+      }
+
+      throw new DatabaseError(errorMessage, result.error);
+    }
+  }
+
+  public async createTimeEntry(
+    timeEntry: TimeEntry | { project: string; date: Moment; startTime: Moment },
+  ): Promise<void> {
+    return this.createTimeEntries([timeEntry]);
+  }
+
+  public async updateTimeEntry(timeEntry: TimeEntry): Promise<void> {
+    const formattedEntry = this.formatAndNormalizeTimeEntries([timeEntry])[0];
+    console.log(formattedEntry);
+
+    const result: PostgrestSingleResponse<null> =
+      await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
+        .update(formattedEntry)
+        .eq('id', formattedEntry.id);
+
+    console.log(result);
+    if (result.error) {
+      throw new DatabaseError(
+        `Could not update time entry with ID ${timeEntry.id}.`,
+        result.error,
+      );
+    }
+  }
+
+  public async deleteTimeEntry(timeEntryId: string): Promise<void> {
+    const result: PostgrestSingleResponse<null> =
+      await SupabaseAdapter.TIME_TRACKING_CLIENT.from('TimeEntry')
+        .delete()
+        .eq('id', timeEntryId);
+
+    if (result.error) {
+      throw new DatabaseError(result.error.message);
+    }
   }
 }
