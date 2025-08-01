@@ -33,7 +33,9 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA "time-tracking" GRANT ALL O
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA "time-tracking" GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
 
 INSERT INTO "time-tracking"."Project" ("id", "name", "description", "owner", "createdAt") VALUES
-    ('fb491449-5745-4ea2-b6d6-fc44b6a671a8', 'Project 1', 'Description for Project 1', 'c2f0449a-a510-47be-885d-58c18662cdea', '2024-10-26 23:10:19.227+00');
+    ('fb491449-5745-4ea2-b6d6-fc44b6a671a8', 'Project 1', 'Description for Project 1', 'c2f0449a-a510-47be-885d-58c18662cdea', '2024-10-26 23:10:19.227+00'),
+    ('bd231d80-a7a5-4d80-97df-fd41cf647ab3', 'Project 2', 'Description for Project 2', '5ebd4db3-abc0-4f32-8459-325eecdead3e', '2025-04-22 12:05:03.212+00');
 
 INSERT INTO "time-tracking"."TimeEntry" ("id", "startTime", "endTime", "description", "project", "date") VALUES
-    ('07aa03f0-d7fe-4eb7-a45b-320de25a1cf9', '11:53:43', '14:20:13', 'Admin-Tool: Completed integration of E2E tests in CI.', 'fb491449-5745-4ea2-b6d6-fc44b6a671a8', '2025-03-19');
+    ('07aa03f0-d7fe-4eb7-a45b-320de25a1cf9', '11:53:43', '14:20:13', 'Admin-Tool: Completed integration of E2E tests in CI.', 'fb491449-5745-4ea2-b6d6-fc44b6a671a8', '2025-03-19'),
+    ('3f217266-aebd-42ac-a851-1131d655d540', '08:16:22', '11:30:00', 'Time Entry for project 2', 'bd231d80-a7a5-4d80-97df-fd41cf647ab3', '2025-05-01');
