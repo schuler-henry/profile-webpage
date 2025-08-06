@@ -4,27 +4,22 @@ import { StudiesSummary } from './supabaseTypes';
 import { TimeTrackingDatabase } from '@/src/backend/data-access/database/timeTrackingDatabase.interface';
 import moment, { isMoment } from 'moment';
 import { Project } from '@/src/backend/data-access/database/entities/time-tracking/project';
-import { User } from '@supabase/supabase-js';
 import { TimeEntry } from '@/src/backend/data-access/database/entities/time-tracking/timeEntry';
-import { Moment } from 'moment/moment';
 import { DatabaseError } from '@/src/backend/data-access/database/databaseError';
+import { mockUser } from '@/__mocks__/backend/data-access/entities/user.mock';
+import {
+  mockProject,
+  otherMockProject,
+} from '@/__mocks__/backend/data-access/entities/project.mock';
+import {
+  firstNewTimeEntry,
+  mockTimeEntry,
+  otherMockTimeEntry,
+  secondNewTimeEntry,
+  thirdNewTimeEntry,
+} from '@/__mocks__/backend/data-access/entities/timeEntry.mock';
 
 describe('supabaseAdapter', () => {
-  const dbUser: User = {
-    id: 'c2f0449a-a510-47be-885d-58c18662cdea',
-    aud: 'authenticated',
-    app_metadata: { provider: 'github', providers: ['github'] },
-    user_metadata: {},
-    created_at: '2024-10-22 19:59:14.834447+00',
-  };
-  const otherDbUser: User = {
-    id: '5ebd4db3-abc0-4f32-8459-325eecdead3e',
-    aud: 'authenticated',
-    app_metadata: { provider: 'github', providers: ['github'] },
-    user_metadata: {},
-    created_at: '2025-02-01 03:29:16.533571+00',
-  };
-
   it('should be created', () => {
     // Arrange
     const supabaseAdapter = new SupabaseAdapter();
@@ -104,94 +99,54 @@ describe('supabaseAdapter', () => {
   });
 
   describe('time-tracking schema', () => {
-    const dbProject: Project = {
-      id: 'fb491449-5745-4ea2-b6d6-fc44b6a671a8',
-      name: 'Project 1',
-      description: 'Description for Project 1',
-      owner: dbUser.id,
-      createdAt: moment(
-        '2024-10-26 23:10:19.227+00',
-        'YYYY-MM-DD HH:mm:ss.SSSZ',
-      ),
-    };
-
-    const dbTimeEntry: TimeEntry = {
-      id: '07aa03f0-d7fe-4eb7-a45b-320de25a1cf9',
-      date: moment('2025-03-19', 'YYYY-MM-DD'),
-      startTime: moment('11:53:43', 'HH:mm:ss'),
-      endTime: moment('14:20:13', 'HH:mm:ss'),
-      description: 'Admin-Tool: Completed integration of E2E tests in CI.',
-      project: dbProject.id,
-    };
-
-    const otherDbProject: Project = {
-      id: 'bd231d80-a7a5-4d80-97df-fd41cf647ab3',
-      name: 'Project 2',
-      description: 'Description for Project 2',
-      owner: otherDbUser.id,
-      createdAt: moment(
-        '2025-04-22 12:05:03.212+00',
-        'YYYY-MM-DD HH:mm:ss.SSSZ',
-      ),
-    };
-
-    const otherDbTimeEntry: TimeEntry = {
-      id: '3f217266-aebd-42ac-a851-1131d655d540',
-      date: moment('2025-05-01', 'YYYY-MM-DD'),
-      startTime: moment('08:16:22', 'HH:mm:ss'),
-      endTime: moment('11:30:00', 'HH:mm:ss'),
-      description: 'Time Entry for project 2',
-      project: otherDbProject.id,
-    };
-
     describe('getProjects', () => {
       it('should return projects', async () => {
         // Arrange
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
-        const projects = await supabaseAdapter.getProjects(dbUser.id);
+        const projects = await supabaseAdapter.getProjects(mockUser.id);
 
         // Assert
         expect(projects.length).toBeGreaterThan(0);
       });
 
-      it('should return dbProject for dbUser', async () => {
+      it('should return mockProject for mockUser', async () => {
         // Arrange
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
-        const projects = await supabaseAdapter.getProjects(dbUser.id);
+        const projects = await supabaseAdapter.getProjects(mockUser.id);
 
         // Assert
         expect(projects).toEqual(
           expect.arrayContaining<Project>([
             expect.objectContaining({
-              id: dbProject.id,
-              name: dbProject.name,
-              description: dbProject.description,
-              owner: dbProject.owner,
+              id: mockProject.id,
+              name: mockProject.name,
+              description: mockProject.description,
+              owner: mockProject.owner,
               createdAt: expect.anything(),
             }),
           ]),
         );
       });
 
-      it('should not return otherDbProject for dbUser', async () => {
+      it('should not return otherMockProject for mockUser', async () => {
         // Arrange
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
-        const projects = await supabaseAdapter.getProjects(dbUser.id);
+        const projects = await supabaseAdapter.getProjects(mockUser.id);
 
         // Assert
         expect(projects).toEqual(
           expect.not.arrayContaining<Project>([
             expect.objectContaining({
-              id: otherDbProject.id,
-              name: otherDbProject.name,
-              description: otherDbProject.description,
-              owner: otherDbProject.owner,
+              id: otherMockProject.id,
+              name: otherMockProject.name,
+              description: otherMockProject.description,
+              owner: otherMockProject.owner,
               createdAt: expect.anything(),
             }),
           ]),
@@ -203,7 +158,7 @@ describe('supabaseAdapter', () => {
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
-        const projects = await supabaseAdapter.getProjects(dbUser.id);
+        const projects = await supabaseAdapter.getProjects(mockUser.id);
 
         // Assert
         // createdAt shall be a moment value
@@ -225,16 +180,16 @@ describe('supabaseAdapter', () => {
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
-        const projects = await supabaseAdapter.getProjects(dbUser.id);
+        const projects = await supabaseAdapter.getProjects(mockUser.id);
 
         // Assert
         const project: Project | undefined = projects.find(
-          (p) => p.id === dbProject.id,
+          (p) => p.id === mockProject.id,
         );
         expect(project).toBeDefined();
 
         // 2024-10-26 23:10:19.227+00
-        expect(project?.createdAt.isSame(dbProject.createdAt)).toBeTruthy();
+        expect(project?.createdAt.isSame(mockProject.createdAt)).toBeTruthy();
       });
     });
 
@@ -245,56 +200,56 @@ describe('supabaseAdapter', () => {
 
         // Act
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
-          dbProject.id,
+          mockProject.id,
         );
 
         // Assert
         expect(timeEntries.length).toBeGreaterThan(0);
       });
 
-      it('should return dbTimeEntry for dbProject', async () => {
+      it('should return mockTimeEntry for mockProject', async () => {
         // Arrange
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
-          dbProject.id,
+          mockProject.id,
         );
 
         // Assert
         expect(timeEntries).toEqual(
           expect.arrayContaining<TimeEntry>([
             expect.objectContaining({
-              id: dbTimeEntry.id,
-              date: dbTimeEntry.date,
-              startTime: dbTimeEntry.startTime,
-              endTime: dbTimeEntry.endTime,
-              description: dbTimeEntry.description,
-              project: dbProject.id,
+              id: mockTimeEntry.id,
+              date: mockTimeEntry.date,
+              startTime: mockTimeEntry.startTime,
+              endTime: mockTimeEntry.endTime,
+              description: mockTimeEntry.description,
+              project: mockProject.id,
             }),
           ]),
         );
       });
 
-      it('should not return otherDbTimeEntry for dbProject', async () => {
+      it('should not return otherMockTimeEntry for mockProject', async () => {
         // Arrange
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
-          dbProject.id,
+          mockProject.id,
         );
 
         // Assert
         expect(timeEntries).toEqual(
           expect.not.arrayContaining<TimeEntry>([
             expect.objectContaining({
-              id: otherDbTimeEntry.id,
-              date: otherDbTimeEntry.date,
-              startTime: otherDbTimeEntry.startTime,
-              endTime: otherDbTimeEntry.endTime,
-              description: otherDbTimeEntry.description,
-              project: otherDbProject.id,
+              id: otherMockTimeEntry.id,
+              date: otherMockTimeEntry.date,
+              startTime: otherMockTimeEntry.startTime,
+              endTime: otherMockTimeEntry.endTime,
+              description: otherMockTimeEntry.description,
+              project: otherMockProject.id,
             }),
           ]),
         );
@@ -306,7 +261,7 @@ describe('supabaseAdapter', () => {
 
         // Act
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
-          dbProject.id,
+          mockProject.id,
         );
 
         // Assert
@@ -332,55 +287,29 @@ describe('supabaseAdapter', () => {
 
         // Act
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
-          dbProject.id,
+          mockProject.id,
         );
 
         // Assert
         const timeEntry: TimeEntry | undefined = timeEntries.find(
-          (te) => te.id === dbTimeEntry.id,
+          (te) => te.id === mockTimeEntry.id,
         );
         expect(timeEntry).toBeDefined();
 
-        expect(timeEntry?.date.isSame(dbTimeEntry.date)).toBeTruthy();
-        expect(timeEntry?.startTime.isSame(dbTimeEntry.startTime)).toBeTruthy();
-        expect(timeEntry?.endTime?.isSame(dbTimeEntry.endTime)).toBeTruthy();
+        expect(timeEntry?.date.isSame(mockTimeEntry.date)).toBeTruthy();
+        expect(
+          timeEntry?.startTime.isSame(mockTimeEntry.startTime),
+        ).toBeTruthy();
+        expect(timeEntry?.endTime?.isSame(mockTimeEntry.endTime)).toBeTruthy();
       });
     });
 
     describe('createTimeEntries', () => {
-      const firstNewTimeEntry: TimeEntry = {
-        id: '020a43ef-b88d-4292-9da4-5c63ce03c217',
-        date: moment('2025-04-12', 'YYYY-MM-DD'),
-        startTime: moment('00:00:00', 'HH:mm:ss'),
-        endTime: moment('10:05:59', 'HH:mm:ss'),
-        description: 'Test Description 2.',
-        project: dbProject.id,
-      };
-
-      const secondNewTimeEntry: TimeEntry = {
-        id: '2fc6c034-1670-42d8-b428-f8ea65b27497',
-        date: moment('2025-01-31', 'YYYY-MM-DD'),
-        startTime: moment('22:22:22', 'HH:mm:ss'),
-        endTime: moment('23:59:59', 'HH:mm:ss'),
-        description: 'Test Description 3.',
-        project: dbProject.id,
-      };
-
-      const thirdNewTimeEntry: {
-        project: string;
-        date: Moment;
-        startTime: Moment;
-      } = {
-        project: dbProject.id,
-        date: moment('2025-02-27', 'YYYY-MM-DD'),
-        startTime: moment('08:00:00', 'HH:mm:ss'),
-      };
-
       afterEach(async () => {
         // Clean up: Delete possibly created time entries
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
         const timeEntries: TimeEntry[] =
-          await supabaseAdapter.getAllTimeEntries(dbProject.id);
+          await supabaseAdapter.getAllTimeEntries(mockProject.id);
 
         // Delete firstNewTimeEntry
         const firstEntry = timeEntries.find(
@@ -419,7 +348,7 @@ describe('supabaseAdapter', () => {
 
         // Assert
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
-          dbProject.id,
+          mockProject.id,
         );
 
         expect(timeEntries.length).toBeGreaterThan(0);
@@ -467,7 +396,7 @@ describe('supabaseAdapter', () => {
 
         // Assert
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
-          dbProject.id,
+          mockProject.id,
         );
 
         expect(timeEntries.length).toBeGreaterThan(0);
@@ -498,7 +427,7 @@ describe('supabaseAdapter', () => {
 
         // Assert
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
-          dbProject.id,
+          mockProject.id,
         );
 
         expect(timeEntries.length).toBeGreaterThan(0);
@@ -535,7 +464,7 @@ describe('supabaseAdapter', () => {
 
         // Act & Assert
         await expect(
-          supabaseAdapter.createTimeEntries([dbTimeEntry]),
+          supabaseAdapter.createTimeEntries([mockTimeEntry]),
         ).rejects.toThrowError(
           expect.objectContaining<DatabaseError>({
             name: 'DatabaseError',
@@ -552,7 +481,7 @@ describe('supabaseAdapter', () => {
 
         // Act & Assert
         await expect(
-          supabaseAdapter.createTimeEntries([dbTimeEntry, firstNewTimeEntry]),
+          supabaseAdapter.createTimeEntries([mockTimeEntry, firstNewTimeEntry]),
         ).rejects.toThrowError(
           expect.objectContaining<DatabaseError>({
             name: 'DatabaseError',
@@ -565,20 +494,11 @@ describe('supabaseAdapter', () => {
     });
 
     describe('createTimeEntry', () => {
-      const firstNewTimeEntry: TimeEntry = {
-        id: '020a43ef-b88d-4292-9da4-5c63ce03c217',
-        date: moment('2025-04-12', 'YYYY-MM-DD'),
-        startTime: moment('00:00:00', 'HH:mm:ss'),
-        endTime: moment('10:05:59', 'HH:mm:ss'),
-        description: 'Test Description 2.',
-        project: dbProject.id,
-      };
-
       afterEach(async () => {
         // Clean up: Delete possibly created time entries
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
         const timeEntries: TimeEntry[] =
-          await supabaseAdapter.getAllTimeEntries(dbProject.id);
+          await supabaseAdapter.getAllTimeEntries(mockProject.id);
 
         // Delete firstNewTimeEntry
         const firstEntry = timeEntries.find(
@@ -598,7 +518,7 @@ describe('supabaseAdapter', () => {
 
         // Assert
         const timeEntries: TimeEntry[] =
-          await supabaseAdapter.getAllTimeEntries(dbProject.id);
+          await supabaseAdapter.getAllTimeEntries(mockProject.id);
 
         expect(timeEntries.length).toBeGreaterThan(0);
         expect(timeEntries).toEqual(
@@ -621,7 +541,7 @@ describe('supabaseAdapter', () => {
 
         // Act & Assert
         await expect(
-          supabaseAdapter.createTimeEntry(dbTimeEntry),
+          supabaseAdapter.createTimeEntry(mockTimeEntry),
         ).rejects.toThrowError(
           expect.objectContaining<DatabaseError>({
             name: 'DatabaseError',
@@ -635,20 +555,20 @@ describe('supabaseAdapter', () => {
 
     describe('updateTimeEntry', () => {
       const updatedTimeEntry: TimeEntry = {
-        id: dbTimeEntry.id,
+        id: mockTimeEntry.id,
         date: moment('2025-05-02', 'YYYY-MM-DD'),
         startTime: moment('15:30:22', 'HH:mm:ss'),
         endTime: moment('17:59:59', 'HH:mm:ss'), // Updated end time
         description: 'Updated description for the time entry.',
-        project: dbProject.id,
+        project: mockProject.id,
       };
 
       afterEach(async () => {
-        // Restore the possibly updated dbTimeEntry
+        // Restore the possibly updated mockTimeEntry
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
-        await supabaseAdapter.deleteTimeEntry(dbTimeEntry.id);
-        await supabaseAdapter.createTimeEntry(dbTimeEntry);
+        await supabaseAdapter.deleteTimeEntry(mockTimeEntry.id);
+        await supabaseAdapter.createTimeEntry(mockTimeEntry);
       });
 
       it('should update the existing time entry with the new values', async () => {
@@ -660,7 +580,7 @@ describe('supabaseAdapter', () => {
 
         // Assert
         const timeEntries: TimeEntry[] =
-          await supabaseAdapter.getAllTimeEntries(dbProject.id);
+          await supabaseAdapter.getAllTimeEntries(mockProject.id);
 
         expect(timeEntries).toEqual(
           expect.arrayContaining<TimeEntry>([
@@ -685,7 +605,7 @@ describe('supabaseAdapter', () => {
           startTime: moment('15:30:22', 'HH:mm:ss'),
           endTime: moment('17:59:59', 'HH:mm:ss'),
           description: 'This entry does not exist.',
-          project: dbProject.id,
+          project: mockProject.id,
         };
 
         // Act & Assert
@@ -694,7 +614,7 @@ describe('supabaseAdapter', () => {
         ).resolves.toBeUndefined();
 
         const timeEntries: TimeEntry[] =
-          await supabaseAdapter.getAllTimeEntries(dbProject.id);
+          await supabaseAdapter.getAllTimeEntries(mockProject.id);
 
         expect(timeEntries).toEqual(
           expect.not.arrayContaining<TimeEntry>([
@@ -713,28 +633,28 @@ describe('supabaseAdapter', () => {
 
     describe('deleteTimeEntry', () => {
       afterEach(async () => {
-        // Readd the possibly deleted dbTimeEntry
+        // Readd the possibly deleted mockTimeEntry
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
         const timeEntries: TimeEntry[] =
-          await supabaseAdapter.getAllTimeEntries(dbProject.id);
+          await supabaseAdapter.getAllTimeEntries(mockProject.id);
 
-        const entry = timeEntries.find((te) => te.id === dbTimeEntry.id);
+        const entry = timeEntries.find((te) => te.id === mockTimeEntry.id);
         if (!entry) {
-          await supabaseAdapter.createTimeEntry(dbTimeEntry);
+          await supabaseAdapter.createTimeEntry(mockTimeEntry);
         }
 
         const timeEntriesAfter = await supabaseAdapter.getAllTimeEntries(
-          dbProject.id,
+          mockProject.id,
         );
         expect(timeEntriesAfter).toEqual(
           expect.arrayContaining<TimeEntry>([
             expect.objectContaining({
-              id: dbTimeEntry.id,
-              date: dbTimeEntry.date,
-              startTime: dbTimeEntry.startTime,
-              endTime: dbTimeEntry.endTime,
-              description: dbTimeEntry.description,
-              project: dbProject.id,
+              id: mockTimeEntry.id,
+              date: mockTimeEntry.date,
+              startTime: mockTimeEntry.startTime,
+              endTime: mockTimeEntry.endTime,
+              description: mockTimeEntry.description,
+              project: mockProject.id,
             }),
           ]),
         );
@@ -745,16 +665,16 @@ describe('supabaseAdapter', () => {
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
-        await supabaseAdapter.deleteTimeEntry(dbTimeEntry.id);
+        await supabaseAdapter.deleteTimeEntry(mockTimeEntry.id);
 
         // Assert
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
-          dbProject.id,
+          mockProject.id,
         );
         expect(timeEntries).toEqual(
           expect.not.arrayContaining<TimeEntry>([
             expect.objectContaining({
-              id: dbTimeEntry.id,
+              id: mockTimeEntry.id,
             }),
           ]),
         );
