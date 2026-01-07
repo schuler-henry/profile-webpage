@@ -7,10 +7,7 @@ import { Project } from '@/src/backend/data-access/database/entities/time-tracki
 import { TimeEntry } from '@/src/backend/data-access/database/entities/time-tracking/timeEntry';
 import { DatabaseError } from '@/src/backend/data-access/database/databaseError';
 import { mockUser } from '@/__mocks__/backend/data-access/entities/user.mock';
-import {
-  mockProject,
-  otherMockProject,
-} from '@/__mocks__/backend/data-access/entities/project.mock';
+import { mockProject, otherMockProject, } from '@/__mocks__/backend/data-access/entities/project.mock';
 import {
   firstNewTimeEntry,
   mockTimeEntry,
@@ -99,6 +96,52 @@ describe('supabaseAdapter', () => {
   });
 
   describe('time-tracking schema', () => {
+    describe('getProject', () => {
+      it('should return a project by id', async () => {
+        // Arrange
+        const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
+
+        // Act
+        const project = await supabaseAdapter.getProject(mockProject.id);
+
+        // Assert
+        expect(project).toEqual(
+          expect.objectContaining<Project>({
+            id: mockProject.id,
+            name: mockProject.name,
+            description: mockProject.description,
+            owner: mockProject.owner,
+            createdAt: expect.anything(),
+          }),
+        );
+      });
+
+      it('should return null for a non-existing project id', async () => {
+        // Arrange
+        const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
+        const nonExistingProjectId = '00000000-0000-0000-0000-000000000001';
+
+        // Act
+        const project = await supabaseAdapter.getProject(nonExistingProjectId);
+
+        // Assert
+        expect(project).toBeNull();
+      });
+
+      it('should parse the createdAt moment value correctly', async () => {
+        // Arrange
+        const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
+
+        // Act
+        const project = await supabaseAdapter.getProject(mockProject.id);
+
+        // Assert
+        expect(project).toBeDefined();
+        expect(isMoment(project?.createdAt)).toBeTruthy();
+        expect(project?.createdAt.isSame(mockProject.createdAt)).toBeTruthy();
+      });
+    });
+
     describe('getProjects', () => {
       it('should return projects', async () => {
         // Arrange

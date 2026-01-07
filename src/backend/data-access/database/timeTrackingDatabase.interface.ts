@@ -7,6 +7,14 @@ import { Moment } from 'moment';
  */
 export interface TimeTrackingDatabase {
   /**
+   * Retrieves a project by its ID.
+   * @param id The ID of the project to be retrieved.
+   * @return A promise that resolves to a Project object or null if not found.
+   * @throws {@link DatabaseError} if there is an error retrieving the project.
+   */
+  getProject(id: string): Promise<Project | null>;
+
+  /**
    * Retrieves all projects for a given owner.
    * @param ownerId The ID of the owner whose projects are to be retrieved.
    * @return A promise that resolves to an array of Project objects.

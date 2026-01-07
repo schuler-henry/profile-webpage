@@ -217,6 +217,36 @@ export class SupabaseAdapter
     return client.from('TimeEntry').delete().eq('id', id);
   }
 
+  public async getProject(id: string): Promise<Project | null> {
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    const response: PostgrestSingleResponse<Project[]> = await client
+      .from('Project')
+      .select('*')
+      .eq('id', id);
+
+    if (response.error) {
+      throw new DatabaseError(response.error.message);
+    }
+
+    if (!response.data) {
+      return null;
+    }
+
+    if (response.data.length === 0) {
+      return null;
+    }
+
+    return {
+      id: response.data[0].id,
+      name: response.data[0].name,
+      owner: response.data[0].owner,
+      description: response.data[0].description || '',
+      createdAt: response.data[0].createdAt
+        ? moment(response.data[0].createdAt, 'YYYY-MM-DD HH:mm:ss.SSSZ')
+        : moment(),
+    };
+  }
+
   public async getProjects(ownerId: string): Promise<Project[]> {
     const client = await createClient({ db: { schema: 'time-tracking' } });
     const response: PostgrestSingleResponse<Project[]> = await client
