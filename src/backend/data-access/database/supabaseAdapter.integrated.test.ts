@@ -236,6 +236,61 @@ describe('supabaseAdapter', () => {
       });
     });
 
+    describe('getTimeEntry', () => {
+      it('should return a time entry by id', async () => {
+        // Arrange
+        const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
+
+        // Act
+        const timeEntry = await supabaseAdapter.getTimeEntry(mockTimeEntry.id);
+
+        // Assert
+        expect(timeEntry).toEqual(
+          expect.objectContaining<TimeEntry>({
+            id: mockTimeEntry.id,
+            date: expect.anything(),
+            startTime: expect.anything(),
+            endTime: expect.anything(),
+            description: mockTimeEntry.description,
+            project: mockTimeEntry.project,
+          }),
+        );
+      });
+
+      it('should return null for a non-existing time entry id', async () => {
+        // Arrange
+        const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
+        const nonExistingTimeEntryId = '00000000-0000-0000-0000-000000000001';
+
+        // Act
+        const timeEntry = await supabaseAdapter.getTimeEntry(
+          nonExistingTimeEntryId,
+        );
+
+        // Assert
+        expect(timeEntry).toBeNull();
+      });
+
+      it('should parse the time values correctly', async () => {
+        // Arrange
+        const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
+
+        // Act
+        const timeEntry = await supabaseAdapter.getTimeEntry(mockTimeEntry.id);
+
+        // Assert
+        expect(timeEntry).toBeDefined();
+        expect(isMoment(timeEntry?.date)).toBeTruthy();
+        expect(timeEntry?.date.isSame(mockTimeEntry.date)).toBeTruthy();
+        expect(isMoment(timeEntry?.startTime)).toBeTruthy();
+        expect(
+          timeEntry?.startTime.isSame(mockTimeEntry.startTime),
+        ).toBeTruthy();
+        expect(isMoment(timeEntry?.endTime)).toBeTruthy();
+        expect(timeEntry?.endTime?.isSame(mockTimeEntry.endTime)).toBeTruthy();
+      });
+    });
+
     describe('getAllTimeEntries', () => {
       it('should return time entries for a provided project', async () => {
         // Arrange

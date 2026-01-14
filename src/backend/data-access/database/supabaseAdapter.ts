@@ -323,6 +323,41 @@ export class SupabaseAdapter
     });
   }
 
+  public async getTimeEntry(id: string): Promise<TimeEntry | null> {
+    const client = await createClient({ db: { schema: 'time-tracking' } });
+    const response: PostgrestSingleResponse<TimeEntry[]> = await client
+      .from('TimeEntry')
+      .select('*')
+      .eq('id', id);
+
+    if (response.error) {
+      throw new DatabaseError(response.error.message);
+    }
+
+    if (!response.data) {
+      return null;
+    }
+
+    if (response.data.length === 0) {
+      return null;
+    }
+
+    return {
+      id: response.data[0].id,
+      project: response.data[0].project,
+      date: response.data[0].date
+        ? moment(response.data[0].date, 'YYYY-MM-DD')
+        : moment(),
+      startTime: response.data[0].startTime
+        ? moment(response.data[0].startTime, 'HH:mm:ss')
+        : moment(),
+      endTime: response.data[0].endTime
+        ? moment(response.data[0].endTime, 'HH:mm:ss')
+        : null,
+      description: response.data[0].description || '',
+    } as TimeEntry;
+  }
+
   public async getAllTimeEntries(projectId: string): Promise<TimeEntry[]> {
     const client = await createClient({ db: { schema: 'time-tracking' } });
     const result: PostgrestSingleResponse<TimeEntry[]> = await client

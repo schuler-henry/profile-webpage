@@ -23,6 +23,14 @@ export interface TimeTrackingDatabase {
   getProjects(ownerId: string): Promise<Project[]>;
 
   /**
+   * Retrieves a time entry by its ID.
+   * @param id The ID of the project to be retrieved.
+   * @return A promise that resolves to a TimeEntry object or null if not found.
+   * @throws {@link DatabaseError} if there is an error retrieving the time entry.
+   */
+  getTimeEntry(id: string): Promise<TimeEntry | null>;
+
+  /**
    * Retrieves all time entries for a given project.
    * @param projectId The ID of the project whose time entries are to be retrieved.
    * @return A promise that resolves to an array of TimeEntry objects.
