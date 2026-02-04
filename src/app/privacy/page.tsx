@@ -1,6 +1,6 @@
 import { Link, Typography } from '@mui/material';
 import React from 'react';
-import NextLink from 'next/link';
+import NextLink from '../../components/wrapper/Link';
 import styles from './styles.module.css';
 
 export default function Privacy() {

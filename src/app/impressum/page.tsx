@@ -1,7 +1,6 @@
 import React from 'react';
-import styles from './styles.module.css';
 import { Link } from '@mui/material';
-import NextLink from 'next/link';
+import NextLink from '../../components/wrapper/Link';
 
 export default function Impressum() {
   return (

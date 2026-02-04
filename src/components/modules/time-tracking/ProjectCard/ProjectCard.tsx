@@ -32,11 +32,27 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   const HISTORY_DAYS = 7;
   const HISTORY_WEEKS = 8;
   const [timeEntries, setTimeEntries] = React.useState<TimeEntryDTO[]>([]);
-  const [totalTimeInMinutes, setTotalTimeInMinutes] = React.useState<number>(0);
+  const totalTimeInMinutes = timeEntries.reduce((acc, entry) => {
+    if (!entry.endTime) {
+      return acc;
+    }
+
+    const duration = moment(entry.endTime, ['hh:mm:ss']).diff(
+      moment(entry.startTime, ['hh:mm:ss']),
+      'minutes',
+    );
+    return acc + duration;
+  }, 0);
   const [runningTimeEntrySeconds, setRunningTimeEntrySeconds] =
     React.useState<number>(0);
   const router = useRouter();
   const theme = useTheme();
+
+  function getRunningTimeEntry(
+    timeEntries: TimeEntryDTO[],
+  ): TimeEntryDTO | null {
+    return timeEntries.find((entry) => !entry.endTime) || null;
+  }
 
   useEffect(() => {
     const fetchTimeEntries = async () => {
@@ -71,22 +87,6 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
     fetchTimeEntries();
   }, [project.id]);
-
-  useEffect(() => {
-    const totalTimeInMinutes = timeEntries.reduce((acc, entry) => {
-      if (!entry.endTime) {
-        return acc;
-      }
-
-      const duration = moment(entry.endTime, ['hh:mm:ss']).diff(
-        moment(entry.startTime, ['hh:mm:ss']),
-        'minutes',
-      );
-      return acc + duration;
-    }, 0);
-
-    setTotalTimeInMinutes(totalTimeInMinutes || 0);
-  }, [timeEntries]);
 
   function getTotalTimeInMinutesForDay(date: Moment): number {
     return timeEntries.reduce((acc, entry) => {
@@ -124,12 +124,6 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
       return acc;
     }, 0);
-  }
-
-  function getRunningTimeEntry(
-    timeEntries: TimeEntryDTO[],
-  ): TimeEntryDTO | null {
-    return timeEntries.find((entry) => !entry.endTime) || null;
   }
 
   const openProject = async (_: any) => {

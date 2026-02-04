@@ -3,7 +3,7 @@ import { TimeTrackingProject } from '@/src/backend/data-access/database/supabase
 import { useSnackbar } from '@/src/store/SnackbarContextProvider';
 import { faCloudUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, styled } from '@mui/material';
+import { Button } from '@mui/material';
 import { v4 as uuid4 } from 'uuid';
 import React from 'react';
 import moment from 'moment';
@@ -19,18 +19,6 @@ export default function ImportEntriesButton({
   setEntries,
 }: ImportEntriesButtonProps) {
   const { pushMessage } = useSnackbar();
-
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
 
   const handleImportEntries = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || event.target.files.length === 0) {
@@ -109,7 +97,21 @@ export default function ImportEntriesButton({
       disabled
     >
       Import Time Entries
-      <VisuallyHiddenInput type="file" onChange={handleImportEntries} />
+      <input
+        style={{
+          clip: 'rect(0 0 0 0)',
+          clipPath: 'inset(50%)',
+          height: 1,
+          overflow: 'hidden',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          whiteSpace: 'nowrap',
+          width: 1,
+        }}
+        type="file"
+        onChange={handleImportEntries}
+      />
     </Button>
   );
 }

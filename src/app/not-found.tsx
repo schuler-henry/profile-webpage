@@ -1,5 +1,5 @@
 import { Link } from '@mui/material';
-import NextLink from 'next/link';
+import NextLink from '../components/wrapper/Link';
 import React from 'react';
 
 export default function NotFound() {

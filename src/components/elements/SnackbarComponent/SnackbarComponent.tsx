@@ -1,54 +1,21 @@
 'use client';
-import {
-  SnackbarMessage,
-  useSnackbar,
-} from '@/src/store/SnackbarContextProvider';
+import { useSnackbar } from '@/src/store/SnackbarContextProvider';
 import { Alert, Badge, Slide, SlideProps } from '@mui/material';
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
-import { TransitionProps } from '@mui/material/transitions';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 export default function SnackbarComponent() {
-  const [state, setState] = useState<{
-    open: boolean;
-    Transition: React.ComponentType<
-      TransitionProps & {
-        children: React.ReactElement<any, any>;
-      }
-    >;
-    snackbarMessage: SnackbarMessage | null;
-  }>({
-    open: false,
-    Transition: SlideTransition,
-    snackbarMessage: null,
-  });
-
-  const { getMessage, hasMessages, messageCount } = useSnackbar();
-
-  const fetchMessage = useCallback(() => {
-    if (hasMessages && !state.open) {
-      const message: SnackbarMessage | null = getMessage();
-      if (message) {
-        setState({
-          ...state,
-          open: true,
-          snackbarMessage: message,
-        });
-      }
-    }
-  }, [hasMessages, state, getMessage]);
+  const { shiftMessage, currentMessage, messageCount } = useSnackbar();
 
   useEffect(() => {
-    fetchMessage();
-  }, [hasMessages, fetchMessage]);
-
-  useEffect(() => {
-    if (!state.open) {
-      setTimeout(() => {
-        fetchMessage();
-      }, 500);
+    if (!currentMessage) {
+      shiftMessage();
     }
-  }, [state, fetchMessage]);
+  }, [shiftMessage, currentMessage, messageCount]);
+
+  const getSlideTransition = useCallback((props: SlideProps) => {
+    return <Slide {...props} direction="up" />;
+  }, []);
 
   const handleClose = (
     event: React.SyntheticEvent | Event,
@@ -58,27 +25,19 @@ export default function SnackbarComponent() {
       return;
     }
 
-    setState({
-      ...state,
-      open: false,
-      snackbarMessage: null,
-    });
+    shiftMessage();
   };
-
-  function SlideTransition(props: SlideProps) {
-    return <Slide {...props} direction="up" />;
-  }
 
   return (
     <React.Fragment>
       <Snackbar
-        open={state.open}
+        open={currentMessage !== null}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         sx={{ width: '-webkit-fill-available' }}
-        autoHideDuration={state.snackbarMessage?.autoHideDuration || 3000}
+        autoHideDuration={currentMessage?.autoHideDuration || 3000}
         onClose={handleClose}
-        TransitionComponent={state.Transition}
-        key={state.Transition.name}
+        slots={{ transition: getSlideTransition }}
+        key={getSlideTransition.name}
       >
         <Badge
           badgeContent={messageCount}
@@ -87,11 +46,11 @@ export default function SnackbarComponent() {
         >
           <Alert
             onClose={handleClose}
-            severity={state.snackbarMessage?.severity}
+            severity={currentMessage?.severity}
             sx={{ width: '100%' }}
             variant="filled"
           >
-            {state.snackbarMessage?.message}
+            {currentMessage?.message}
           </Alert>
         </Badge>
       </Snackbar>

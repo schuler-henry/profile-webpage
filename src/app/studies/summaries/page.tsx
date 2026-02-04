@@ -27,6 +27,32 @@ export default function Summaries() {
   const [openDeleteFilterConfirmation, setOpenDeleteFilterConfirmation] =
     useState<boolean>(false);
 
+  // Filter Functions
+  function getFilter(): SummaryFilter {
+    const filter = window.localStorage.getItem('/studies/summaries;filter');
+
+    if (filter) {
+      return JSON.parse(filter) as SummaryFilter;
+    }
+
+    return getEmptyFilter();
+  }
+
+  function setFilter(filter: SummaryFilter): void {
+    if (!isFilterValid(filter)) return;
+
+    window.localStorage.setItem(
+      '/studies/summaries;filter',
+      JSON.stringify(filter),
+    );
+
+    setActiveFilter(filter);
+  }
+
+  function isAllowedByFilter(matter: SummaryMatter): boolean {
+    return isMatterAllowedByFilter(activeFilter, matter);
+  }
+
   // Initial Content Load
   useEffect(() => {
     async function getSummaryMatters() {
@@ -61,32 +87,6 @@ export default function Summaries() {
 
     updateSelectableFilters();
   }, [summaryMatters]);
-
-  // Filter Functions
-  function getFilter(): SummaryFilter {
-    const filter = window.localStorage.getItem('/studies/summaries;filter');
-
-    if (filter) {
-      return JSON.parse(filter) as SummaryFilter;
-    }
-
-    return getEmptyFilter();
-  }
-
-  function setFilter(filter: SummaryFilter): void {
-    if (!isFilterValid(filter)) return;
-
-    window.localStorage.setItem(
-      '/studies/summaries;filter',
-      JSON.stringify(filter),
-    );
-
-    setActiveFilter(filter);
-  }
-
-  function isAllowedByFilter(matter: SummaryMatter): boolean {
-    return isMatterAllowedByFilter(activeFilter, matter);
-  }
 
   return (
     <div className={styles.summaryList}>

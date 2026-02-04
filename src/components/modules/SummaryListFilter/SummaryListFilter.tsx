@@ -1,15 +1,6 @@
 import { Puller } from '@/src/components/elements/Puller/Puller';
-import {
-  Box,
-  Chip,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  SwipeableDrawer,
-} from '@mui/material';
-import React, { useEffect } from 'react';
+import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, SwipeableDrawer, } from '@mui/material';
+import React from 'react';
 import styles from './SummaryListFilter.module.css';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -200,15 +191,7 @@ export const isMatterAllowedByFilter: (
 };
 
 export default function SummaryListFilter(props: SummaryListFilterProps) {
-  const [selectedFilters, setSelectedFilters] = React.useState<SummaryFilter>(
-    getEmptyFilter(),
-  );
-
-  // Extra state and useEffect to assure that select menu is closed when filter item is selected
-  // (without, the update of the props does not trigger the closing at value change)
-  useEffect(() => {
-    setSelectedFilters(props.selectedFilters);
-  }, [props.selectedFilters]);
+  const selectedFilters = props.selectedFilters;
 
   const handleChange = (
     event: SelectChangeEvent,
