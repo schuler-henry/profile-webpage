@@ -24,18 +24,19 @@ export interface ITimeTrackingService {
   getAllTimeEntries(projectId: string): Promise<TimeEntry[]>;
 
   /**
-   * Creates a time entry.
+   * Creates a time entry, if the time entry id does not yet exist and there is no running time entry for the project.
    *
    * @param timeEntry - A TimeEntry object or object containing the minimal required infos project (id), date, and startTime.
-   * @returns A promise that resolves when the time entry has been created.
+   * @returns A promise that resolves to the created time entry once the time entry has been created.
    * @throws UnauthorizedError if the user is not logged in or the user is not authorized to access the project.
    * @throws DatabaseError if there is an error retrieving the project or creating the time entry.
+   * @throws InvalidOperationError if there is already a running time entry for the project or the project does not exist.
    */
   createTimeEntry(
     timeEntry:
       | TimeEntry
       | { project: string; date: moment.Moment; startTime: moment.Moment },
-  ): Promise<void>;
+  ): Promise<TimeEntry>;
 
   /**
    * Updates an existing time entry.

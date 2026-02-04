@@ -10,11 +10,16 @@ import {
   mockProject,
   otherMockProject,
 } from '@/__mocks__/backend/data-access/entities/project.mock';
-import { mockTimeEntry } from '@/__mocks__/backend/data-access/entities/timeEntry.mock';
+import {
+  mockTimeEntry,
+  otherMockTimeEntry,
+} from '@/__mocks__/backend/data-access/entities/timeEntry.mock';
 import { ITimeTrackingService } from '@/src/backend/services/time-tracking/timeTrackingService.interface';
 import { UnauthorizedError } from '@/src/backend/error/unauthorizedError';
 import moment from 'moment';
 import { DatabaseError } from '@/src/backend/data-access/database/databaseError';
+import { TimeEntry } from '@/src/backend/data-access/database/entities/time-tracking/timeEntry';
+import { InvalidOperationError } from '@/src/backend/error/invalidOperationError';
 
 describe('TimeTrackingService', () => {
   describe('getProjects', () => {
@@ -277,6 +282,9 @@ describe('TimeTrackingService', () => {
         mockTimeTrackingDatabase.getProject = vi
           .fn()
           .mockResolvedValue(mockProject);
+        mockTimeTrackingDatabase.getAllTimeEntries = vi
+          .fn()
+          .mockResolvedValue([]);
         mockTimeTrackingDatabase.createTimeEntry = vi.fn();
 
         const timeTrackingService: ITimeTrackingService =
@@ -309,6 +317,9 @@ describe('TimeTrackingService', () => {
         mockTimeTrackingDatabase.getProject = vi
           .fn()
           .mockResolvedValue(mockProject);
+        mockTimeTrackingDatabase.getAllTimeEntries = vi
+          .fn()
+          .mockResolvedValue([]);
         mockTimeTrackingDatabase.createTimeEntry = vi.fn();
 
         const timeTrackingService: ITimeTrackingService =
@@ -332,24 +343,73 @@ describe('TimeTrackingService', () => {
     );
 
     it.each([mockTimeEntry, newMinimalTimeEntry])(
-      "should not call the timeTrackingDatabase's createTimeEntry method and return if the project does not exist",
+      "should not call the timeTrackingDatabase's createTimeEntry method and throw InvalidOperationError if the project does not exist",
       async (newTimeEntry) => {
         // Arrange
         userServiceMock.getLoggedInUser = vi
           .fn()
           .mockResolvedValue(otherMockUser);
         mockTimeTrackingDatabase.getProject = vi.fn().mockResolvedValue(null);
+        mockTimeTrackingDatabase.getAllTimeEntries = vi
+          .fn()
+          .mockResolvedValue([]);
         mockTimeTrackingDatabase.createTimeEntry = vi.fn();
 
         const timeTrackingService: ITimeTrackingService =
           new TimeTrackingService(mockTimeTrackingDatabase, userServiceMock);
 
         // Act
-        const result = await timeTrackingService.createTimeEntry(newTimeEntry);
+        await expect(
+          timeTrackingService.createTimeEntry(newTimeEntry),
+        ).rejects.toThrowError(
+          expect.objectContaining<InvalidOperationError>({
+            name: 'InvalidOperationError',
+            message: expect.stringMatching(
+              /^(?=.*\bproject\b)(?=.*\bnot\b)(?=.*\bexist\b).*$/i,
+            ),
+          }),
+        );
 
         // Assert
         expect(mockTimeTrackingDatabase.createTimeEntry).not.toHaveBeenCalled();
-        expect(result).toBeUndefined();
+      },
+    );
+
+    it.each([mockTimeEntry, newMinimalTimeEntry])(
+      "should not call the timeTrackingDatabase's createTimeEntry method and throw InvalidOperationError if there currently is a running time entry for the project",
+      async (newTimeEntry) => {
+        // Arrange
+        userServiceMock.getLoggedInUser = vi.fn().mockResolvedValue(mockUser);
+        mockTimeTrackingDatabase.getProject = vi
+          .fn()
+          .mockResolvedValue(mockProject);
+        mockTimeTrackingDatabase.createTimeEntry = vi.fn();
+
+        const runningTimeEntry: TimeEntry = {
+          ...otherMockTimeEntry,
+          endTime: null,
+        };
+        mockTimeTrackingDatabase.getAllTimeEntries = vi
+          .fn()
+          .mockResolvedValue([mockTimeEntry, runningTimeEntry]);
+
+        const timeTrackingService: ITimeTrackingService =
+          new TimeTrackingService(mockTimeTrackingDatabase, userServiceMock);
+
+        // Act
+        await expect(
+          timeTrackingService.createTimeEntry(newTimeEntry),
+        ).rejects.toThrowError(
+          expect.objectContaining<InvalidOperationError>({
+            name: 'InvalidOperationError',
+            message: expect.stringMatching(
+              /^(?=.*\balready\b)(?=.*\brunning\b)(?=.*\bentry\b)(?=.*\bproject\b).*$/i,
+            ),
+          }),
+        );
+
+        // Assert
+        expect(mockTimeTrackingDatabase.createTimeEntry).not.toHaveBeenCalled();
       },
     );
 
@@ -360,6 +420,33 @@ describe('TimeTrackingService', () => {
         const databaseError = new DatabaseError('Database error');
         userServiceMock.getLoggedInUser = vi.fn().mockResolvedValue(mockUser);
         mockTimeTrackingDatabase.getProject = vi
+          .fn()
+          .mockRejectedValue(databaseError);
+        mockTimeTrackingDatabase.getAllTimeEntries = vi
+          .fn()
+          .mockResolvedValue([]);
+        mockTimeTrackingDatabase.createTimeEntry = vi.fn();
+
+        const timeTrackingService: ITimeTrackingService =
+          new TimeTrackingService(mockTimeTrackingDatabase, userServiceMock);
+
+        // Act & Assert
+        await expect(
+          timeTrackingService.createTimeEntry(newTimeEntry),
+        ).rejects.toThrowError(databaseError);
+      },
+    );
+
+    it.each([mockTimeEntry, newMinimalTimeEntry])(
+      "should propagate DatabaseErrors thrown by the timeTrackingDatabase's getAllTimeEntries method",
+      async (newTimeEntry) => {
+        // Arrange
+        const databaseError = new DatabaseError('Database error');
+        userServiceMock.getLoggedInUser = vi.fn().mockResolvedValue(mockUser);
+        mockTimeTrackingDatabase.getProject = vi
+          .fn()
+          .mockResolvedValue(mockProject);
+        mockTimeTrackingDatabase.getAllTimeEntries = vi
           .fn()
           .mockRejectedValue(databaseError);
         mockTimeTrackingDatabase.createTimeEntry = vi.fn();
@@ -383,6 +470,9 @@ describe('TimeTrackingService', () => {
         mockTimeTrackingDatabase.getProject = vi
           .fn()
           .mockResolvedValue(mockProject);
+        mockTimeTrackingDatabase.getAllTimeEntries = vi
+          .fn()
+          .mockResolvedValue([]);
         mockTimeTrackingDatabase.createTimeEntry = vi
           .fn()
           .mockRejectedValue(databaseError);
@@ -398,25 +488,32 @@ describe('TimeTrackingService', () => {
     );
 
     it.each([mockTimeEntry, newMinimalTimeEntry])(
-      "should call the timeTrackingDatabase's createTimeEntry method with the correct time entry",
+      "should call the timeTrackingDatabase's createTimeEntry method with the correct time entry and return the created time entry",
       async (newTimeEntry) => {
         // Arrange
         userServiceMock.getLoggedInUser = vi.fn().mockResolvedValue(mockUser);
         mockTimeTrackingDatabase.getProject = vi
           .fn()
           .mockResolvedValue(mockProject);
-        mockTimeTrackingDatabase.createTimeEntry = vi.fn();
+        mockTimeTrackingDatabase.getAllTimeEntries = vi
+          .fn()
+          .mockResolvedValue([]);
+        mockTimeTrackingDatabase.createTimeEntry = vi
+          .fn()
+          .mockResolvedValue(mockTimeEntry);
 
         const timeTrackingService: ITimeTrackingService =
           new TimeTrackingService(mockTimeTrackingDatabase, userServiceMock);
 
         // Act
-        await timeTrackingService.createTimeEntry(newTimeEntry);
+        const createdTimeEntry =
+          await timeTrackingService.createTimeEntry(newTimeEntry);
 
         // Assert
         expect(
           mockTimeTrackingDatabase.createTimeEntry,
         ).toHaveBeenCalledExactlyOnceWith(newTimeEntry);
+        expect(createdTimeEntry).toEqual(mockTimeEntry);
       },
     );
   });

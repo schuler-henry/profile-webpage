@@ -6,6 +6,8 @@ export const mockTimeTrackingDatabase: TimeTrackingDatabase = {
 
   getProjects: vi.fn().mockResolvedValue([]),
 
+  getTimeEntry: vi.fn().mockResolvedValue(null),
+
   getAllTimeEntries: vi.fn().mockResolvedValue([]),
 
   createTimeEntries: vi.fn().mockResolvedValue(undefined),

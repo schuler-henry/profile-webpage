@@ -1,5 +1,4 @@
 'use client';
-import { TimeTrackingTimeEntry } from '@/src/backend/data-access/database/supabaseTypes';
 import { useSnackbar } from '@/src/store/SnackbarContextProvider';
 import {
   Alert,
@@ -25,10 +24,11 @@ import {
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import moment, { Moment } from 'moment';
 import React, { useEffect, useRef } from 'react';
+import { TimeEntryDTO } from '@/src/app/api/data-transfer-object/timeTrackingDTO.interface';
 
 export interface EditTimeEntryProps {
-  timeEntry: TimeTrackingTimeEntry | null;
-  onSaveAction: (timeEntry: TimeTrackingTimeEntry) => void;
+  timeEntry: TimeEntryDTO | null;
+  onSaveAction: (timeEntry: TimeEntryDTO) => void;
   onDeleteAction: (id: string) => void;
 }
 
@@ -37,7 +37,7 @@ export default function EditTimeEntry({
   onSaveAction,
   onDeleteAction,
 }: EditTimeEntryProps) {
-  const prevTimeEntry = useRef<TimeTrackingTimeEntry | null>(null);
+  const prevTimeEntry = useRef<TimeEntryDTO | null>(null);
 
   const [newDate, setNewDate] = React.useState<Moment | null>(null);
   const [newStartTime, setNewStartTime] = React.useState<Moment | null>(null);
@@ -49,7 +49,7 @@ export default function EditTimeEntry({
   const { pushMessage } = useSnackbar();
 
   useEffect(() => {
-    function initialize(timeEntry: TimeTrackingTimeEntry | null) {
+    function initialize(timeEntry: TimeEntryDTO | null) {
       if (timeEntry == null) {
         setNewDate(null);
         setNewStartTime(null);
@@ -66,8 +66,8 @@ export default function EditTimeEntry({
     }
 
     function update(
-      oldTimeEntry: TimeTrackingTimeEntry | null,
-      updatedTimeEntry: TimeTrackingTimeEntry | null,
+      oldTimeEntry: TimeEntryDTO | null,
+      updatedTimeEntry: TimeEntryDTO | null,
     ) {
       if (oldTimeEntry == null) {
         initialize(updatedTimeEntry);

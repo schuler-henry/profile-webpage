@@ -1,12 +1,7 @@
 import { SummaryMatter } from '@/src/app/studies/summaries/[summaryName]/page';
 import { DatabaseAdapter } from './databaseAdapter';
-import {
-  PostgrestResponse,
-  PostgrestSingleResponse,
-  User,
-  UserResponse,
-} from '@supabase/supabase-js';
-import { StudiesSummary, TimeTrackingTimeEntry } from './supabaseTypes';
+import { PostgrestResponse, PostgrestSingleResponse, User, UserResponse, } from '@supabase/supabase-js';
+import { StudiesSummary } from './supabaseTypes';
 import { TimeTrackingDatabase } from '@/src/backend/data-access/database/timeTrackingDatabase.interface';
 import { Project } from '@/src/backend/data-access/database/entities/time-tracking/project';
 import { DatabaseError } from '@/src/backend/data-access/database/databaseError';
@@ -42,8 +37,6 @@ export class SupabaseAdapter
     const names = result.data?.map((item) => {
       return item.name;
     });
-
-    console.log(names);
 
     return names || [];
   }
@@ -173,48 +166,6 @@ export class SupabaseAdapter
     return this.getStudiesSummaryMatterFromResponse(
       await this.selectStudiesSummary(),
     );
-  }
-
-  async getTimeTrackingEntries(
-    projectId: string,
-  ): Promise<TimeTrackingTimeEntry[]> {
-    const client = await createClient({ db: { schema: 'time-tracking' } });
-    const result = await client
-      .from('TimeEntry')
-      .select('*')
-      .eq('project', projectId);
-
-    return result.data || [];
-  }
-
-  async updateTimeTrackingEntry(
-    timeEntry: TimeTrackingTimeEntry,
-  ): Promise<PostgrestSingleResponse<null>> {
-    const client = await createClient({ db: { schema: 'time-tracking' } });
-    return client.from('TimeEntry').update([timeEntry]).eq('id', timeEntry.id);
-  }
-
-  async insertTimeTrackingEntry(
-    timeEntry:
-      | TimeTrackingTimeEntry
-      | { project: string; startTime?: string; date?: string },
-  ): Promise<PostgrestSingleResponse<TimeTrackingTimeEntry[]>> {
-    const client = await createClient({ db: { schema: 'time-tracking' } });
-    return client.from('TimeEntry').insert([timeEntry]).select();
-  }
-
-  async insertTimeTrackingEntries(
-    timeEntries: TimeTrackingTimeEntry[],
-  ): Promise<PostgrestSingleResponse<null>> {
-    const client = await createClient({ db: { schema: 'time-tracking' } });
-    return client.from('TimeEntry').insert(timeEntries);
-  }
-
-  async deleteTimeTrackingEntry(
-    id: string,
-  ): Promise<PostgrestSingleResponse<null>> {
-    const client = await createClient({ db: { schema: 'time-tracking' } });
-    return client.from('TimeEntry').delete().eq('id', id);
   }
 
   public async getProject(id: string): Promise<Project | null> {
@@ -392,15 +343,16 @@ export class SupabaseAdapter
       | TimeEntry
       | { project: string; date: Moment; startTime: Moment }
     )[],
-  ): Promise<void> {
+  ): Promise<TimeEntry[]> {
     // Assure that all moment elements are correctly formatted as strings in TimeEntry
     const formattedTimeEntries =
       this.formatAndNormalizeTimeEntries(timeEntries);
 
     const client = await createClient({ db: { schema: 'time-tracking' } });
-    const result: PostgrestSingleResponse<null> = await client
+    const result: PostgrestSingleResponse<TimeEntry[]> = await client
       .from('TimeEntry')
-      .insert(formattedTimeEntries);
+      .insert(formattedTimeEntries)
+      .select();
 
     if (result.error) {
       let errorMessage: string = 'Could not create time entries.';
@@ -411,17 +363,36 @@ export class SupabaseAdapter
 
       throw new DatabaseError(errorMessage, result.error);
     }
+
+    return result.data.map((entry) => {
+      return {
+        id: entry.id,
+        project: entry.project,
+        date: entry.date ? moment(entry.date, 'YYYY-MM-DD') : moment(),
+        startTime: entry.startTime
+          ? moment(entry.startTime, 'HH:mm:ss')
+          : moment(),
+        endTime: entry.endTime ? moment(entry.endTime, 'HH:mm:ss') : null,
+        description: entry.description || '',
+      } as TimeEntry;
+    });
   }
 
   public async createTimeEntry(
     timeEntry: TimeEntry | { project: string; date: Moment; startTime: Moment },
-  ): Promise<void> {
-    return this.createTimeEntries([timeEntry]);
+  ): Promise<TimeEntry> {
+    try {
+      const createdTimeEntries: TimeEntry[] = await this.createTimeEntries([
+        timeEntry,
+      ]);
+      return createdTimeEntries[0];
+    } catch (error) {
+      throw error;
+    }
   }
 
   public async updateTimeEntry(timeEntry: TimeEntry): Promise<void> {
     const formattedEntry = this.formatAndNormalizeTimeEntries([timeEntry])[0];
-    console.log(formattedEntry);
 
     const client = await createClient({ db: { schema: 'time-tracking' } });
     const result: PostgrestSingleResponse<null> = await client
@@ -429,7 +400,6 @@ export class SupabaseAdapter
       .update(formattedEntry)
       .eq('id', formattedEntry.id);
 
-    console.log(result);
     if (result.error) {
       throw new DatabaseError(
         `Could not update time entry with ID ${timeEntry.id}.`,

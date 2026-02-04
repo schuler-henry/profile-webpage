@@ -1,7 +1,4 @@
-import {
-  TimeTrackingProject,
-  TimeTrackingTimeEntry,
-} from '@/src/backend/data-access/database/supabaseTypes';
+import { TimeTrackingProject } from '@/src/backend/data-access/database/supabaseTypes';
 import { createClient } from '@/src/utils/supabase/server';
 import { Alert, Link, Stack, Typography } from '@mui/material';
 import { PostgrestSingleResponse } from '@supabase/supabase-js';
@@ -10,6 +7,7 @@ import React from 'react';
 import TimeTrackingContent from './TimeTrackingContent';
 import moment from 'moment';
 import NextLink from 'next/link';
+import { TimeEntryDTO } from '@/src/app/api/data-transfer-object/timeTrackingDTO.interface';
 
 export default async function TimeTrackingProjectPage({
   params,
@@ -79,7 +77,7 @@ export default async function TimeTrackingProjectPage({
   const {
     data: timeEntriesResult,
     error: timeEntriesError,
-  }: PostgrestSingleResponse<TimeTrackingTimeEntry[]> = await db
+  }: PostgrestSingleResponse<TimeEntryDTO[]> = await db
     .from('TimeEntry')
     .select('*')
     .order('date', { ascending: false })

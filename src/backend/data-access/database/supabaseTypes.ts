@@ -45,12 +45,3 @@ export interface TimeTrackingProject {
   owner: string | User;
   createdAt: string;
 }
-
-export interface TimeTrackingTimeEntry {
-  id: string;
-  date: string;
-  startTime: string;
-  endTime: string | null;
-  description: string;
-  project: string | TimeTrackingProject;
-}

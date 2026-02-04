@@ -1,8 +1,5 @@
 'use client';
-import {
-  TimeTrackingProject,
-  TimeTrackingTimeEntry,
-} from '@/src/backend/data-access/database/supabaseTypes';
+import { TimeTrackingProject } from '@/src/backend/data-access/database/supabaseTypes';
 import { getTimeStringFromMinutes } from '@/src/utils/time-tracking/timeFormatFunctions';
 import {
   Box,
@@ -24,6 +21,7 @@ import {
 import moment, { Moment } from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
+import { TimeEntryDTO } from '@/src/app/api/data-transfer-object/timeTrackingDTO.interface';
 
 export interface ProjectCardProps {
   project: TimeTrackingProject;
@@ -33,9 +31,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const HISTORY_DAYS = 7;
   const HISTORY_WEEKS = 8;
-  const [timeEntries, setTimeEntries] = React.useState<TimeTrackingTimeEntry[]>(
-    [],
-  );
+  const [timeEntries, setTimeEntries] = React.useState<TimeEntryDTO[]>([]);
   const [totalTimeInMinutes, setTotalTimeInMinutes] = React.useState<number>(0);
   const [runningTimeEntrySeconds, setRunningTimeEntrySeconds] =
     React.useState<number>(0);
@@ -52,7 +48,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       );
 
       if (response.ok) {
-        const timeEntries: TimeTrackingTimeEntry[] = await response.json();
+        const timeEntries: TimeEntryDTO[] = await response.json();
         setTimeEntries(timeEntries);
 
         if (getRunningTimeEntry(timeEntries)) {
@@ -131,8 +127,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   }
 
   function getRunningTimeEntry(
-    timeEntries: TimeTrackingTimeEntry[],
-  ): TimeTrackingTimeEntry | null {
+    timeEntries: TimeEntryDTO[],
+  ): TimeEntryDTO | null {
     return timeEntries.find((entry) => !entry.endTime) || null;
   }
 

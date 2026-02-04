@@ -1,20 +1,41 @@
-import { DatabaseAdapter } from '@/src/backend/data-access/database/databaseAdapter';
 import { SupabaseAdapter } from '@/src/backend/data-access/database/supabaseAdapter';
-import { TimeTrackingTimeEntry } from '@/src/backend/data-access/database/supabaseTypes';
+import { TimeEntryDTO } from '@/src/app/api/data-transfer-object/timeTrackingDTO.interface';
+import { AuthDatabase } from '@/src/backend/data-access/database/authDatabase.interface';
+import { TimeTrackingDatabase } from '@/src/backend/data-access/database/timeTrackingDatabase.interface';
+import { IUserService } from '@/src/backend/services/user/userService.interface';
+import UserService from '@/src/backend/services/user/userService';
+import { ITimeTrackingService } from '@/src/backend/services/time-tracking/timeTrackingService.interface';
+import TimeTrackingService from '@/src/backend/services/time-tracking/timeTrackingService';
+import { TimeTrackingDTOMapper } from '@/src/app/api/data-transfer-object/timeTrackingDTOMapper';
+import { UnauthorizedError } from '@/src/backend/error/unauthorizedError';
 
 // Post endpoint
 export async function POST(req: Request) {
-  const db: DatabaseAdapter = new SupabaseAdapter();
+  const entry: TimeEntryDTO = await req.json();
 
-  const entry: TimeTrackingTimeEntry = await req.json();
+  const databaseConnection: AuthDatabase & TimeTrackingDatabase =
+    new SupabaseAdapter();
+  const userService: IUserService = new UserService(databaseConnection);
+  const timeTrackingService: ITimeTrackingService = new TimeTrackingService(
+    databaseConnection,
+    userService,
+  );
 
-  const resp = await db.updateTimeTrackingEntry(entry);
-  if (resp.error) {
-    return new Response(null, {
-      status: 400,
+  try {
+    await timeTrackingService.updateTimeEntry(
+      TimeTrackingDTOMapper.toTimeEntry(entry),
+    );
+    return new Response(null, { status: 200 });
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
     });
   }
-  return new Response(null, {
-    status: 200,
-  });
 }

@@ -6,6 +6,7 @@ import { IUserService } from '@/src/backend/services/user/userService.interface'
 import { ITimeTrackingService } from '@/src/backend/services/time-tracking/timeTrackingService.interface';
 import { UnauthorizedError } from '@/src/backend/error/unauthorizedError';
 import moment from 'moment';
+import { InvalidOperationError } from '@/src/backend/error/invalidOperationError';
 
 export default class TimeTrackingService implements ITimeTrackingService {
   constructor(
@@ -56,12 +57,13 @@ export default class TimeTrackingService implements ITimeTrackingService {
    * @inheritDoc ITimeTrackingService.createTimeEntry
    * @throws UnauthorizedError if the user is not logged in or the user is not authorized to access the project.
    * @throws DatabaseError if there is an error retrieving the project or creating the time entry.
+   * @throws InvalidOperationError if there is already a running time entry for the project or the project does not exist.
    */
   public async createTimeEntry(
     timeEntry:
       | TimeEntry
       | { project: string; date: moment.Moment; startTime: moment.Moment },
-  ): Promise<void> {
+  ): Promise<TimeEntry> {
     const loggedInUser: User | null = await this.userService.getLoggedInUser();
     if (loggedInUser === null) {
       throw new UnauthorizedError('The user is not logged in.');
@@ -71,11 +73,19 @@ export default class TimeTrackingService implements ITimeTrackingService {
       timeEntry.project,
     );
     if (project === null) {
-      return;
+      throw new InvalidOperationError('The specified project does not exist.');
     }
     if (project.owner != loggedInUser.id) {
       throw new UnauthorizedError(
         'The user does not own the requested project.',
+      );
+    }
+
+    const existingTimeEntries =
+      await this.timeTrackingDatabase.getAllTimeEntries(timeEntry.project);
+    if (existingTimeEntries.find((entry) => entry.endTime === null)) {
+      throw new InvalidOperationError(
+        'There is already a running time entry for this project.',
       );
     }
 

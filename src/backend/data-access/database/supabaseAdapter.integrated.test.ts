@@ -7,7 +7,10 @@ import { Project } from '@/src/backend/data-access/database/entities/time-tracki
 import { TimeEntry } from '@/src/backend/data-access/database/entities/time-tracking/timeEntry';
 import { DatabaseError } from '@/src/backend/data-access/database/databaseError';
 import { mockUser } from '@/__mocks__/backend/data-access/entities/user.mock';
-import { mockProject, otherMockProject, } from '@/__mocks__/backend/data-access/entities/project.mock';
+import {
+  mockProject,
+  otherMockProject,
+} from '@/__mocks__/backend/data-access/entities/project.mock';
 import {
   firstNewTimeEntry,
   mockTimeEntry,
@@ -437,14 +440,17 @@ describe('supabaseAdapter', () => {
         }
       });
 
-      it('should not create anything if no time entry is provided', async () => {
+      it('should not create and return anything if no time entry is provided', async () => {
         // Arrange
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
-        await supabaseAdapter.createTimeEntries([]);
+        const createdTimeEntries: TimeEntry[] =
+          await supabaseAdapter.createTimeEntries([]);
 
         // Assert
+        expect(createdTimeEntries).toEqual([]);
+
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
           mockProject.id,
         );
@@ -485,14 +491,28 @@ describe('supabaseAdapter', () => {
         );
       });
 
-      it('should create one new time entry', async () => {
+      it('should create and return one new time entry', async () => {
         // Arrange
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
-        await supabaseAdapter.createTimeEntries([firstNewTimeEntry]);
+        const createdTimeEntries: TimeEntry[] =
+          await supabaseAdapter.createTimeEntries([firstNewTimeEntry]);
 
         // Assert
+        expect(createdTimeEntries).toEqual(
+          expect.arrayContaining<TimeEntry>([
+            expect.objectContaining({
+              id: firstNewTimeEntry.id,
+              date: firstNewTimeEntry.date,
+              startTime: firstNewTimeEntry.startTime,
+              endTime: firstNewTimeEntry.endTime,
+              description: firstNewTimeEntry.description,
+              project: firstNewTimeEntry.project,
+            }),
+          ]),
+        );
+
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
           mockProject.id,
         );
@@ -517,13 +537,40 @@ describe('supabaseAdapter', () => {
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
-        await supabaseAdapter.createTimeEntries([
-          firstNewTimeEntry,
-          secondNewTimeEntry,
-          thirdNewTimeEntry,
-        ]);
+        const createdTimeEntries: TimeEntry[] =
+          await supabaseAdapter.createTimeEntries([
+            firstNewTimeEntry,
+            secondNewTimeEntry,
+            thirdNewTimeEntry,
+          ]);
 
         // Assert
+        expect(createdTimeEntries).toEqual(
+          expect.arrayContaining<TimeEntry>([
+            expect.objectContaining({
+              id: firstNewTimeEntry.id,
+              date: firstNewTimeEntry.date,
+              startTime: firstNewTimeEntry.startTime,
+              endTime: firstNewTimeEntry.endTime,
+              description: firstNewTimeEntry.description,
+              project: firstNewTimeEntry.project,
+            }),
+            expect.objectContaining({
+              id: secondNewTimeEntry.id,
+              date: secondNewTimeEntry.date,
+              startTime: secondNewTimeEntry.startTime,
+              endTime: secondNewTimeEntry.endTime,
+              description: secondNewTimeEntry.description,
+              project: secondNewTimeEntry.project,
+            }),
+            expect.objectContaining({
+              project: thirdNewTimeEntry.project,
+              date: thirdNewTimeEntry.date,
+              startTime: thirdNewTimeEntry.startTime,
+            }),
+          ]),
+        );
+
         const timeEntries = await supabaseAdapter.getAllTimeEntries(
           mockProject.id,
         );
@@ -607,14 +654,26 @@ describe('supabaseAdapter', () => {
         }
       });
 
-      it('should create a new time entry', async () => {
+      it('should create and return a new time entry', async () => {
         // Arrange
         const supabaseAdapter: TimeTrackingDatabase = new SupabaseAdapter();
 
         // Act
-        await supabaseAdapter.createTimeEntry(firstNewTimeEntry);
+        const createdTimeEntry =
+          await supabaseAdapter.createTimeEntry(firstNewTimeEntry);
 
         // Assert
+        expect(createdTimeEntry).toEqual(
+          expect.objectContaining({
+            id: firstNewTimeEntry.id,
+            date: firstNewTimeEntry.date,
+            startTime: firstNewTimeEntry.startTime,
+            endTime: firstNewTimeEntry.endTime,
+            description: firstNewTimeEntry.description,
+            project: firstNewTimeEntry.project,
+          }),
+        );
+
         const timeEntries: TimeEntry[] =
           await supabaseAdapter.getAllTimeEntries(mockProject.id);
 

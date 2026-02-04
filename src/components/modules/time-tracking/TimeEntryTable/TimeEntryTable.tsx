@@ -1,5 +1,4 @@
 'use client';
-import { TimeTrackingTimeEntry } from '@/src/backend/data-access/database/supabaseTypes';
 import { useSnackbar } from '@/src/store/SnackbarContextProvider';
 import { getTimeStringFromSeconds } from '@/src/utils/time-tracking/timeFormatFunctions';
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
@@ -16,9 +15,10 @@ import {
 } from '@mui/material';
 import moment from 'moment';
 import React, { useState } from 'react';
+import { TimeEntryDTO } from '@/src/app/api/data-transfer-object/timeTrackingDTO.interface';
 
 export interface TimeEntryTableProps {
-  timeEntries: TimeTrackingTimeEntry[];
+  timeEntries: TimeEntryDTO[];
   onSelectEntry: (id: string) => void;
 }
 

@@ -39,9 +39,9 @@ export interface TimeTrackingDatabase {
   getAllTimeEntries(projectId: string): Promise<TimeEntry[]>;
 
   /**
-   * Creates multiple time entries.
+   * Creates multiple time entries and returns the created entries.
    * @param timeEntries An array of TimeEntry objects or objects containing the minimal required infos project (id), date, and startTime.
-   * @return A promise that resolves when the time entries have been created.
+   * @return A promise that resolves to the created entries once the time entries have been created.
    * @throws {@link DatabaseError} if there is an error creating the time entries.
    */
   createTimeEntries(
@@ -49,17 +49,17 @@ export interface TimeTrackingDatabase {
       | TimeEntry
       | { project: string; date: Moment; startTime: Moment }
     )[],
-  ): Promise<void>;
+  ): Promise<TimeEntry[]>;
 
   /**
-   * Creates a single time entry.
+   * Creates a single time entry and returns the created entry.
    * @param timeEntry A TimeEntry object or an object containing the minimal required infos project (id), date, and startTime.
-   * @return A promise that resolves when the time entry has been created.
+   * @return A promise that resolves to the created entry once the time entry has been created.
    * @throws {@link DatabaseError} if there is an error creating the time entry.
    */
   createTimeEntry(
     timeEntry: TimeEntry | { project: string; date: Moment; startTime: Moment },
-  ): Promise<void>;
+  ): Promise<TimeEntry>;
 
   /**
    * Updates the existing time entry with the provided id in {@link timeEntry}.

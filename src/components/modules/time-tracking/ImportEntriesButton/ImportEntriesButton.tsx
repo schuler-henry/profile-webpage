@@ -1,8 +1,5 @@
 'use client';
-import {
-  TimeTrackingProject,
-  TimeTrackingTimeEntry,
-} from '@/src/backend/data-access/database/supabaseTypes';
+import { TimeTrackingProject } from '@/src/backend/data-access/database/supabaseTypes';
 import { useSnackbar } from '@/src/store/SnackbarContextProvider';
 import { faCloudUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,10 +7,11 @@ import { Button, styled } from '@mui/material';
 import { v4 as uuid4 } from 'uuid';
 import React from 'react';
 import moment from 'moment';
+import { TimeEntryDTO } from '@/src/app/api/data-transfer-object/timeTrackingDTO.interface';
 
 export interface ImportEntriesButtonProps {
   project: TimeTrackingProject;
-  setEntries: (entries: TimeTrackingTimeEntry[]) => void;
+  setEntries: (entries: TimeEntryDTO[]) => void;
 }
 
 export default function ImportEntriesButton({
@@ -55,20 +53,18 @@ export default function ImportEntriesButton({
         autoHideDuration: 1000,
       });
 
-      const parsedEntries: TimeTrackingTimeEntry[] = content
-        .split('\n')
-        .map((line) => {
-          const [_, startDate, endDate, description] = line.split(';');
+      const parsedEntries: TimeEntryDTO[] = content.split('\n').map((line) => {
+        const [_, startDate, endDate, description] = line.split(';');
 
-          return {
-            id: uuid4(),
-            date: moment(startDate).format('YYYY-MM-DD'),
-            startTime: moment(startDate).format('HH:mm:ss'),
-            endTime: moment(endDate).format('HH:mm:ss'),
-            description: description || '',
-            project: project.id,
-          };
-        });
+        return {
+          id: uuid4(),
+          date: moment(startDate).format('YYYY-MM-DD'),
+          startTime: moment(startDate).format('HH:mm:ss'),
+          endTime: moment(endDate).format('HH:mm:ss'),
+          description: description || '',
+          project: project.id,
+        };
+      });
 
       pushMessage({
         message: 'Importing time entries...',
@@ -85,7 +81,7 @@ export default function ImportEntriesButton({
       );
 
       if (response.ok) {
-        const newEntries: TimeTrackingTimeEntry[] = await response.json();
+        const newEntries: TimeEntryDTO[] = await response.json();
         setEntries(newEntries);
 
         pushMessage({
