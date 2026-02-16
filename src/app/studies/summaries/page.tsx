@@ -1,14 +1,14 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import styles from './styles.module.css';
-import { Professor, SummaryMatter } from './[summaryName]/page';
+import { SummaryMatter } from './[summaryName]/page';
 import {
-  SummaryFilter,
   addKeysToFilter,
   getEmptyFilter,
   isFilterEmpty,
   isFilterValid,
   isMatterAllowedByFilter,
+  SummaryFilter,
 } from '@/src/components/modules/SummaryListFilter/SummaryListFilter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilterCircleXmark } from '@fortawesome/free-solid-svg-icons';
@@ -19,15 +19,39 @@ import SummaryListSpeedDial from '@/src/components/modules/SummaryListSpeedDial/
 
 export default function Summaries() {
   const [summaryMatters, setSummaryMatters] = useState<SummaryMatter[]>([]);
-  const [filterOptions, setFilterOptions] = useState<SummaryFilter>(
-    getEmptyFilter(),
-  );
-  const [activeFilter, setActiveFilter] = useState<SummaryFilter>(
-    getEmptyFilter(),
-  );
+  const [filterOptions, setFilterOptions] =
+    useState<SummaryFilter>(getEmptyFilter());
+  const [activeFilter, setActiveFilter] =
+    useState<SummaryFilter>(getEmptyFilter());
 
   const [openDeleteFilterConfirmation, setOpenDeleteFilterConfirmation] =
     useState<boolean>(false);
+
+  // Filter Functions
+  function getFilter(): SummaryFilter {
+    const filter = window.localStorage.getItem('/studies/summaries;filter');
+
+    if (filter) {
+      return JSON.parse(filter) as SummaryFilter;
+    }
+
+    return getEmptyFilter();
+  }
+
+  function setFilter(filter: SummaryFilter): void {
+    if (!isFilterValid(filter)) return;
+
+    window.localStorage.setItem(
+      '/studies/summaries;filter',
+      JSON.stringify(filter),
+    );
+
+    setActiveFilter(filter);
+  }
+
+  function isAllowedByFilter(matter: SummaryMatter): boolean {
+    return isMatterAllowedByFilter(activeFilter, matter);
+  }
 
   // Initial Content Load
   useEffect(() => {
@@ -63,32 +87,6 @@ export default function Summaries() {
 
     updateSelectableFilters();
   }, [summaryMatters]);
-
-  // Filter Functions
-  function getFilter(): SummaryFilter {
-    const filter = window.localStorage.getItem('/studies/summaries;filter');
-
-    if (filter) {
-      return JSON.parse(filter) as SummaryFilter;
-    }
-
-    return getEmptyFilter();
-  }
-
-  function setFilter(filter: SummaryFilter): void {
-    if (!isFilterValid(filter)) return;
-
-    window.localStorage.setItem(
-      '/studies/summaries;filter',
-      JSON.stringify(filter),
-    );
-
-    setActiveFilter(filter);
-  }
-
-  function isAllowedByFilter(matter: SummaryMatter): boolean {
-    return isMatterAllowedByFilter(activeFilter, matter);
-  }
 
   return (
     <div className={styles.summaryList}>

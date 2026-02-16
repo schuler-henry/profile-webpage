@@ -1,6 +1,6 @@
 'use client';
 import { AlertColor } from '@mui/material';
-import { createContext, useContext, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useRef, useState, } from 'react';
 
 export interface SnackbarMessage {
   message: string;
@@ -10,15 +10,15 @@ export interface SnackbarMessage {
 
 interface SnackbarContextInterface {
   pushMessage: (message: SnackbarMessage) => void;
-  getMessage: () => SnackbarMessage | null;
-  hasMessages: boolean;
+  shiftMessage: () => void;
+  currentMessage: SnackbarMessage | null;
   messageCount: number;
 }
 
 const SnackbarContext = createContext<SnackbarContextInterface>({
   pushMessage: (message: SnackbarMessage) => {},
-  getMessage: () => null,
-  hasMessages: false,
+  shiftMessage: () => {},
+  currentMessage: null,
   messageCount: 0,
 });
 
@@ -37,36 +37,39 @@ export default function SnackbarContextProvider(props: {
   // This prevents loosing messages when messages are pushed/get after a timeout.
   // https://stackoverflow.com/questions/55198517/react-usestate-why-settimeout-function-does-not-have-latest-state-value
   const messages = useRef<SnackbarMessage[]>([]);
+  const [currentMessage, setCurrentMessage] = useState<SnackbarMessage | null>(
+    null,
+  );
   const [messageCount, setMessageCount] = useState<number>(0);
-  const [hasMessages, setHasMessages] = useState<boolean>(false);
 
-  const pushMessage = (message: SnackbarMessage) => {
-    messages.current = [...messages.current, message];
-    setMessageCount(messages.current.length);
+  const pushMessage = useCallback(
+    (message: SnackbarMessage) => {
+      messages.current = [...messages.current, message];
+      setMessageCount(messages.current.length + (currentMessage ? 1 : 0));
+    },
+    [currentMessage],
+  );
 
-    if (!hasMessages) {
-      setHasMessages(true);
+  const shiftMessage = useCallback(() => {
+    if (messages.current.length === 0) {
+      setMessageCount(0);
+      setCurrentMessage(null);
+      return;
     }
-  };
 
-  const getMessage = () => {
-    const message: SnackbarMessage | null =
-      messages.current.length > 0 ? messages.current[0] : null;
+    const message = messages.current[0];
     messages.current = messages.current.slice(1);
     setMessageCount(messages.current.length);
-    if (messages.current.length === 0) {
-      setHasMessages(false);
-    }
-    return message;
-  };
+    setCurrentMessage(message);
+  }, []);
 
   return (
     <SnackbarContext.Provider
       value={{
         pushMessage,
-        getMessage,
-        hasMessages,
-        messageCount,
+        shiftMessage,
+        currentMessage: currentMessage,
+        messageCount: messageCount,
       }}
     >
       {props.children}

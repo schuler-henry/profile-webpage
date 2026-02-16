@@ -1,8 +1,5 @@
 'use client';
-import {
-  TimeTrackingProject,
-  TimeTrackingTimeEntry,
-} from '@/src/app/api/supabaseTypes';
+import { TimeTrackingProject } from '@/src/backend/data-access/database/supabaseTypes';
 import { getTimeStringFromMinutes } from '@/src/utils/time-tracking/timeFormatFunctions';
 import {
   Box,
@@ -24,6 +21,7 @@ import {
 import moment, { Moment } from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
+import { TimeEntryDTO } from '@/src/app/api/data-transfer-object/timeTrackingDTO.interface';
 
 export interface ProjectCardProps {
   project: TimeTrackingProject;
@@ -33,14 +31,28 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const HISTORY_DAYS = 7;
   const HISTORY_WEEKS = 8;
-  const [timeEntries, setTimeEntries] = React.useState<TimeTrackingTimeEntry[]>(
-    [],
-  );
-  const [totalTimeInMinutes, setTotalTimeInMinutes] = React.useState<number>(0);
+  const [timeEntries, setTimeEntries] = React.useState<TimeEntryDTO[]>([]);
+  const totalTimeInMinutes = timeEntries.reduce((acc, entry) => {
+    if (!entry.endTime) {
+      return acc;
+    }
+
+    const duration = moment(entry.endTime, ['hh:mm:ss']).diff(
+      moment(entry.startTime, ['hh:mm:ss']),
+      'minutes',
+    );
+    return acc + duration;
+  }, 0);
   const [runningTimeEntrySeconds, setRunningTimeEntrySeconds] =
     React.useState<number>(0);
   const router = useRouter();
   const theme = useTheme();
+
+  function getRunningTimeEntry(
+    timeEntries: TimeEntryDTO[],
+  ): TimeEntryDTO | null {
+    return timeEntries.find((entry) => !entry.endTime) || null;
+  }
 
   useEffect(() => {
     const fetchTimeEntries = async () => {
@@ -52,7 +64,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       );
 
       if (response.ok) {
-        const timeEntries: TimeTrackingTimeEntry[] = await response.json();
+        const timeEntries: TimeEntryDTO[] = await response.json();
         setTimeEntries(timeEntries);
 
         if (getRunningTimeEntry(timeEntries)) {
@@ -75,22 +87,6 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
     fetchTimeEntries();
   }, [project.id]);
-
-  useEffect(() => {
-    const totalTimeInMinutes = timeEntries.reduce((acc, entry) => {
-      if (!entry.endTime) {
-        return acc;
-      }
-
-      const duration = moment(entry.endTime, ['hh:mm:ss']).diff(
-        moment(entry.startTime, ['hh:mm:ss']),
-        'minutes',
-      );
-      return acc + duration;
-    }, 0);
-
-    setTotalTimeInMinutes(totalTimeInMinutes || 0);
-  }, [timeEntries]);
 
   function getTotalTimeInMinutesForDay(date: Moment): number {
     return timeEntries.reduce((acc, entry) => {
@@ -128,12 +124,6 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
       return acc;
     }, 0);
-  }
-
-  function getRunningTimeEntry(
-    timeEntries: TimeTrackingTimeEntry[],
-  ): TimeTrackingTimeEntry | null {
-    return timeEntries.find((entry) => !entry.endTime) || null;
   }
 
   const openProject = async (_: any) => {

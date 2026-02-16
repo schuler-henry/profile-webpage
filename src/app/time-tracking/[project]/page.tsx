@@ -1,7 +1,4 @@
-import {
-  TimeTrackingProject,
-  TimeTrackingTimeEntry,
-} from '@/src/app/api/supabaseTypes';
+import { TimeTrackingProject } from '@/src/backend/data-access/database/supabaseTypes';
 import { createClient } from '@/src/utils/supabase/server';
 import { Alert, Link, Stack, Typography } from '@mui/material';
 import { PostgrestSingleResponse } from '@supabase/supabase-js';
@@ -10,6 +7,7 @@ import React from 'react';
 import TimeTrackingContent from './TimeTrackingContent';
 import moment from 'moment';
 import NextLink from 'next/link';
+import { TimeEntryDTO } from '@/src/app/api/data-transfer-object/timeTrackingDTO.interface';
 
 export default async function TimeTrackingProjectPage({
   params,
@@ -79,7 +77,7 @@ export default async function TimeTrackingProjectPage({
   const {
     data: timeEntriesResult,
     error: timeEntriesError,
-  }: PostgrestSingleResponse<TimeTrackingTimeEntry[]> = await db
+  }: PostgrestSingleResponse<TimeEntryDTO[]> = await db
     .from('TimeEntry')
     .select('*')
     .order('date', { ascending: false })
@@ -90,15 +88,13 @@ export default async function TimeTrackingProjectPage({
     return <div>Error loading time entries</div>;
   }
 
-  const timeEntries = timeEntriesResult;
-
   return (
     <div>
       <Typography variant="h5">{project.name}</Typography>
       <Typography variant="subtitle2" fontStyle="italic">
         &quot;{project.description}&quot;
       </Typography>
-      <TimeTrackingContent project={project} timeEntries={timeEntries} />
+      <TimeTrackingContent project={project} timeEntries={timeEntriesResult} />
     </div>
   );
 }

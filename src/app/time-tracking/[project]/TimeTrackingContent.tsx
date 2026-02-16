@@ -1,8 +1,5 @@
 'use client';
-import {
-  TimeTrackingProject,
-  TimeTrackingTimeEntry,
-} from '@/src/app/api/supabaseTypes';
+import { TimeTrackingProject } from '@/src/backend/data-access/database/supabaseTypes';
 import EditTimeEntry from '@/src/components/modules/time-tracking/EditTimeEntry/EditTimeEntry';
 import TimeEntryTable from '@/src/components/modules/time-tracking/TimeEntryTable/TimeEntryTable';
 import { useSnackbar } from '@/src/store/SnackbarContextProvider';
@@ -21,34 +18,27 @@ import {
   Typography,
 } from '@mui/material';
 import moment from 'moment';
-import React, { useEffect } from 'react';
+import React from 'react';
 import ImportEntriesButton from '@/src/components/modules/time-tracking/ImportEntriesButton/ImportEntriesButton';
+import { TimeEntryDTO } from '@/src/app/api/data-transfer-object/timeTrackingDTO.interface';
 
 export interface TimeTrackingContentProps {
   project: TimeTrackingProject;
-  timeEntries: TimeTrackingTimeEntry[];
+  timeEntries: TimeEntryDTO[];
 }
 
 export default function TimeTrackingContent({
   project,
   timeEntries,
 }: TimeTrackingContentProps) {
-  const [entries, setEntries] =
-    React.useState<TimeTrackingTimeEntry[]>(timeEntries);
+  const [entries, setEntries] = React.useState<TimeEntryDTO[]>(timeEntries);
   const [selectedTimeEntry, setSelectedTimeEntry] =
-    React.useState<TimeTrackingTimeEntry | null>(
+    React.useState<TimeEntryDTO | null>(
       timeEntries.find((entry) => !entry.endTime) || null,
     );
   const { pushMessage } = useSnackbar();
 
-  useEffect(() => {
-    setEntries(timeEntries);
-    if (!timeEntries.find((entry) => entry.id === selectedTimeEntry?.id)) {
-      setSelectedTimeEntry(timeEntries.find((entry) => !entry.endTime) || null);
-    }
-  }, [project, timeEntries, selectedTimeEntry]);
-
-  const handleSaveEntryChanges = async (entry: TimeTrackingTimeEntry) => {
+  const handleSaveEntryChanges = async (entry: TimeEntryDTO) => {
     const response = await fetch(
       '/api/time-tracking/' + project.id + '/updateEntry',
       {
@@ -96,7 +86,7 @@ export default function TimeTrackingContent({
     );
 
     if (response.ok) {
-      const newEntry: TimeTrackingTimeEntry = await response.json();
+      const newEntry: TimeEntryDTO = await response.json();
       setEntries([...entries, newEntry]);
 
       pushMessage({
@@ -131,12 +121,12 @@ export default function TimeTrackingContent({
     // If the runningEntry is updated directly, the reference in the entry list is updated.
     // However, without the setEntries function, the UI is not updated.
     // Therefore, we create a new object and update the list in the handleSaveEntryChanges function.
-    const updatedEntry: TimeTrackingTimeEntry = {
+    const updatedEntry: TimeEntryDTO = {
       ...runningEntry,
       endTime: moment().format('HH:mm:ss'),
     };
 
-    handleSaveEntryChanges(updatedEntry);
+    await handleSaveEntryChanges(updatedEntry);
   };
 
   const handleDeleteEntry = async (id: string) => {

@@ -1,5 +1,4 @@
 import { User } from '@supabase/supabase-js';
-import { Moment } from 'moment';
 
 export interface StudiesSummary {
   id?: number;
@@ -45,13 +44,4 @@ export interface TimeTrackingProject {
   description: string;
   owner: string | User;
   createdAt: string;
-}
-
-export interface TimeTrackingTimeEntry {
-  id: string;
-  date: string;
-  startTime: string;
-  endTime: string | null;
-  description: string;
-  project: string | TimeTrackingProject;
 }

@@ -12,6 +12,7 @@ import ThemeContextProvider from '@/src/store/ThemeContextProvider';
 import UserContextProvider from '@/src/store/UserContextProvider';
 import SnackbarComponent from '@/src/components/elements/SnackbarComponent/SnackbarComponent';
 import SnackbarContextProvider from '@/src/store/SnackbarContextProvider';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 
 export const metadata: Metadata = {
   title: 'Henry Schuler',
@@ -52,24 +53,26 @@ export default function RootLayout({
           <CssBaseline />
           <html lang="en">
             <body>
-              <Header />
-              <main>
-                <Paper
-                  elevation={0}
-                  square
-                  sx={{
-                    marginTop: 'calc(56px + 1rem)',
-                    marginBottom: '1rem',
-                    padding: '0 1rem',
-                    minHeight: 'calc(100vh - 56px - 2rem)',
-                  }}
-                >
-                  {children}
-                </Paper>
-                <Divider />
-              </main>
-              <Footer />
-              <SnackbarComponent />
+              <AppRouterCacheProvider>
+                <Header />
+                <main>
+                  <Paper
+                    elevation={0}
+                    square
+                    sx={{
+                      marginTop: 'calc(56px + 1rem)',
+                      marginBottom: '1rem',
+                      padding: '0 1rem',
+                      minHeight: 'calc(100vh - 56px - 2rem)',
+                    }}
+                  >
+                    {children}
+                  </Paper>
+                  <Divider />
+                </main>
+                <Footer />
+                <SnackbarComponent />
+              </AppRouterCacheProvider>
             </body>
           </html>
         </SnackbarContextProvider>

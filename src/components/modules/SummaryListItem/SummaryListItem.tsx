@@ -16,7 +16,7 @@ import {
   faUser,
   faWrench,
 } from '@fortawesome/free-solid-svg-icons';
-import { Box, SwipeableDrawer, styled } from '@mui/material';
+import { Box, SwipeableDrawer, useTheme } from '@mui/material';
 import { grey } from '@mui/material/colors';
 
 export interface SummaryListItemProps {
@@ -35,16 +35,7 @@ export interface SummaryListItemProps {
 
 export default function SummaryListItem(props: SummaryListItemProps) {
   const [open, setOpen] = React.useState(false);
-
-  const Puller = styled(Box)(({ theme }) => ({
-    width: 60,
-    height: 6,
-    backgroundColor: theme.palette.mode === 'light' ? grey[300] : grey[900],
-    borderRadius: 3,
-    position: 'absolute',
-    top: 8,
-    left: 'calc(50% - 30px)',
-  }));
+  const theme = useTheme();
 
   return (
     <>
@@ -119,7 +110,18 @@ export default function SummaryListItem(props: SummaryListItemProps) {
             height: 22,
           }}
         >
-          <Puller />
+          <Box
+            style={{
+              width: 60,
+              height: 6,
+              backgroundColor:
+                theme.palette.mode === 'light' ? grey[300] : grey[900],
+              borderRadius: 3,
+              position: 'absolute',
+              top: 8,
+              left: 'calc(50% - 30px)',
+            }}
+          />
         </Box>
         <Box
           sx={{

@@ -1,13 +1,6 @@
 'use client';
-import React, { MouseEventHandler, useEffect } from 'react';
-import styles from './ConfirmationDialog.module.css';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from '@mui/material';
+import React from 'react';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, } from '@mui/material';
 
 export interface ConfirmationDialogProps {
   title: string;
@@ -17,11 +10,7 @@ export interface ConfirmationDialogProps {
 }
 
 export default function ConfirmationDialog(props: ConfirmationDialogProps) {
-  const [open, setOpen] = React.useState(false);
-
-  useEffect(() => {
-    setOpen(props.open);
-  }, [props.open]);
+  const open = props.open;
 
   const handleCancel = (event: { preventDefault: () => void }) => {
     event.preventDefault();

@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './Footer.module.css';
 import { Box, Container, Typography } from '@mui/material';
+import moment from 'moment';
 
 export default function Footer() {
   return (
@@ -53,7 +54,7 @@ export default function Footer() {
         }}
       >
         <Typography className={styles.copyright}>
-          © 2023-2025 Henry Schuler
+          © 2023-{moment().format('yyyy')} Henry Schuler
         </Typography>
       </Box>
     </Container>

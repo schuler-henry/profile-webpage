@@ -1,5 +1,4 @@
 'use client';
-import { TimeTrackingTimeEntry } from '@/src/app/api/supabaseTypes';
 import { useSnackbar } from '@/src/store/SnackbarContextProvider';
 import { getTimeStringFromSeconds } from '@/src/utils/time-tracking/timeFormatFunctions';
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
@@ -15,10 +14,11 @@ import {
   useTheme,
 } from '@mui/material';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { TimeEntryDTO } from '@/src/app/api/data-transfer-object/timeTrackingDTO.interface';
 
 export interface TimeEntryTableProps {
-  timeEntries: TimeTrackingTimeEntry[];
+  timeEntries: TimeEntryDTO[];
   onSelectEntry: (id: string) => void;
 }
 
@@ -108,8 +108,10 @@ export default function TimeEntryTable({
                       color="primary"
                       checked={isItemSelected}
                       onClick={(e) => handleSelectCheckbox(e, entry.id)}
-                      inputProps={{
-                        'aria-labelledby': labelId,
+                      slotProps={{
+                        input: {
+                          'aria-labelledby': labelId,
+                        },
                       }}
                     />
                   </TableCell>

@@ -1,7 +1,7 @@
 'use client';
 import { createClient } from '@/src/utils/supabase/client';
 import { User } from '@supabase/supabase-js';
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 interface UserContextInterface {
   user: User | null;
@@ -30,7 +30,7 @@ export default function UserContextProvider(props: {
   const [user, setUser] = useState<User | null>(props.user);
   const [isLoading, setIsLoading] = useState(false);
 
-  useMemo(() => {
+  useEffect(() => {
     const getUser = async () => {
       const client = createClient();
 
