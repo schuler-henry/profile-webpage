@@ -15,10 +15,9 @@ import {
 import {
   DatePicker,
   LocalizationProvider,
+  MobileTimePicker,
   renderDateViewCalendar,
-  renderTimeViewClock,
   TimeField,
-  TimePicker,
   usePickerActionsContext,
 } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
@@ -118,6 +117,7 @@ export default function EditTimeEntry({
   };
 
   const handleStartTimeChange = (date: Moment | null) => {
+    console.log('Time Changed');
     setNewStartTime(date);
   };
 
@@ -293,9 +293,6 @@ export default function EditTimeEntry({
           >
             <Box gridRow={1} gridColumn={'1 / 3'}>
               <DatePicker
-                // The key is required to force a re-render when the start time changes
-                // => the cancel button will reset to the correct time when the props change.
-                key={`date-picker-${newDate?.toString()}`}
                 label="Date"
                 viewRenderers={{
                   day: renderDateViewCalendar,
@@ -326,18 +323,10 @@ export default function EditTimeEntry({
               </Button>
             </Box>
             <Box gridRow={2} gridColumn={'1 / 3'}>
-              <TimePicker
-                // The key is required to force a re-render when the start time changes
-                // => the cancel button will reset to the correct time when the props change.
-                key={`start-time-picker-${newStartTime?.toString()}`}
+              <MobileTimePicker
                 label="Start Time"
                 views={['hours', 'minutes', 'seconds']}
                 ampm={false}
-                viewRenderers={{
-                  hours: renderTimeViewClock,
-                  minutes: renderTimeViewClock,
-                  seconds: renderTimeViewClock,
-                }}
                 value={newStartTime}
                 onChange={handleStartTimeChange}
                 maxTime={newEndTime || undefined}
@@ -366,18 +355,10 @@ export default function EditTimeEntry({
               </Button>
             </Box>
             <Box gridRow={3} gridColumn={'1 / 3'}>
-              <TimePicker
-                // The key is required to force a re-render when the start time changes
-                // => the cancel button will reset to the correct time when the props change.
-                key={`end-time-picker-${newEndTime?.toString()}`}
+              <MobileTimePicker
                 label="End Time"
                 views={['hours', 'minutes', 'seconds']}
                 ampm={false}
-                viewRenderers={{
-                  hours: renderTimeViewClock,
-                  minutes: renderTimeViewClock,
-                  seconds: renderTimeViewClock,
-                }}
                 value={newEndTime}
                 onChange={handleEndTimeChange}
                 minTime={newStartTime || undefined}
